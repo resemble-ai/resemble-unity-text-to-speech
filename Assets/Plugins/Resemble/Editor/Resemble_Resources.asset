@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97596b31ef035cc458c4ba7cc167904b, type: 3}
+  m_Name: Resemble_Resources
+  m_EditorClassIdentifier: 
+  resembleButton: {fileID: 11400000, guid: ef64c49a894b20a4b8fefb2a304356de, type: 2}
+  icon: {fileID: 2800000, guid: 95588b7c499ae544589ae4b2d9576341, type: 3}
+  textMat: {fileID: 2100000, guid: c3076581994fb3c4db3a4b47a4449ce0, type: 2}
+  font: {fileID: 12800000, guid: 43ea510105015fe4489a55015b285039, type: 2}
