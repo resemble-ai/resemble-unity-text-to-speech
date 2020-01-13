@@ -31,8 +31,11 @@
     public static Error NetworkError
     { get { return new Error(-1, "Unable to connect to Internet. Please, check your connection."); } }
 
-    public static Error EmptyReponse
-    { get { return new Error(-1, "Please, check your connection or retry later."); } }
+    public static Error EmptyResponse
+    { get { return new Error(-1, "Empty response - Please, check your connection or retry later."); } }
+
+    public static Error Timeout
+    { get { return new Error(-1, "Timout - Please, check your connection or retry later."); } }
 
     #region Json
     /// <summary> Convert a json formated error in a Error struct. </summary>

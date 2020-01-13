@@ -119,7 +119,7 @@ public static class APIBridge
         {
             //Fail - Empty reponse
             if (string.IsNullOrEmpty(webRequest.downloadHandler.text))
-                resultMethode.Invoke(callback, webRequest.downloadHandler.text, Error.EmptyReponse);
+                resultMethode.Invoke(callback, webRequest.downloadHandler.text, Error.EmptyResponse);
             //Succes
             else if (callback != null)
                 resultMethode.Invoke(callback, webRequest.downloadHandler.text, Error.None);

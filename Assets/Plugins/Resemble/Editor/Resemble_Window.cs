@@ -10,6 +10,8 @@ public class Resemble_Window : EditorWindow
     public static AudioPreview preview;
     public PostPod pod = new PostPod();
     private static PodText text = new PodText();
+    private static string placeHolderText = "";
+    private static PlaceHolderAPIBridge.ClipRequest request;
 
     [MenuItem("Window/Audio/Resemble")]
     static void Init()
@@ -62,6 +64,25 @@ public class Resemble_Window : EditorWindow
         if (preview != null && preview.clip != null && GUILayout.Button("Play clip"))
         {
             AudioPreview.PlayClip(preview.clip);
+        }
+
+        GUILayout.Space(50);
+        placeHolderText = EditorGUILayout.TextField("PlaceHolderText", placeHolderText);
+        if (GUILayout.Button(request == null ? "Request placeHolder api" : request.status.ToString()))
+        {
+            request = PlaceHolderAPIBridge.GetAudioClip(placeHolderText, GetClipCallback);
+        }
+
+    }
+
+    private void GetClipCallback(AudioClip clip, Error error)
+    {
+        if (error)
+            Debug.LogError("Error : " + error.code + " - " + error.message);
+        else
+        {
+            AudioPreview.PlayClip(clip);
+            request = null;
         }
     }
 
