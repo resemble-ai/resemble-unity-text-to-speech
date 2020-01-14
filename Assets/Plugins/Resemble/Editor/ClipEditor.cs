@@ -25,7 +25,7 @@ public class ClipEditor : Editor
         }
 
         //AudioClip from other plugin
-        Pod pod = AssetDatabase.LoadAssetAtPath<Pod>(AssetDatabase.GetAssetPath(clip));
+        CharacterSet pod = AssetDatabase.LoadAssetAtPath<CharacterSet>(AssetDatabase.GetAssetPath(clip));
         if (pod == null)
         {
             base.OnInspectorGUI();

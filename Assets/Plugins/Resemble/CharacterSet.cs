@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [CreateAssetMenu(fileName = "Pod", menuName = "Pod", order = 51), System.Serializable]
-public class Pod : ScriptableObject
+public class CharacterSet : ScriptableObject
 {
 
     public string url;

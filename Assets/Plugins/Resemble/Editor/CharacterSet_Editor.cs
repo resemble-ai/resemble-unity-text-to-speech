@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(Pod))]
-public class Pod_Editor : Editor
+[CustomEditor(typeof(CharacterSet))]
+public class CharacterSet_Editor : Editor
 {
-    private Pod pod;
+    private CharacterSet pod;
     private AudioPreview preview;
     public AudioClip clip;
 
@@ -17,7 +17,7 @@ public class Pod_Editor : Editor
 
     public override void OnInspectorGUI()
     {
-        pod = target as Pod;
+        pod = target as CharacterSet;
 
         EditorGUILayout.Popup("Voice", 0, new string[] { "Lucie", "Jhon", "OldMen" });
         EditorGUILayout.IntSlider("Pitch", 0, -3, 3);
