@@ -48,7 +48,6 @@ public class PodText
         tagsIds.Insert(0, 0);
         tagsIds.Add(originString.Length);
 
-        Debug.Log(tags.Length + "  " + tagsIds.Count);
         List<Tag> tagList = new List<Tag>();
         userString = "";
 
