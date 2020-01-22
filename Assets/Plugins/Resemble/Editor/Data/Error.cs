@@ -55,7 +55,7 @@
         public string[] errors;
         public string allText()
         {
-            if (errors.Length == 0)
+            if (errors == null || errors.Length == 0)
                 return "";
             string result = errors[0];
             for (int i = 1; i < errors.Length; i++)

@@ -139,7 +139,9 @@ public static class PlaceHolderAPIBridge
                     //Request success - Download file
                     else
                     {
-                        string savePath = string.Format("{0}/{1}.mp3", Application.dataPath, new string(createRequest.data.text.Where(char.IsLetter).ToArray()));
+                        string path = Resemble_Resources.path.Substring(0, Resemble_Resources.path.LastIndexOf("Plugins/Resemble/") + "Plugins/Resemble/".Length);
+                        path = Application.dataPath.Remove(Application.dataPath.Length - 6) + path + "Temp";
+                        string savePath = string.Format("{0}/{1}.mp3", path, new string(createRequest.data.text.Where(char.IsLetter).ToArray()));
                         System.IO.File.WriteAllBytes(savePath, request.downloadHandler.data);
                         savePath = savePath.Remove(0, Application.dataPath.Length - 6);
                         AssetDatabase.ImportAsset(savePath, ImportAssetOptions.ForceUpdate);

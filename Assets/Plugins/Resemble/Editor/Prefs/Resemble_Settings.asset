@@ -69,10 +69,20 @@ MonoBehaviour:
     name: samuel
     description: 
     publish_google: 0
-  _project:
-    id: 37167
-    uuid: 770b9577
-    name: The great journey
-    description: My first unity project with Resemble
+  - id: 39119
+    uuid: 259e7c0e
+    name: 
+    description: 
     publish_google: 0
-  _projectUUID: 770b9577
+  - id: 39120
+    uuid: 8e7ce857
+    name: 
+    description: 
+    publish_google: 0
+  _project:
+    id: 38755
+    uuid: 6144304c
+    name: Watermelon
+    description: Project generated from unity plugin
+    publish_google: 0
+  _projectUUID: ccd231ce

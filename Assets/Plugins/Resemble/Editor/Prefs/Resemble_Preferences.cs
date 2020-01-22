@@ -8,13 +8,15 @@ class RessembleSettingsProvider : SettingsProvider
 {
     private SerializedObject m_CustomSettings;
     private Vector2 scroll;
+    private float screenWidth;
 
     private Error connectError;
-    private bool connected;
     private bool haveProject;
     private string search;
     private Rect searchRect;
     private SearchField searchField = new SearchField();
+    private bool tryConnecting;
+    private int selected = -1;
 
     class ContentStyles
     {
@@ -30,6 +32,17 @@ class RessembleSettingsProvider : SettingsProvider
          m_CustomSettings = Resemble_Settings.GetSerializedSettings();
         if (!string.IsNullOrEmpty(Resemble_Settings.token))
             APIBridge.GetProjects(GetProjectCallback);
+
+        RefreshSelected();
+    }
+
+    private void RefreshSelected()
+    {
+        //Get selected project
+        if (Resemble_Settings.project != null)
+            for (int i = 0; i < Resemble_Settings.projects.Length; i++)
+                if (Resemble_Settings.projects[i] == Resemble_Settings.project)
+                    selected = i;
     }
 
     public override void OnGUI(string searchContext)
@@ -47,7 +60,10 @@ class RessembleSettingsProvider : SettingsProvider
         GUIUtils.DrawSeparator();
         DrawProjectsGUI();
         EditorGUI.indentLevel--;
-        
+
+        DrawProjectArea();
+        //DrawFooter();
+
         //Apply changes to serialized object
         if (EditorGUI.EndChangeCheck())
             m_CustomSettings.ApplyModifiedProperties();
@@ -60,20 +76,26 @@ class RessembleSettingsProvider : SettingsProvider
             "https://app.resemble.ai/account/api", Styles.bodyStyle, Styles.linkStyle);
 
         //Token
-        EditorGUI.BeginDisabledGroup(connected);
+        EditorGUI.BeginDisabledGroup(Resemble_Settings.connected);
         Resemble_Settings.token = EditorGUILayout.TextField("Token", Resemble_Settings.token);
         EditorGUI.EndDisabledGroup();
 
         //Connect - Disconnect buttons
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
-        EditorGUI.BeginDisabledGroup(!connected);
+        EditorGUI.BeginDisabledGroup(!Resemble_Settings.connected);
         if (GUILayout.Button("Disconnect"))
-            connected = false;
+        {
+            Resemble_Settings.connected = false;
+            Resemble_Settings.haveProject = false;
+        }
         EditorGUI.EndDisabledGroup();
-        EditorGUI.BeginDisabledGroup(connected || string.IsNullOrEmpty(Resemble_Settings.token));
+        EditorGUI.BeginDisabledGroup(Resemble_Settings.connected || string.IsNullOrEmpty(Resemble_Settings.token) || tryConnecting);
         if (GUILayout.Button("Connect"))
+        {
+            tryConnecting = true;
             APIBridge.GetProjects(GetProjectCallback);
+        }
         EditorGUI.EndDisabledGroup();
         GUILayout.EndHorizontal();
 
@@ -88,83 +110,151 @@ class RessembleSettingsProvider : SettingsProvider
 
     public void DrawProjectsGUI()
     {
-        if (connectError || !connected)
+        if (connectError || !Resemble_Settings.connected)
             return;
 
-
         GUILayout.Space(10);
-        GUILayout.BeginHorizontal(EditorStyles.toolbar);
-
-        //List Popup
-        //EditorGUILayout.Popup(0, Resemble_Settings.projectNames.ToArray(), EditorStyles.toolbarPopup);
+        Rect rect = EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+        if (Event.current.type == EventType.Repaint)
+            screenWidth = rect.width;
 
         //Search
-        Rect rect = GUILayoutUtility.GetRect(150, 16);
+        rect = GUILayoutUtility.GetRect(150, 16);
         rect.Set(rect.x - 6, rect.y + 2, rect.width, rect.height);
         search = searchField.OnToolbarGUI(rect, search);
         searchRect = GUILayoutUtility.GetLastRect();
 
         //Refresh button
-        if (GUILayout.Button("Refresh list", EditorStyles.toolbarButton))
+        if (GUILayout.Button(tryConnecting ? "Refreshing..." : " Refresh list ", EditorStyles.toolbarButton, GUILayout.ExpandWidth(false)) && !tryConnecting)
+        {
+            Resemble_Settings.projects = new Project[0];
+            tryConnecting = true;
             APIBridge.GetProjects(GetProjectCallback);
-        if (GUILayout.Button("Unbind project", EditorStyles.toolbarButton))
-            Resemble_Settings.project = null;
-
-        GUILayout.EndHorizontal();
-
-        
-        if (Resemble_Settings.project == null)
-        {
-            EditorGUILayout.HelpBox("Select a project in the list or create a new one.", MessageType.Info);
-        }
-        else
-        {
-            EditorGUILayout.HelpBox(Resemble_Settings.project.name, MessageType.None);
         }
 
+        EditorGUILayout.EndHorizontal();
 
-        ShowProjectList();
+        //ShowProjectList();
+        DrawList();
+
+        Repaint();
     }
 
-    public void ShowProjectList()
+    public void DrawList()
     {
-        if (!string.IsNullOrEmpty(search) && searchField.HasFocus())
+        Rect areaRect = new Rect(0, 97, screenWidth, Screen.height - 400);
+        areaRect.width = screenWidth;
+        GUILayout.BeginArea(areaRect, GUI.skin.box);
+
+        //Mouse event
+        Vector2 mp = Event.current.mousePosition;
+        mp.y -= 6;
+
+        scroll = GUILayout.BeginScrollView(scroll, false, true);
+        bool searchEnable = !string.IsNullOrEmpty(search);
+        string searchPattern = searchEnable ? search.ToLower() : "";
+        int j = 0;
+        for (int i = 0; i < Resemble_Settings.projects.Length; i++)
         {
-            Event e = Event.current;
-            string lowerSearch = search.ToLower();
-            string[] searchResults = Resemble_Settings.projectNames.Where(x => x.ToLower().Contains(lowerSearch)).ToArray();
-            if (searchResults.Length == 0)
-                searchResults = new string[] { "No results" };
-            Rect rect = searchRect;
-            rect.Set(rect.x, rect.y, rect.width, searchResults.Length * 16 + 18);
-            if (!rect.Contains(e.mousePosition) && e.type == EventType.Repaint)
-                GUI.FocusControl("None");
+            //Search filter
+            string name = Resemble_Settings.projects[i].name;
+            if (searchEnable)
+                if (!name.ToLower().Contains(searchPattern))
+                    continue;
 
-            rect.Set(rect.x + 15, rect.y + 14, rect.width - 14, searchResults.Length * 16 + 4);
-            GUI.Box(rect, "");
-            rect.Set(rect.x + 2, rect.y + 2, rect.width - 4, 16);
-
-            for (int i = 0; i < searchResults.Length; i++)
+            //Draw project line
+            Rect rect = GUILayoutUtility.GetRect(1, 16f);
+            rect.Set(rect.x + 20, rect.y, rect.width - 30, rect.height);
+            if (rect.Contains(mp))
             {
-                if (rect.Contains(e.mousePosition))
-                    EditorGUI.DrawRect(rect, Color.grey * 0.3f);
-                if (GUI.Button(rect, searchResults[i], EditorStyles.label))
+                GUI.Box(rect, "");
+                Rect btnRect = new Rect(rect.x + rect.width - 90, rect.y, 90, rect.height);
+                if (GUI.Button(btnRect, "Bind"))
                 {
-                    GUI.FocusControl("None");
-                    search = "";
-                    Resemble_Settings.SelectProjectByName(searchResults[i]);
+                    Resemble_Settings.project = Resemble_Settings.projects[i];
+                    Resemble_Settings.haveProject = true;
+                    selected = j;
                 }
-                rect.y += 16;
             }
-            Repaint();
+            if (j == selected)
+                EditorGUI.DrawRect(rect, Color.cyan * 0.2f);
+            else if (j % 2 == 0)
+                EditorGUI.DrawRect(rect, Color.grey * 0.1f);
+
+            j++;
+            GUI.Label(rect, Resemble_Settings.projects[i].name);
         }
+
+        //No projects with this name
+        if (searchEnable && j == 0)
+        {
+            GUILayout.Label("No projects matching the search", EditorStyles.centeredGreyMiniLabel);
+        }
+
+        //No project on Resemble
+        if (Resemble_Settings.projects.Length == 0)
+        {
+            if (tryConnecting)
+            {
+                GUILayout.Label("Refreshing...", EditorStyles.centeredGreyMiniLabel);
+            }
+            else
+            {
+                if (GUIUtils.BoxWithLink("You don't have a project on Resemble yet. Please go to",
+                    "Resemble.ai to create a new project.", MessageType.Info))
+                    GUIUtils.OpenResembleWebSite();
+            }
+        }
+
+        GUILayout.EndScrollView();
+        GUILayout.EndArea();
+        GUILayout.Space(areaRect.height);
+    }
+
+    private void DrawProjectArea()
+    {
+        if (!Resemble_Settings.connected)
+            return;
+
+        if (!Resemble_Settings.haveProject)
+        {
+            EditorGUILayout.HelpBox("Please bind a project from the list above", MessageType.Info);
+            return;
+        }
+
+        Rect rect = GUILayoutUtility.GetRect(screenWidth, 200);
+        rect.Set(rect.x + 20, rect.y + 20, Mathf.Min(rect.width - 40, 446), 183);
+        GUI.DrawTexture(rect, Resemble_Resources.instance.projectHeader);
+        rect.Set(rect.x + 20, rect.y, rect.width - 50, 63);
+        GUI.Label(rect, Resemble_Settings.project.name, Styles.projectHeaderLabel);
+
+        rect.Set(rect.x, rect.y + rect.height, rect.width + 10, 80);
+        GUI.Label(rect, Resemble_Settings.project.description, EditorStyles.largeLabel);
+
+        rect.Set(rect.x + rect.width - 185, rect.y + rect.height + 5, 200, 30);
+        GUIUtils.FlatButton(rect, "Import all pods in wav", Color.grey,  1.0f, rect.Contains(Event.current.mousePosition) ? 0.8f : 1.0f);
+
+        rect.Set(rect.x + rect.width - 30, rect.y - 142, 30, 30);
+        EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
+        if (GUI.Button(rect, Resemble_Resources.instance.externalLink, GUIStyle.none))
+            GUIUtils.OpenResembleWebSite();
+    }
+
+    private void DrawFooter()
+    {
+        Rect rect = new Rect(screenWidth - 190, Screen.height - 90, 190, 30);
+        GUI.Label(rect, "Status : " + (Resemble_Settings.project == null ?
+            "<Color=red>No connected project.</Color>" :
+            "<Color=green>Project connected.</Color>"), Styles.footer);
     }
 
     private void GetProjectCallback(Project[] projects, Error error)
     {
+        this.tryConnecting = false;
         this.connectError = error;
-        this.connected = !error;
+        Resemble_Settings.connected = !error;
         Resemble_Settings.projects = projects;
+        RefreshSelected();
         Repaint();
     }
 

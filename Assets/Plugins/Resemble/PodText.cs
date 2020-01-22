@@ -41,10 +41,25 @@ public class PodText
         return value;
     }
 
+    public void Refresh()
+    {
+        BuildTagList();
+    }
+
     private void BuildTagList()
     {
         string[] tags = originString.Split('<', '>');
         List<int> tagsIds = IndexesOfAny(originString, '<', '>');
+
+        /*
+        string temp = originString;
+        for (int i = 0; i < tagsIds.Count; i++)
+        {
+            temp = temp.Insert(tagsIds[i] + i, "*");
+        }
+        Debug.Log(temp);
+        */
+
         tagsIds.Insert(0, 0);
         tagsIds.Add(originString.Length);
 
@@ -61,7 +76,7 @@ public class PodText
         //No tags
         if (tags.Length < 4)
         {
-            tagList.Add(new Tag(tags[0], Emotion.Neutral, 0, tags[0].Length, tagsIds[0], tagsIds[1]));
+            tagList.Add(new Tag(tags[0], Emotion.None, 0, tags[0].Length, tagsIds[0], tagsIds[1]));
             userString += tags[0];
             this.tags = tagList.ToArray();
             return;
@@ -74,7 +89,7 @@ public class PodText
         {
             if (!string.IsNullOrEmpty(tags[i + 0]))
             {
-                tagList.Add(BuildTag(tags[i + 0], Emotion.Neutral, ref carretId, tagsIds[rt * 2], tagsIds[rt * 2 + 1]));
+                tagList.Add(BuildTag(tags[i + 0], Emotion.None, ref carretId, tagsIds[rt * 2], tagsIds[rt * 2 + 1]));
                 userString += tags[i + 0];
                 rt++;
             }
@@ -88,17 +103,17 @@ public class PodText
         }
         if (!string.IsNullOrEmpty(tags[tags.Length - 1]))
         {
-            tagList.Add(BuildTag(tags[tags.Length - 1], Emotion.Neutral, ref carretId, tagsIds[tagsIds.Count - 2], tagsIds[tagsIds.Count - 1]));
+            tagList.Add(BuildTag(tags[tags.Length - 1], Emotion.None, ref carretId, tagsIds[tagsIds.Count - 2], tagsIds[tagsIds.Count - 1]));
             userString += tags[tags.Length - 1];
         }
 
         this.tags = tagList.ToArray();
 
-        
+        /*
         for (int i = 0; i < tagList.Count; i++)
         {
             Debug.Log(tagList[i]);
-        }
+        }*/
     }
 
     private List<int> IndexesOfAny(string target, params char[] chars)
@@ -115,12 +130,78 @@ public class PodText
         }
     }
 
-    public void SetTagToSelection(int selectID, int cursorID, Emotion type)
+    public void SetTagToSelection(int rawA, int rawB, int userA, int userB, Emotion type)
     {
-        int start = Mathf.Min(selectID, cursorID);
-        int end = Mathf.Max(selectID, cursorID);
+        int rawStart = Mathf.Min(rawA, rawB);
+        int rawEnd = Mathf.Max(rawA, rawB);
+        int userStart = Mathf.Min(userA, userB);
+        int userEnd = Mathf.Max(userA, userB);
 
-        originString = originString.Insert(end, "</size>").Insert(start, "<size=Angry>");
+        /*
+        //Select a specific tag
+        for (int i = 0; i < tags.Length; i++)
+        {
+            //Debug.Log(userStart + "  " + userEnd + "  " + tags[i]);
+            if (tags[i].startIndex == userStart && tags[i].endIndex == userEnd)
+            {
+                Debug.Log("Specific tag : " + originString.Substring(tags[i].rawStartIndex, tags[i].rawEndIndex - tags[i].rawStartIndex));
+                //int replacePos = tags[i].rawStartIndex
+                //tags[i].emotion = type;
+                return;
+            }
+        }*/
+        /*
+        List<Tag> containsTags;
+        if (SelectionContainsTags(rawStart, rawEnd, out containsTags))
+        {
+            string newString = "";
+            for (int i = 0; i < tags.Length; i++)
+            {
+                bool bypass = false;
+                for (int j = 0; j < containsTags.Count; j++)
+                {
+                    if (tags[i] == containsTags[j])
+                    {
+                        bypass = true;
+                        break;
+                    }
+                }
+
+                if (bypass || tags[i].emotion == Emotion.None)
+                {
+                    Debug.Log("Bypass " + tags[i].content);
+                    newString += tags[i].content;
+                }
+                else
+                {
+                    Debug.Log("Include " + tags[i].content);
+                    newString += "<size=" + tags[i].emotion.ToString() + ">" + tags[i].content + "</size>";
+                }
+            }
+            _originString = newString;
+        }
+        */
+
+        originString = originString.Insert(rawEnd, "</size>").Insert(rawStart, "<size=" + type.ToString() + ">");
+    }
+
+    public void RemoveTag(Tag tag)
+    {
+        Debug.Log(originString.Substring(tag.startIndex, tag.endIndex));
+    }
+
+    public bool SelectionContainsTags(int start, int end, out List<Tag> result)
+    {
+        result = new List<Tag>();
+        for (int i = 0; i < tags.Length; i++)
+        {
+            if (tags[i].rawStartIndex >= start && tags[i].rawEndIndex <= end)
+            {
+                result.Add(tags[i]);
+                Debug.Log(start + "  " + end + "  " + tags[i].rawStartIndex + "  " + tags[i].rawEndIndex + "  " + tags[i].content);
+            }
+        }
+        return result.Count > 0;
     }
 
     public string HighlightedTags(int selectID, int cursorID)
@@ -141,31 +222,37 @@ public class PodText
     public void RemoveAllTags()
     {
         originString = userString;
-        return;
-        string s = originString;
-        Debug.Log(s.Replace("<", "<*"));
+    }
+
+    public static string RemoveTags(string value)
+    {
         int a = 0;
-        while (true)
+        bool haveTag = true;
+        while (haveTag && a < 20)
         {
             a++;
-            int start = s.IndexOf('<');
-            if (start == -1)
-                break;
-            int end = s.IndexOf('>', start) + 1;
-            Debug.Log(start + "  " + end + "  " + s.Replace("<", "<*"));
-            s = s.Remove(start, end - start);
-            if (a == 50)
-                break;
+            int next = value.IndexOf('<');
+            if (next == -1)
+            {
+                if (value.IndexOf('>') != -1)
+                    next = 0;
+                else
+                    return value;
+            }
+            int nextClose = value.IndexOf('>', next);
+            if (nextClose == -1)
+                value = value.Remove(next);
+            else
+                value = value.Remove(next, nextClose - next + 1);
         }
-        Debug.Log(s.Replace("<", "<*"));
-        originString = s;
+        return value;
     }
 
     public Tag BuildTag(string content, string type, ref int carretIndex, int rawStartIndex, int rawEndIndex)
     {
         int start = carretIndex;
         carretIndex += content.Length;
-        return new Tag(content, stringToEmotionTag[type], start, carretIndex, rawStartIndex, rawEndIndex);
+        return new Tag(content, Emotions.GetEmotion(type), start, carretIndex, rawStartIndex, rawEndIndex);
     }
 
     public Tag BuildTag(string content, Emotion type, ref int carretIndex, int rawStartIndex, int rawEndIndex)
@@ -200,6 +287,25 @@ public class PodText
             return string.Format("Tag[{2} - {3}][{4} - {5}] ({0}, {1}))", emotion, content, startIndex, endIndex, rawStartIndex, rawEndIndex);
         }
 
+        public static bool operator ==(Tag a, Tag b)
+        {
+            return a.rawStartIndex == b.rawStartIndex && a.rawEndIndex == b.rawEndIndex;
+        }
+
+        public static bool operator !=(Tag a, Tag b)
+        {
+            return a.rawStartIndex != b.rawStartIndex || a.rawEndIndex != b.rawEndIndex;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public override int GetHashCode()
+        {
+            return base.GetHashCode();
+        }
     }
 
     [System.Serializable]
@@ -208,23 +314,4 @@ public class PodText
         public Rect rect;
         public Emotion emotion;
     }
-
-    public enum Emotion
-    {
-        Neutral,
-        Angry,
-        Happy,
-        Sad,
-        Confuse,
-    }
-
-    private static Dictionary<string, Emotion> stringToEmotionTag = new Dictionary<string, Emotion>()
-    {
-        { "Neutral", Emotion.Neutral },
-        { "Angry", Emotion.Angry },
-        { "Happy", Emotion.Happy },
-        { "Sad", Emotion.Sad },
-        { "Confuse", Emotion.Confuse },
-    };
-
 }

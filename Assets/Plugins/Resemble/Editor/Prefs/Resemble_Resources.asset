@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resembleButton: {fileID: 11400000, guid: ef64c49a894b20a4b8fefb2a304356de, type: 2}
   icon: {fileID: 2800000, guid: 95588b7c499ae544589ae4b2d9576341, type: 3}
+  projectHeader: {fileID: 2800000, guid: 107b23c4a18974b429430e8bfa420e6e, type: 3}
+  externalLink: {fileID: 2800000, guid: 0955e96553cadfb48b293dd1f99aff1a, type: 3}
   textMat: {fileID: 2100000, guid: c3076581994fb3c4db3a4b47a4449ce0, type: 2}
-  font: {fileID: 12800000, guid: 43ea510105015fe4489a55015b285039, type: 2}
+  font: {fileID: 12800000, guid: be60bfb435fff2b4ab8d2cf748a1b25c, type: 3}

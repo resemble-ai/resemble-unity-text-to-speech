@@ -1,33 +1,37 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!83 &-6190249441967747267
-AudioClip:
+--- !u!114 &-3758624855871589114
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Dammit Where is jhon
-  m_LoadType: 0
-  m_Channels: 0
-  m_Frequency: 0
-  m_BitsPerSample: 0
-  m_Length: 0
-  m_IsTrackerFormat: 0
-  m_Ambisonic: 0
-  m_SubsoundIndex: 0
-  m_PreloadAudioData: 1
-  m_LoadInBackground: 0
-  m_Legacy3D: 0
-  m_Resource:
-    m_Source: 
-    m_Offset: 0
-    m_Size: 0
-  m_CompressionFormat: 0
-  m_EditorResource:
-    m_Source: 
-    m_Offset: 0
-    m_Size: 0
-  m_EditorCompressionFormat: 0
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
+  m_Name: Dammit
+  m_EditorClassIdentifier: 
+  set: {fileID: 11400000}
+  clip: {fileID: 8300000, guid: 67169ba0f9b230c47a8d14fc91819c31, type: 3}
+  clipCopy: {fileID: 4175084362431197607}
+  text:
+    carretPosition: 0
+    tags:
+    - content: Dammit
+      emotion: 1
+      startIndex: 0
+      endIndex: 6
+      rawStartIndex: 0
+      rawEndIndex: 0
+    - content: ', where is Lucie ?'
+      emotion: 0
+      startIndex: 6
+      endIndex: 24
+      rawStartIndex: 24
+      rawEndIndex: 43
+    _originString: <size=Angry>Dammit</size>, where is Lucie ?
+  autoRename: 0
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40,5 +44,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da67f1a901af494288cbafce6a4e541, type: 3}
   m_Name: TheOldMen
   m_EditorClassIdentifier: 
-  url: http://s1download-universal-soundbank.com/wav/12002.wav
-  name: Dammit Where is jhon
+  voice: 
+  pitch: 0
+  speed: 0
+  pods:
+  - {fileID: -3758624855871589114}
+--- !u!83 &4175084362431197607
+AudioClip:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Dammit
+  m_LoadType: 0
+  m_Channels: 1
+  m_Frequency: 24000
+  m_BitsPerSample: 16
+  m_Length: 2.064
+  m_IsTrackerFormat: 0
+  m_Ambisonic: 0
+  m_SubsoundIndex: 0
+  m_PreloadAudioData: 1
+  m_LoadInBackground: 0
+  m_Legacy3D: 1
+  m_Resource:
+    m_Source: library/metadata/67/67169ba0f9b230c47a8d14fc91819c31.resource
+    m_Offset: 0
+    m_Size: 4864
+  m_CompressionFormat: 1
+  m_EditorResource:
+    m_Source: library/metadata/67/67169ba0f9b230c47a8d14fc91819c31.resource
+    m_Offset: 0
+    m_Size: 4864
+  m_EditorCompressionFormat: 1

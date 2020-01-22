@@ -47,6 +47,8 @@
 			uniform float4 _MainTex_ST;
 			uniform fixed4 _Color;
 			uniform float _Ratio;
+			uniform float _Roundness;
+			uniform float _BorderOnly;
 
 			v2f vert(appdata_t v)
 			{
@@ -62,11 +64,11 @@
 			fixed4 frag(v2f i) : SV_Target
 			{
 				i.texcoord.x *= _Ratio;
-				float r = 0.9;
+				float r = _Roundness;
 				float2 center = float2(clamp(i.texcoord.x, 0.5 * r, _Ratio - 0.5 * r), clamp(i.texcoord.y, 0.5 * r, 1.0 - 0.5 * r));
 				float dist = distance(center, i.texcoord) * 2 * r;
-				dist = smoothstep(1.0, 0.8, dist);
-				return float4(0.1, 0.6, 0.9, dist);
+				dist = smoothstep(1.0, 0.9, dist) * (1.0 - smoothstep(0.9, 0.8, dist) * _BorderOnly);
+				return float4(_Color.rgb, dist);
 			}
 			ENDCG
 		}

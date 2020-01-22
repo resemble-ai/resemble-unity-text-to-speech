@@ -7,6 +7,8 @@ public class Resemble_Resources : ScriptableObject
 {
     public GUISkin resembleButton;
     public Texture2D icon;
+    public Texture2D projectHeader;
+    public Texture2D externalLink;
     public Material textMat;
     public Font font;
 
