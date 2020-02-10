@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97596b31ef035cc458c4ba7cc167904b, type: 3}
+  m_Name: Resources
+  m_EditorClassIdentifier: 
+  resembleButton: {fileID: 11400000, guid: ef64c49a894b20a4b8fefb2a304356de, type: 2}
+  icon: {fileID: 2800000, guid: 95588b7c499ae544589ae4b2d9576341, type: 3}
+  projectHeader: {fileID: 2800000, guid: 107b23c4a18974b429430e8bfa420e6e, type: 3}
+  externalLink: {fileID: 2800000, guid: 0955e96553cadfb48b293dd1f99aff1a, type: 3}
+  docImages:
+  - {fileID: 2800000, guid: 3e8804ab0c0af1441ad0f5dc024a4980, type: 3}
+  - {fileID: 2800000, guid: 372b16e26b2bb604186948f60de81900, type: 3}
+  pathImages:
+  - {fileID: 2800000, guid: 237953bde200936429fe5d0d0fde09c7, type: 3}
+  - {fileID: 2800000, guid: 9c3d1032e1d1a0e41bd86b20f852f9a4, type: 3}
+  - {fileID: 2800000, guid: 57d39843de203d74ca3634b4eceee81d, type: 3}
+  - {fileID: 2800000, guid: 7c1021d79290c234c97c54fe71f102c7, type: 3}
+  - {fileID: 2800000, guid: f6ffec570336e4f4ea56bae6391e5f39, type: 3}
+  - {fileID: 2800000, guid: 9665fcaa158bfa14fa392325833e5faa, type: 3}
+  textMat: {fileID: 2100000, guid: c3076581994fb3c4db3a4b47a4449ce0, type: 2}
+  font: {fileID: 12800000, guid: be60bfb435fff2b4ab8d2cf748a1b25c, type: 3}

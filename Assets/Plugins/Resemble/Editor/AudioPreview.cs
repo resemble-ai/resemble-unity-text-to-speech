@@ -5,53 +5,56 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Networking;
 
-public class AudioPreview
+namespace Resemble
 {
-
-    public string url;
-    public AudioClip clip;
-    private UnityWebRequestAsyncOperation op;
-
-    public AudioPreview(string url)
+    public class AudioPreview
     {
-        this.url = url;
-        op = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.WAV).SendWebRequest();
-        op.completed += OnWavDownloaded;
-    }
 
-    private void OnWavDownloaded(AsyncOperation obj)
-    {
-        clip = DownloadHandlerAudioClip.GetContent(op.webRequest);
-        SceneView.RepaintAll();
-    }
+        public string url;
+        public AudioClip clip;
+        private UnityWebRequestAsyncOperation op;
 
-    public void OnGUI()
-    {
-        if (clip != null)
+        public AudioPreview(string url)
         {
-            if (GUILayout.Button("Play clip"))
+            this.url = url;
+            op = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.WAV).SendWebRequest();
+            op.completed += OnWavDownloaded;
+        }
+
+        private void OnWavDownloaded(AsyncOperation obj)
+        {
+            clip = DownloadHandlerAudioClip.GetContent(op.webRequest);
+            SceneView.RepaintAll();
+        }
+
+        public void OnGUI()
+        {
+            if (clip != null)
             {
-                PlayClip(clip);
+                if (GUILayout.Button("Play clip"))
+                {
+                    PlayClip(clip);
+                }
             }
         }
-    }
 
-    public static void PlayClip(AudioClip clip)
-    {
-        Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
-        System.Type audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
-        MethodInfo method = audioUtilClass.GetMethod(
-            "PlayClip",
-            BindingFlags.Static | BindingFlags.Public,
-            null,
-            new System.Type[] {
+        public static void PlayClip(AudioClip clip)
+        {
+            Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
+            System.Type audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
+            MethodInfo method = audioUtilClass.GetMethod(
+                "PlayClip",
+                BindingFlags.Static | BindingFlags.Public,
+                null,
+                new System.Type[] {
                 typeof(AudioClip),
                 typeof(int),
                 typeof(bool)
-            },
-            null
-        );
+                },
+                null
+            );
 
-        method.Invoke(null, new object[] { clip, 0, false });
+            method.Invoke(null, new object[] { clip, 0, false });
+        }
     }
 }

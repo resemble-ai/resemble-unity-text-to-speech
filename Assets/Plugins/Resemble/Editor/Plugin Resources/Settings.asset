@@ -1,0 +1,95 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ec1a61af7b103b44adfd0840239d03f, type: 3}
+  m_Name: Settings
+  m_EditorClassIdentifier: 
+  _token: k7N8n5WXQ587jutISStouAtt
+  _projectUUID: ccd231ce
+  pathMethode: 1
+  useSubFolder: 1
+  _projects:
+  - id: 9321
+    uuid: ccd231ce
+    name: Default
+    description: Default Resemble Project
+    publish_google: 0
+  - id: 36987
+    uuid: f0d97b9d
+    name: Unity Project
+    description: My description
+    publish_google: 0
+  - id: 37167
+    uuid: 770b9577
+    name: The great journey
+    description: My first unity project with Resemble
+    publish_google: 0
+  - id: 38637
+    uuid: 5d2437a7
+    name: The great journey
+    description: 
+    publish_google: 0
+  - id: 38736
+    uuid: 97bf8044
+    name: temp
+    description: 
+    publish_google: 0
+  - id: 38739
+    uuid: b27865e1
+    name: temp
+    description: 
+    publish_google: 0
+  - id: 38755
+    uuid: 6144304c
+    name: Watermelon
+    description: Project generated from unity plugin
+    publish_google: 0
+  - id: 38754
+    uuid: ae0ef7dc
+    name: Banana
+    description: 
+    publish_google: 0
+  - id: 38894
+    uuid: 32f50c22
+    name: Watermelon
+    description: Project generated from unity plugin
+    publish_google: 0
+  - id: 38897
+    uuid: c17f7ad5
+    name: Watermelon
+    description: Project generated from unity plugin
+    publish_google: 0
+  - id: 38928
+    uuid: a4c6af66
+    name: samuel
+    description: 
+    publish_google: 0
+  - id: 39119
+    uuid: 259e7c0e
+    name: 
+    description: 
+    publish_google: 0
+  - id: 39120
+    uuid: 8e7ce857
+    name: 
+    description: 
+    publish_google: 0
+  - id: 42842
+    uuid: 36253a65
+    name: 
+    description: 
+    publish_google: 0
+  _project:
+    id: 37167
+    uuid: 770b9577
+    name: The great journey
+    description: My first unity project with Resemble
+    publish_google: 0
