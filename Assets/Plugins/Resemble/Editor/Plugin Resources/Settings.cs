@@ -11,6 +11,9 @@ namespace Resemble
         [SerializeField] public string _projectUUID;
         [SerializeField] public PathMethode pathMethode = PathMethode.SamePlace;
         [SerializeField] public bool useSubFolder = true;
+        [SerializeField] public bool showWelcomePopup = true;
+        [SerializeField] public string folderPathA = "";
+        [SerializeField] public string folderPathB = "";
 
 
         [HideInInspector] public Project[] _projects;
@@ -151,14 +154,13 @@ namespace Resemble
             EditorUtility.SetDirty(instance);
         }
 
-        /// <summary>
-        /// Open the preference page about Resemble in the Editor.
-        /// </summary>
+        /// <summary> Open the preference page about Resemble in the Editor. </summary>
         public static void OpenWindow()
         {
             SettingsService.OpenUserPreferences("Preferences/Resemble");
         }
 
+        /// <summary> Set settings asset dirty. Call this after any changes on the settings.  </summary>
         public new static void SetDirty()
         {
             EditorUtility.SetDirty(instance);
@@ -170,6 +172,5 @@ namespace Resemble
             SamePlace,
             MirrorHierarchy
         }
-
     }
 }

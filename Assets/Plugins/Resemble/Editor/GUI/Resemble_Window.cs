@@ -29,7 +29,7 @@ namespace Resemble
         private static PlaceHolderAPIBridge.ClipRequest request;
 
         [MenuItem("Window/Audio/Resemble")]
-        static void Init()
+        public static void Open()
         {
             window = (Resemble_Window)EditorWindow.GetWindow(typeof(Resemble_Window));
             window.titleContent = new GUIContent("Resemble");
@@ -87,10 +87,10 @@ namespace Resemble
             GUIStyle style = new GUIStyle(EditorStyles.largeLabel);
             text.OnGUI(rect, style);*/
 
-            pod.title = "Some text";
-            pod.body = "Some text that will be transformed into audio.";
-            pod.voice = "a22c5ba6";
-            pod.emotion = "style1";
+            pod.title = "Fable API";
+            pod.body = "<speak><p>My heart started to pound.</p></speak>";
+            pod.voice = "9816e4ee";
+            //pod.emotion = "style1";
 
             if (GUILayout.Button("Generate preview"))
             {

@@ -14,6 +14,8 @@ namespace Resemble
         public static GUIStyle settingsBody;
         public static GUIStyle settingsIndex;
         public static GUIStyle settingsLink;
+        public static GUIStyle settingsCode;
+        public static GUIStyle settingsButton;
         public static GUIStyle linkStyle;
         public static GUIStyle linkStyleSmall;
         public static GUIStyle centredLabel;
@@ -25,6 +27,9 @@ namespace Resemble
         public static GUIStyle arrayScrollBar;
         public static GUIStyle projectHeaderLabel;
         public static GUIStyle textStyle;
+        public static GUIStyle codeBox;
+        public static GUIStyle folderPathField;
+        public static GUIStyle folderPathFieldRight;
         public static GUIContent characterSetHelpBtn;
         public static GUIContent popupBtn;
         public static Color podColor = new Color(0.1921f, 0.8196f, 0.6352f);
@@ -47,8 +52,9 @@ namespace Resemble
             settingsBody = new GUIStyle(EditorStyles.label);
             settingsBody.richText = true;
             settingsBody.wordWrap = true;
-            settingsBody.margin = new RectOffset(30, 0, 0, 0);
             settingsBody.fontSize = 12;
+            settingsCode = new GUIStyle(settingsBody);
+            settingsBody.margin = new RectOffset(30, 10, 0, 0);
 
             settingsLink = new GUIStyle(settingsBody);
             settingsLink.normal.textColor = new Color(0x00 / 255f, 0x78 / 255f, 0xDA / 255f, 1f);
@@ -56,6 +62,9 @@ namespace Resemble
             settingsIndex = new GUIStyle(settingsLink);
             settingsIndex.fontSize = 11;
             settingsIndex.margin = new RectOffset(0, 0, 0, 0);
+
+            settingsButton = new GUIStyle(GUI.skin.button);
+            settingsButton.margin = new RectOffset(30, 10, 0, 0);
 
             linkStyle = new GUIStyle(bodyStyle);
             linkStyle.padding = new RectOffset(-5, 0, 2, 0);
@@ -86,6 +95,9 @@ namespace Resemble
             arrayBox = new GUIStyle(GUI.skin.box);
             arrayBox.margin = new RectOffset(0, 0, 0, 0);
 
+            codeBox = new GUIStyle(GUI.skin.box);
+            codeBox.margin = new RectOffset(30, 30, 5, 5);
+
             projectHeaderLabel = new GUIStyle(EditorStyles.whiteLargeLabel);
             projectHeaderLabel.alignment = TextAnchor.MiddleLeft;
             projectHeaderLabel.normal.textColor = Color.white;
@@ -95,6 +107,11 @@ namespace Resemble
 
             textStyle = new GUIStyle(EditorStyles.largeLabel);
             textStyle.wordWrap = true;
+
+            folderPathField = new GUIStyle(GUI.skin.textField);
+            folderPathFieldRight = new GUIStyle(folderPathField);
+            folderPathFieldRight.alignment = TextAnchor.MiddleRight;
+
 
             //GUIContent
             characterSetHelpBtn = EditorGUIUtility.IconContent("_Help");

@@ -10,8 +10,11 @@ namespace Resemble
     public class AudioPreview
     {
 
+
         public string url;
         public AudioClip clip;
+
+
         private UnityWebRequestAsyncOperation op;
 
         public AudioPreview(string url)

@@ -19,11 +19,26 @@ namespace Resemble
             GUILayout.Label("Describe where AudioClips from CharacterSets should be generated.", EditorStyles.centeredGreyMiniLabel);
             GUILayout.Space(10);
 
-            //Settings fields
+            //Path methode
             Settings.instance.pathMethode = (Settings.PathMethode) EditorGUILayout.EnumPopup(
                 pathMethode, Settings.instance.pathMethode);
-            Settings.instance.useSubFolder = EditorGUILayout.Toggle(useSubFolder, Settings.instance.useSubFolder);
 
+            //Target folders fields
+            switch (Settings.instance.pathMethode)
+            {
+                case Settings.PathMethode.Absolute:
+                    Settings.instance.folderPathA = FolderField("Target folder", Settings.instance.folderPathA);
+                    break;
+                case Settings.PathMethode.SamePlace:
+                    break;
+                case Settings.PathMethode.MirrorHierarchy:
+                    Settings.instance.folderPathB = FolderField("CharacterSets root", Settings.instance.folderPathB);
+                    Settings.instance.folderPathA = FolderField("AudioClips root", Settings.instance.folderPathA);
+                    break;
+            }
+
+            //Use subFolders
+            Settings.instance.useSubFolder = EditorGUILayout.Toggle(useSubFolder, Settings.instance.useSubFolder);
 
             //Example label
             GUILayout.Space(10);
@@ -34,6 +49,37 @@ namespace Resemble
             Texture image = Resources.instance.pathImages[(int)Settings.instance.pathMethode * 2 + (Settings.instance.useSubFolder ? 1 : 0)];
             rect.Set(rect.x, rect.y, image.width+1, image.height+1);
             GUI.Label(rect, image);
+        }
+
+        private string FolderField(string label, string path)
+        {
+            if (string.IsNullOrEmpty(path))
+                path = Application.dataPath;
+
+            Rect rect = GUILayoutUtility.GetRect(16, 16);
+            rect.x += 4;
+            rect.width = EditorGUIUtility.labelWidth;
+            GUI.Label(rect, label);
+
+            rect.Set(rect.x + rect.width, rect.y, Mathf.Max(140, winRect.width - rect.xMax - 64), rect.height);
+            string p = path.Remove(0, Application.dataPath.Length);
+            bool right = GUI.skin.textField.CalcSize(new GUIContent(p)).x > rect.width;
+            GUI.Label(rect, p.Length == 0 ? "[Root]" : p, right ? Styles.folderPathFieldRight : Styles.folderPathField);
+
+            rect.Set(rect.x + rect.width + 5, rect.y, 56, rect.height);
+            if (GUI.Button(rect, "Modify"))
+            {
+                string temp = EditorUtility.SaveFolderPanel(label, path, "");
+                if (!string.IsNullOrEmpty(temp))
+                {
+                    if (!temp.StartsWith(Application.dataPath))
+                        EditorUtility.DisplayDialog("Path error", "Target folder need to be inside the project", "Ok");
+                    else
+                        path = temp;
+                }
+            }
+
+            return path;
         }
 
         private void DrawPathsFooterGUI(){}

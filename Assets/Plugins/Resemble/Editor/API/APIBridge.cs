@@ -1,16 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 using UnityEngine.Networking;
+using Resemble.Structs;
 
 namespace Resemble
 {
     public static class APIBridge
     {
-        private static string apiUri = "https://app.resemble.ai/api/v1/projects";
-        private static Queue<Task> tasks = new Queue<Task>();
+        /// <summary> Max request count per seconds. </summary>
+        private const int mv = 9;
+        /// <summary> Timout for a request without response. </summary>
+        private const float timout = 10.0f;
+        /// <summary> API base url. </summary>
+        private const string apiUri = "https://app.resemble.ai/api/v1/projects";
 
-        public delegate void taskAction();
+        //Execution queue for tasks (Guaranteed a maximum of tasks at the same time)
+        private static Queue<Task> tasks = new Queue<Task>();
+        private static List<Task> executionLoop = new List<Task>();
+        private static bool receiveUpdates;
+
+        //Callbacks for each functions type
         public delegate void GetProjectCallback(Project[] projects, Error error);
         public delegate void GetClipCallback(AudioPreview preview, Error error);
         public delegate void GetPodsCallback(ResemblePod[] pods, Error error);
@@ -19,20 +30,56 @@ namespace Resemble
         public delegate void GenericCallback(Delegate callback, string content, Error error);
         public delegate void SimpleCallback(string content, Error error);
 
-        public struct Task
+        /// <summary> Request format in a queue. Also contains the status of the request. </summary>
+        public class Task
         {
-            public taskAction action;
+            public string uri;
+            public string data;
+            public Delegate callback;
+            public GenericCallback resultProcessor;
+            public string result;
+            public double time;
+            public Error error;
+            public Type type;
+            public Status status;
+
+            public Task(string uri, string data, Delegate callback, GenericCallback resultProcessor, Type type)
+            {
+                this.uri = uri;
+                this.data = data;
+                this.callback = callback;
+                this.resultProcessor = resultProcessor;
+                this.type = type;
+                time = EditorApplication.timeSinceStartup;
+                result = "";
+                error = Error.None;
+                status = Status.waitToBeExecuted;
+            }
+
+            public enum Type
+            {
+                Get,
+                Post,
+            }
+
+            public enum Status
+            {
+                waitToBeExecuted,
+                waitApiResponse,
+                completed,
+            }
         }
 
+        //Generic functions exposed to the user.
         #region Generics
         public static void SendGetRequest(string uri, GenericCallback callback)
         {
-            SendGetRequest(uri, callback, SimpleRequestResult);
+            EnqueueGet(uri, callback, SimpleRequestResult);
         }
 
         public static void SendPostRequest(string uri, string data, GenericCallback callback)
         {
-            SendPostRequest(uri, data, callback, SimpleRequestResult);
+            EnqueuePost(uri, data, callback, SimpleRequestResult);
         }
 
         private static void SimpleRequestResult(Delegate callback, string content, Error error)
@@ -41,11 +88,13 @@ namespace Resemble
         }
         #endregion
 
+        //Functions used by the plugin.
         #region Basics Methodes
         public static void GetProjects(GetProjectCallback callback)
         {
+            Debug.Log("Get projects");
             string uri = apiUri;
-            SendGetRequest(uri, callback, (Delegate c, string content, Error error) =>
+            EnqueueGet(uri, callback, (Delegate c, string content, Error error) =>
             {
                 Project[] projects = error ? null : Project.FromJson(content);
                 c.Method.Invoke(c.Target, new object[] { projects, error });
@@ -56,7 +105,13 @@ namespace Resemble
         {
             string uri = apiUri;
             string data = "{\"data\":" + JsonUtility.ToJson(project) + "}";
-            SendPostRequest(apiUri, data, callback, (Delegate c, string content, Error error) =>
+
+            Debug.Log(uri);
+            Debug.Log(data);
+
+            return;
+
+            EnqueuePost(apiUri, data, callback, (Delegate c, string content, Error error) =>
             {
                 ProjectStatus status = error ? null : JsonUtility.FromJson<ProjectStatus>(content);
                 c.Method.Invoke(c.Target, new object[] { status, error });
@@ -66,7 +121,7 @@ namespace Resemble
         public static void GetAllPods(GetPodsCallback callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips";
-            SendGetRequest(uri, callback, (Delegate c, string content, Error error) =>
+            EnqueueGet(uri, callback, (Delegate c, string content, Error error) =>
             {
                 ResemblePod[] pods = error ? null : ResemblePod.FromJson(content);
                 c.Method.Invoke(c.Target, new object[] { pods, error });
@@ -76,55 +131,174 @@ namespace Resemble
         public static void CreateClipSync(PostPod podData, GetClipCallback callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/sync";
-            string data = "{\"data\":" + JsonUtility.ToJson(podData) + "}";
+            string data = new CreateClipRequest(podData, "high", false).Json();
+            
+            Debug.Log(uri);
             Debug.Log(data);
-            SendPostRequest(apiUri, data, callback, (Delegate c, string content, Error error) =>
+            //return;
+
+            EnqueuePost(apiUri, data, callback, (Delegate c, string content, Error error) =>
             {
-                Debug.Log(content);
-            //ProjectStatus status = error ? null : JsonUtility.FromJson<ProjectStatus>(content);
-            //c.Method.Invoke(c.Target, new object[] { status, error });
-        });
+                if (error)
+                {
+                    c.Method.Invoke(c.Target, new object[] { null, error });
+                }
+                else
+                {
+                    //CreateClipResponse response = new CreateClipResponse(content);
+                    Debug.Log(content);
+                    //GetClip(response.uuid, callback);
+                }
+            });
+        }
+
+        public static void GetClip(string uuid, GetClipCallback callback)
+        {
+            string uri = apiUri + "/" + Settings.project.uuid + "/clips/" + uuid;
+            Debug.Log(uri);
+
+            EnqueueGet(uri, callback, (Delegate c, string content, Error error) =>
+            {
+                if (error)
+                {
+                    c.Method.Invoke(c.Target, new object[] { null, error });
+                }
+                else
+                {
+                    Debug.Log(content);
+                }
+            });
         }
 
         #endregion
 
-        public static void SendGetRequest(string uri, Delegate callback, GenericCallback resultMethode)
+        /// <summary> Called at each editor frame when a task is waiting to be executed. </summary>
+        public static void Update()
         {
-            UnityWebRequest request = UnityWebRequest.Get(uri);
-            request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
-            request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
-            request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, callback, resultMethode); };
+            //Remove completed tasks from execution loop
+            int exeCount = executionLoop.Count;
+            double time = EditorApplication.timeSinceStartup;
+            for (int i = 0; i < exeCount; i++)
+            {
+                Task task = executionLoop[i];
+
+                //Tag completed tasks waiting response for more tan 10 seconds
+                if (time - task.time > timout)
+                {
+                    task.error = Error.Timeout;
+                    task.status = Task.Status.completed;
+                }
+
+                //Remove completed tasks
+                if (task.status == Task.Status.completed)
+                {
+                    executionLoop.RemoveAt(i);
+                    exeCount--;
+                    i--;
+                }
+            }
+
+            //There's nothing left to execute, end of updates.
+            if (tasks.Count == 0 && executionLoop.Count == 0)
+            {
+                EditorApplication.update -= Update;
+                receiveUpdates = false;
+                return;
+            }
+
+            //Send tasks from waiting queue to execution loop queue if fit.
+            if (executionLoop.Count < mv)
+            {
+                int count = Mathf.Clamp(mv - executionLoop.Count, 0, tasks.Count);
+                for (int i = 0; i < count; i++)
+                    executionLoop.Add(tasks.Dequeue());
+            }
+
+            //Execute tasks in execution loop queue. 
+            for (int i = 0; i < executionLoop.Count; i++)
+            {
+                Task task = executionLoop[i];
+                if (task.status == Task.Status.waitToBeExecuted)
+                {
+                    switch (task.type)
+                    {
+                        case Task.Type.Get:
+                            SendGetRequest(task);
+                            break;
+                        case Task.Type.Post:
+                            SendPostRequest(task);
+                            break;
+                    }
+                    task.status = Task.Status.waitApiResponse;
+                    task.time = EditorApplication.timeSinceStartup;
+                }
+            }
         }
 
-        public static void SendPostRequest(string uri, string data, Delegate callback, GenericCallback resultMethode)
+        /// <summary> Enqueue a Get web request to the task list. This task will be executed as soon as possible. </summary>
+        public static void EnqueueGet(string uri, Delegate callback, GenericCallback resultProcessor)
+        {
+            tasks.Enqueue(new Task(uri, null, callback, resultProcessor, Task.Type.Get));
+            if (!receiveUpdates)
+            {
+                EditorApplication.update += Update;
+                receiveUpdates = true;
+            }
+        }
+
+        /// <summary> Enqueue a Pos web request to the task list. This task will be executed as soon as possible. </summary>
+        public static void EnqueuePost(string uri, string data, Delegate callback, GenericCallback resultProcessor)
+        {
+            tasks.Enqueue(new Task(uri, data, callback, resultProcessor, Task.Type.Post));
+            if (!receiveUpdates)
+            {
+                EditorApplication.update += Update;
+                receiveUpdates = true;
+            }
+        }
+
+        /// <summary> Send a Get web request now. Call the callback with the response processed by the resultProcessor. </summary>
+        private static void SendGetRequest(Task task)
+        {
+            UnityWebRequest request = UnityWebRequest.Get(task.uri);
+            request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
+            request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
+            request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };
+        }
+
+        /// <summary> Send a Post web request now. Call the callback with the response processed by the resultProcessor. </summary>
+        private static void SendPostRequest(Task task)
         {
             //https://forum.unity.com/threads/posting-raw-json-into-unitywebrequest.397871/
-            UnityWebRequest request = UnityWebRequest.Put(uri, data);
+            UnityWebRequest request = UnityWebRequest.Put(task.uri, task.data);
             request.method = "POST";
             request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
             request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
-            request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, callback, resultMethode); };
+            request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };
         }
 
-        private static void CompleteAsyncOperation(AsyncOperation asyncOp, UnityWebRequest webRequest, Delegate callback, GenericCallback resultMethode)
+        /// <summary> Responses from requests are received here. The content of the response is process by the resultProcessor and then the callback is executed with the result. </summary>
+        private static void CompleteAsyncOperation(AsyncOperation asyncOp, UnityWebRequest webRequest, Task task)
         {
-            if (callback == null)
+            task.status = Task.Status.completed;
+
+            if (task.callback == null)
                 return;
 
             //Fail - Network error
             if (webRequest.isNetworkError)
-                resultMethode.Invoke(callback, webRequest.downloadHandler.text, Error.NetworkError);
+                task.resultProcessor.Invoke(task.callback, webRequest.downloadHandler.text, Error.NetworkError);
             //Fail - Http error
             else if (webRequest.isHttpError)
-                resultMethode.Invoke(callback, webRequest.downloadHandler.text, Error.FromJson(webRequest.responseCode, webRequest.downloadHandler.text));
+                task.resultProcessor.Invoke(task.callback, webRequest.downloadHandler.text, Error.FromJson(webRequest.responseCode, webRequest.downloadHandler.text));
             else
             {
                 //Fail - Empty reponse
                 if (string.IsNullOrEmpty(webRequest.downloadHandler.text))
-                    resultMethode.Invoke(callback, webRequest.downloadHandler.text, Error.EmptyResponse);
+                    task.resultProcessor.Invoke(task.callback, webRequest.downloadHandler.text, Error.EmptyResponse);
                 //Succes
-                else if (callback != null)
-                    resultMethode.Invoke(callback, webRequest.downloadHandler.text, Error.None);
+                else if (task.callback != null)
+                    task.resultProcessor.Invoke(task.callback, webRequest.downloadHandler.text, Error.None);
             }
         }
     }

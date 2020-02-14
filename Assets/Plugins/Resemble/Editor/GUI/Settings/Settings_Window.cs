@@ -14,7 +14,7 @@ namespace Resemble
         private int selected = -1;
         private VisualElement visualElement;
         private Rect winRect;
-        private static int pageID;
+        public static int pageID;
 
         //Connection
         private Error connectError;
@@ -42,7 +42,7 @@ namespace Resemble
         private void RefreshSelected()
         {
             //Get selected project
-            if (Settings.project != null)
+            if (Settings.projects != null)
                 for (int i = 0; i < Settings.projects.Length; i++)
                     if (Settings.projects[i] == Settings.project)
                         selected = i;

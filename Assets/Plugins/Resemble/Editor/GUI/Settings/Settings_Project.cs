@@ -23,12 +23,15 @@ namespace Resemble
 
             if (!connectError && Settings.connected)
             {
-                GUILayout.BeginVertical(GUI.skin.box);
-                Rect rect = DrawProjectsSearchBar();
-                rect.Set(rect.x, rect.y + 20, rect.width, winRect.height - 200);
-                DrawProjectList(rect);
-                GUILayout.EndVertical();
-                DrawProjectArea();
+                if (!Settings.haveProject)
+                {
+                    GUILayout.BeginVertical(GUI.skin.box);
+                    Rect rect = DrawProjectsSearchBar();
+                    rect.Set(rect.x, rect.y + 20, rect.width, winRect.height - 200);
+                    DrawProjectList(rect);
+                    GUILayout.EndVertical();
+                }
+                DrawProjectAreaUnityStyle();
             }
 
             //Apply changes to scriptable object
@@ -218,6 +221,7 @@ namespace Resemble
                 {
                     Settings.haveProject = true;
                     Settings.project = Settings.projects[selected];
+                    Settings.projectUUID = Settings.projects[selected].uuid;
                     EditorUtility.SetDirty(Settings.instance);
                 }
             }
@@ -226,6 +230,57 @@ namespace Resemble
             EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
             if (GUI.Button(rect, Resources.instance.externalLink, GUIStyle.none))
                 GUIUtils.OpenProjectInBrowser(Settings.project.uuid);
+        }
+
+        private void DrawProjectAreaUnityStyle()
+        {
+            if (selected == -1)
+            {
+                EditorGUILayout.HelpBox("Please select a project from the list above", MessageType.Info);
+                return;
+            }
+
+            Project project = Settings.projects[selected];
+            if (Settings.haveProject)
+                project = Settings.project;
+
+            //Begin box area
+            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true));
+
+            //Name and description
+            GUILayout.Label("Project name : " + project.name);
+            GUILayout.Label("Project description : " + project.description);
+
+            GUILayout.FlexibleSpace();
+
+            //Bot buttons
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (Settings.haveProject)
+            {
+                if (GUILayout.Button("Unbind"))
+                {
+                    Settings.project = null;
+                    Settings.projectUUID = "";
+                    Settings.haveProject = false;
+                    Settings.SetDirty();
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Bind"))
+                {
+                    Settings.project = project;
+                    Settings.project.uuid = project.uuid;
+                    Settings.haveProject = true;
+                    Settings.SetDirty();
+                }
+            }
+            GUILayout.EndHorizontal();
+
+            //Close box area
+            GUILayout.EndVertical();
+            GUILayout.Space(16);
         }
 
         private void GetProjectCallback(Project[] projects, Error error)
