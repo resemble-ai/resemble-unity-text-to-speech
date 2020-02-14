@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Linq;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -234,6 +235,8 @@ namespace Resemble
 
         private void DrawProjectAreaUnityStyle()
         {
+            if (selected >= Settings.projects.Length)
+                selected = Settings.projects.Length - 1;
             if (selected == -1)
             {
                 EditorGUILayout.HelpBox("Please select a project from the list above", MessageType.Info);
@@ -249,6 +252,7 @@ namespace Resemble
 
             //Name and description
             GUILayout.Label("Project name : " + project.name);
+            GUILayout.Label("Project uuid : " + project.uuid);
             GUILayout.Label("Project description : " + project.description);
 
             GUILayout.FlexibleSpace();
@@ -268,6 +272,15 @@ namespace Resemble
             }
             else
             {
+                if (GUILayout.Button("Delete"))
+                {
+                    APIBridge.DeleteProject(project);
+                    Settings.projects = Settings.projects.ToList().Where(x => x.uuid != project.uuid).ToArray();
+                }
+                if (GUILayout.Button("Get"))
+                {
+                    APIBridge.GetProject(project.uuid);
+                }
                 if (GUILayout.Button("Bind"))
                 {
                     Settings.project = project;

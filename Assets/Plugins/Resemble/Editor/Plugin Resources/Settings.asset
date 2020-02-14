@@ -13,12 +13,12 @@ MonoBehaviour:
   m_Name: Settings
   m_EditorClassIdentifier: 
   _token: k7N8n5WXQ587jutISStouAtt
-  _projectUUID: 770b9577
-  pathMethode: 1
-  useSubFolder: 1
+  _projectUUID: 
+  pathMethode: 2
+  useSubFolder: 0
   showWelcomePopup: 0
-  folderPathA: D:/Workspace/Resemble/ResemblePlugin/Assets/Plugins
-  folderPathB: D:/Workspace/Resemble/ResemblePlugin/Assets/Audio
+  folderPathA: D:/Workspace/Resemble/ResemblePlugin/Assets/Audio/Audioclips
+  folderPathB: D:/Workspace/Resemble/ResemblePlugin/Assets/Audio/CharacterSets
   _projects:
   - id: 9321
     uuid: ccd231ce
@@ -542,6 +542,11 @@ MonoBehaviour:
     publish_google: 0
   - id: 45395
     uuid: 9ed9d47f
+    name: 
+    description: 
+    publish_google: 0
+  - id: 45399
+    uuid: 87a3516e
     name: 
     description: 
     publish_google: 0

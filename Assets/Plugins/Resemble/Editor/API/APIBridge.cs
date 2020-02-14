@@ -27,15 +27,13 @@ namespace Resemble
         public delegate void GetPodsCallback(ResemblePod[] pods, Error error);
         public delegate void CreateProjectCallback(ProjectStatus status, Error error);
         public delegate void ErrorCallback(long errorCode, string errorMessage);
-        public delegate void GenericCallback(Delegate callback, string content, Error error);
-        public delegate void SimpleCallback(string content, Error error);
+        public delegate void GenericCallback(string content, Error error);
 
         /// <summary> Request format in a queue. Also contains the status of the request. </summary>
         public class Task
         {
             public string uri;
             public string data;
-            public Delegate callback;
             public GenericCallback resultProcessor;
             public string result;
             public double time;
@@ -43,11 +41,10 @@ namespace Resemble
             public Type type;
             public Status status;
 
-            public Task(string uri, string data, Delegate callback, GenericCallback resultProcessor, Type type)
+            public Task(string uri, string data, GenericCallback resultProcessor, Type type)
             {
                 this.uri = uri;
                 this.data = data;
-                this.callback = callback;
                 this.resultProcessor = resultProcessor;
                 this.type = type;
                 time = EditorApplication.timeSinceStartup;
@@ -60,6 +57,7 @@ namespace Resemble
             {
                 Get,
                 Post,
+                Delete,
             }
 
             public enum Status
@@ -74,17 +72,18 @@ namespace Resemble
         #region Generics
         public static void SendGetRequest(string uri, GenericCallback callback)
         {
-            EnqueueGet(uri, callback, SimpleRequestResult);
+            EnqueueGet(uri, (string content, Error error) =>
+            {
+                callback.Invoke(content, error);
+            });
         }
 
         public static void SendPostRequest(string uri, string data, GenericCallback callback)
         {
-            EnqueuePost(uri, data, callback, SimpleRequestResult);
-        }
-
-        private static void SimpleRequestResult(Delegate callback, string content, Error error)
-        {
-            callback.Method.Invoke(callback.Target, new object[] { content, error });
+            EnqueuePost(uri, data, (string content, Error error) =>
+            {
+                callback.Invoke(content, error);
+            });
         }
         #endregion
 
@@ -92,12 +91,29 @@ namespace Resemble
         #region Basics Methodes
         public static void GetProjects(GetProjectCallback callback)
         {
-            Debug.Log("Get projects");
             string uri = apiUri;
-            EnqueueGet(uri, callback, (Delegate c, string content, Error error) =>
+            EnqueueGet(uri, (string content, Error error) =>
             {
                 Project[] projects = error ? null : Project.FromJson(content);
-                c.Method.Invoke(c.Target, new object[] { projects, error });
+                callback.Method.Invoke(callback.Target, new object[] { projects, error });
+            });
+        }
+
+        public static void GetProject(string uuid)
+        {
+            string uri = apiUri + "/" + uuid;
+            EnqueueGet(uri, (string content, Error error) =>
+            {
+                Debug.Log(content);
+            });
+        }
+
+        public static void DeleteProject(Project project)
+        {
+            string uri = apiUri + "/" + Settings.project.uuid;
+            EnqueueDelete(uri, (string content, Error error) =>
+            {
+                Debug.Log(content);
             });
         }
 
@@ -111,20 +127,20 @@ namespace Resemble
 
             return;
 
-            EnqueuePost(apiUri, data, callback, (Delegate c, string content, Error error) =>
+            EnqueuePost(apiUri, data, (string content, Error error) =>
             {
                 ProjectStatus status = error ? null : JsonUtility.FromJson<ProjectStatus>(content);
-                c.Method.Invoke(c.Target, new object[] { status, error });
+                callback.Method.Invoke(callback.Target, new object[] { status, error });
             });
         }
 
         public static void GetAllPods(GetPodsCallback callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips";
-            EnqueueGet(uri, callback, (Delegate c, string content, Error error) =>
+            EnqueueGet(uri, (string content, Error error) =>
             {
                 ResemblePod[] pods = error ? null : ResemblePod.FromJson(content);
-                c.Method.Invoke(c.Target, new object[] { pods, error });
+                callback.Method.Invoke(callback.Target, new object[] { pods, error });
             });
         }
 
@@ -137,11 +153,11 @@ namespace Resemble
             Debug.Log(data);
             //return;
 
-            EnqueuePost(apiUri, data, callback, (Delegate c, string content, Error error) =>
+            EnqueuePost(apiUri, data, (string content, Error error) =>
             {
                 if (error)
                 {
-                    c.Method.Invoke(c.Target, new object[] { null, error });
+                    callback.Method.Invoke(callback.Target, new object[] { null, error });
                 }
                 else
                 {
@@ -157,11 +173,11 @@ namespace Resemble
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/" + uuid;
             Debug.Log(uri);
 
-            EnqueueGet(uri, callback, (Delegate c, string content, Error error) =>
+            EnqueueGet(uri, (string content, Error error) =>
             {
                 if (error)
                 {
-                    c.Method.Invoke(c.Target, new object[] { null, error });
+                    callback.Method.Invoke(callback.Target, new object[] { null, error });
                 }
                 else
                 {
@@ -172,6 +188,7 @@ namespace Resemble
 
         #endregion
 
+        #region Request execution
         /// <summary> Called at each editor frame when a task is waiting to be executed. </summary>
         public static void Update()
         {
@@ -228,6 +245,9 @@ namespace Resemble
                         case Task.Type.Post:
                             SendPostRequest(task);
                             break;
+                        case Task.Type.Delete:
+                            SendDeleteRequest(task);
+                            break;
                     }
                     task.status = Task.Status.waitApiResponse;
                     task.time = EditorApplication.timeSinceStartup;
@@ -236,9 +256,9 @@ namespace Resemble
         }
 
         /// <summary> Enqueue a Get web request to the task list. This task will be executed as soon as possible. </summary>
-        public static void EnqueueGet(string uri, Delegate callback, GenericCallback resultProcessor)
+        public static void EnqueueGet(string uri, GenericCallback resultProcessor)
         {
-            tasks.Enqueue(new Task(uri, null, callback, resultProcessor, Task.Type.Get));
+            tasks.Enqueue(new Task(uri, null, resultProcessor, Task.Type.Get));
             if (!receiveUpdates)
             {
                 EditorApplication.update += Update;
@@ -247,9 +267,20 @@ namespace Resemble
         }
 
         /// <summary> Enqueue a Pos web request to the task list. This task will be executed as soon as possible. </summary>
-        public static void EnqueuePost(string uri, string data, Delegate callback, GenericCallback resultProcessor)
+        public static void EnqueuePost(string uri, string data, GenericCallback resultProcessor)
         {
-            tasks.Enqueue(new Task(uri, data, callback, resultProcessor, Task.Type.Post));
+            tasks.Enqueue(new Task(uri, data, resultProcessor, Task.Type.Post));
+            if (!receiveUpdates)
+            {
+                EditorApplication.update += Update;
+                receiveUpdates = true;
+            }
+        }
+
+        /// <summary> Enqueue a Delete web request to the task list. This task will be executed as soon as possible. </summary>
+        public static void EnqueueDelete(string uri, GenericCallback resultProcessor)
+        {
+            tasks.Enqueue(new Task(uri, null, resultProcessor, Task.Type.Delete));
             if (!receiveUpdates)
             {
                 EditorApplication.update += Update;
@@ -277,29 +308,39 @@ namespace Resemble
             request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };
         }
 
+        /// <summary> Send a Delete web request now. Call the callback with the response processed by the resultProcessor. </summary>
+        private static void SendDeleteRequest(Task task)
+        {
+            UnityWebRequest request = UnityWebRequest.Delete(task.uri);
+            request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
+            request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
+            request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };
+        }
+
         /// <summary> Responses from requests are received here. The content of the response is process by the resultProcessor and then the callback is executed with the result. </summary>
         private static void CompleteAsyncOperation(AsyncOperation asyncOp, UnityWebRequest webRequest, Task task)
         {
             task.status = Task.Status.completed;
 
-            if (task.callback == null)
+            if (task.resultProcessor == null)
                 return;
 
             //Fail - Network error
             if (webRequest.isNetworkError)
-                task.resultProcessor.Invoke(task.callback, webRequest.downloadHandler.text, Error.NetworkError);
+                task.resultProcessor.Invoke(webRequest.downloadHandler.text, Error.NetworkError);
             //Fail - Http error
             else if (webRequest.isHttpError)
-                task.resultProcessor.Invoke(task.callback, webRequest.downloadHandler.text, Error.FromJson(webRequest.responseCode, webRequest.downloadHandler.text));
+                task.resultProcessor.Invoke(webRequest.downloadHandler.text, Error.FromJson(webRequest.responseCode, webRequest.downloadHandler.text));
             else
             {
                 //Fail - Empty reponse
-                if (string.IsNullOrEmpty(webRequest.downloadHandler.text))
-                    task.resultProcessor.Invoke(task.callback, webRequest.downloadHandler.text, Error.EmptyResponse);
+                if (webRequest.downloadHandler == null || string.IsNullOrEmpty(webRequest.downloadHandler.text))
+                    task.resultProcessor.Invoke(null, Error.EmptyResponse);
                 //Succes
-                else if (task.callback != null)
-                    task.resultProcessor.Invoke(task.callback, webRequest.downloadHandler.text, Error.None);
+                else
+                    task.resultProcessor.Invoke(webRequest.downloadHandler.text, Error.None);
             }
         }
+        #endregion
     }
 }

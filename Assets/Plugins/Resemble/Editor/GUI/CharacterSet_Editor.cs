@@ -81,7 +81,7 @@ namespace Resemble
             //Rebuild list
             if (list == null)
             {
-                list = new ReorderableList(characterSet.pods, typeof(Pod), false, true, false, false);
+                list = new ReorderableList(characterSet.pods, typeof(Clip), false, true, false, false);
                 list.onSelectCallback += List_OnSelect;
                 list.elementHeight = 28;
                 list.drawElementCallback = List_DrawElement;
@@ -96,7 +96,7 @@ namespace Resemble
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Add new pod"))
             {
-                Pod pod = CreateInstance<Pod>();
+                Clip pod = CreateInstance<Clip>();
                 pod.name = "New Pod";
                 pod.set = characterSet;
                 pod.autoRename = true;

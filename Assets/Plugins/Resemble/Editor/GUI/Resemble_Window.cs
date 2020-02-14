@@ -6,17 +6,6 @@ using System;
 
 namespace Resemble
 {
-    public class Clip
-    {
-        public static void ConvertToAudio(string text, string voice_id, Callback callback)
-        {
-
-        }
-    }
-
-    public delegate void Callback();
-
-
     public class Resemble_Window : EditorWindow
     {
         public static Resemble_Window window;
@@ -24,7 +13,7 @@ namespace Resemble
         public PostPod pod = new PostPod();
         private static PodText text = new PodText();
         private static Text clipText = new Text();
-        private static Text_Drawer drawer = new Text_Drawer();
+        private static TextField drawer = new TextField();
         private static string placeHolderText = "";
         private static PlaceHolderAPIBridge.ClipRequest request;
 
@@ -34,16 +23,6 @@ namespace Resemble
             window = (Resemble_Window)EditorWindow.GetWindow(typeof(Resemble_Window));
             window.titleContent = new GUIContent("Resemble");
             window.Show();
-        }
-
-        private void OnEnable()
-        {
-            Resemble.Clip.ConvertToAudio("MyText", "voiceId", MyCallback);
-        }
-
-        public void MyCallback()
-        {
-
         }
 
         void OnGUI()

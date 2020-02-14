@@ -10,9 +10,7 @@ namespace Resemble
         public string voice;
         public Tuning pitch = Tuning.Medium;
         public Tuning speed = Tuning.Medium;
-        public List<Pod> pods = new List<Pod>();
-
-
+        public List<Clip> pods = new List<Clip>();
 
         public enum Tuning
         {
