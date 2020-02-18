@@ -100,7 +100,7 @@ namespace Resemble
             Rect btnRect = new Rect();
             for (int i = 0; i < pod.tags.Length; i++)
             {
-                if (pod.tags[i].emotion == Emotion.None)
+                if (pod.tags[i].emotion == Emotion.Neutral)
                     continue;
                 Vector2 start = style.GetCursorPixelPosition(rect, new GUIContent(pod.userString), pod.tags[i].startIndex);
                 Vector2 end = style.GetCursorPixelPosition(rect, new GUIContent(pod.userString), pod.tags[i].endIndex);

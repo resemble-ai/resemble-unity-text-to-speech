@@ -87,12 +87,17 @@ namespace Resemble
         {
             GUILayout.BeginHorizontal();
 
-            for (int i = 0; i < (int)Tag.Type.COUNT; i++)
+            if (GUIUtils.FlatButtonLayout("Break", Color.red, 1.0f, 0.0f))
+                ApplyTag(Tag.Type.Wait, 0);
+
+            for (int i = 0; i < (int)Emotion.COUNT; i++)
             {
-                Tag.Type emot = (Tag.Type)i;
+                Emotion emot = (Emotion)i;
                 if (GUIUtils.FlatButtonLayout(emot.ToString(), emot.Color(), 1.0f, 0.0f))
-                    ApplyTag(emot);
+                    ApplyTag(Tag.Type.Emotion, emot);
             }
+            if (GUIUtils.FlatButtonLayout("Clear", Color.grey, 1.0f, 1.0f))
+                ClearTags();
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
@@ -449,9 +454,15 @@ namespace Resemble
                 lastInputTime = EditorApplication.timeSinceStartup;
         }
 
-        private void ApplyTag(Tag.Type type)
+        private void ApplyTag(Tag.Type type, Emotion emotion)
         {
-            target.tags.Add(new Tag(type, selectID, carretID));
+            target.tags.Add(new Tag(type, emotion, selectID, carretID));
+            RefreshTagsRects();
+        }
+
+        private void ClearTags()
+        {
+            target.tags.Clear();
             RefreshTagsRects();
         }
 

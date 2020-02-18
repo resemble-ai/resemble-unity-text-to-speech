@@ -64,7 +64,7 @@ namespace Resemble
             //No tags
             if (tags.Length < 4)
             {
-                tagList.Add(new Tag(tags[0], Emotion.None, 0, tags[0].Length, tagsIds[0], tagsIds[1]));
+                tagList.Add(new Tag(tags[0], Emotion.Neutral, 0, tags[0].Length, tagsIds[0], tagsIds[1]));
                 userString += tags[0];
                 this.tags = tagList.ToArray();
                 return;
@@ -77,7 +77,7 @@ namespace Resemble
             {
                 if (!string.IsNullOrEmpty(tags[i + 0]))
                 {
-                    tagList.Add(BuildTag(tags[i + 0], Emotion.None, ref carretId, tagsIds[rt * 2], tagsIds[rt * 2 + 1]));
+                    tagList.Add(BuildTag(tags[i + 0], Emotion.Neutral, ref carretId, tagsIds[rt * 2], tagsIds[rt * 2 + 1]));
                     userString += tags[i + 0];
                     rt++;
                 }
@@ -91,7 +91,7 @@ namespace Resemble
             }
             if (!string.IsNullOrEmpty(tags[tags.Length - 1]))
             {
-                tagList.Add(BuildTag(tags[tags.Length - 1], Emotion.None, ref carretId, tagsIds[tagsIds.Count - 2], tagsIds[tagsIds.Count - 1]));
+                tagList.Add(BuildTag(tags[tags.Length - 1], Emotion.Neutral, ref carretId, tagsIds[tagsIds.Count - 2], tagsIds[tagsIds.Count - 1]));
                 userString += tags[tags.Length - 1];
             }
 

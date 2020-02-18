@@ -144,16 +144,12 @@ namespace Resemble
             });
         }
 
-        public static void CreateClipSync(PostPod podData, GetClipCallback callback)
+        public static Task CreateClipSync(PostPod podData, GetClipCallback callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/sync";
             string data = new CreateClipRequest(podData, "high", false).Json();
-            
-            Debug.Log(uri);
-            Debug.Log(data);
-            //return;
 
-            EnqueuePost(apiUri, data, (string content, Error error) =>
+            return EnqueuePost(uri, data, (string content, Error error) =>
             {
                 if (error)
                 {
@@ -161,9 +157,7 @@ namespace Resemble
                 }
                 else
                 {
-                    //CreateClipResponse response = new CreateClipResponse(content);
-                    Debug.Log(content);
-                    //GetClip(response.uuid, callback);
+                    callback.Invoke(new AudioPreview(content), Error.None);
                 }
             });
         }
@@ -192,6 +186,15 @@ namespace Resemble
         /// <summary> Called at each editor frame when a task is waiting to be executed. </summary>
         public static void Update()
         {
+            //Update progress bar
+            int taskCount = tasks.Count + executionLoop.Count;
+            float progress = 0;
+            for (int i = 0; i < executionLoop.Count; i++)
+                progress += ((int)executionLoop[i].status) / 2.0f;
+            progress /= executionLoop.Count;
+            string barText = "Remaining clips : " + taskCount;
+            EditorProgressBar.Display(barText, progress);
+
             //Remove completed tasks from execution loop
             int exeCount = executionLoop.Count;
             double time = EditorApplication.timeSinceStartup;
@@ -220,6 +223,7 @@ namespace Resemble
             {
                 EditorApplication.update -= Update;
                 receiveUpdates = false;
+                EditorProgressBar.Clear();
                 return;
             }
 
@@ -256,25 +260,29 @@ namespace Resemble
         }
 
         /// <summary> Enqueue a Get web request to the task list. This task will be executed as soon as possible. </summary>
-        public static void EnqueueGet(string uri, GenericCallback resultProcessor)
+        public static Task EnqueueGet(string uri, GenericCallback resultProcessor)
         {
-            tasks.Enqueue(new Task(uri, null, resultProcessor, Task.Type.Get));
+            Task task = new Task(uri, null, resultProcessor, Task.Type.Get);
+            tasks.Enqueue(task);
             if (!receiveUpdates)
             {
                 EditorApplication.update += Update;
                 receiveUpdates = true;
             }
+            return task;
         }
 
         /// <summary> Enqueue a Pos web request to the task list. This task will be executed as soon as possible. </summary>
-        public static void EnqueuePost(string uri, string data, GenericCallback resultProcessor)
+        public static Task EnqueuePost(string uri, string data, GenericCallback resultProcessor)
         {
-            tasks.Enqueue(new Task(uri, data, resultProcessor, Task.Type.Post));
+            Task task = new Task(uri, data, resultProcessor, Task.Type.Post);
+            tasks.Enqueue(task);
             if (!receiveUpdates)
             {
                 EditorApplication.update += Update;
                 receiveUpdates = true;
             }
+            return task;
         }
 
         /// <summary> Enqueue a Delete web request to the task list. This task will be executed as soon as possible. </summary>

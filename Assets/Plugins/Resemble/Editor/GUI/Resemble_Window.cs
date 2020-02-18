@@ -13,9 +13,11 @@ namespace Resemble
         public PostPod pod = new PostPod();
         private static PodText text = new PodText();
         private static Text clipText = new Text();
+        private static APIBridge.Task task;
         private static TextField drawer = new TextField();
         private static string placeHolderText = "";
         private static PlaceHolderAPIBridge.ClipRequest request;
+        private static bool drawProgressBar;
 
         [MenuItem("Window/Audio/Resemble")]
         public static void Open()
@@ -44,6 +46,17 @@ namespace Resemble
             GUILayout.EndHorizontal();
 
 
+            //Update progress bar if exist
+            if (drawProgressBar)
+            {
+                EditorUtility.DisplayProgressBar("Resemble", "Download clip...", preview.download.progress);
+                if (preview.download.isDone)
+                {
+                    drawProgressBar = false;
+                    EditorUtility.ClearProgressBar();
+                }
+            }
+
             //text.OnGUI(request);
 
             drawer.DrawTagsBtnsLayout();
@@ -66,14 +79,26 @@ namespace Resemble
             GUIStyle style = new GUIStyle(EditorStyles.largeLabel);
             text.OnGUI(rect, style);*/
 
-            pod.title = "Fable API";
-            pod.body = "<speak><p>My heart started to pound.</p></speak>";
-            pod.voice = "9816e4ee";
             //pod.emotion = "style1";
 
             if (GUILayout.Button("Generate preview"))
             {
-                APIBridge.CreateClipSync(pod, GetClipCallback);
+                //Cancel current task if exist
+                if (task != null && task.status != APIBridge.Task.Status.completed)
+                {
+                    task.status = APIBridge.Task.Status.completed;
+                    task.error = new Error(-1, "Cancel by the user.");
+                }
+
+                pod.title = "OneShot";
+                pod.body = "<speak><p>" + clipText.BuildResembleString() + "</p></speak>";
+                pod.voice = "9816e4ee";
+                Debug.Log(pod.body);
+                task = APIBridge.CreateClipSync(pod, GetClipCallback);
+
+                /*
+                if (EditorUtility.DisplayCancelableProgressBar("Process Resemble clip...", "Progress...", 0.5f))
+                    EditorUtility.ClearProgressBar();*/
             }
 
             if (GUILayout.Button("Get all pods"))
@@ -167,7 +192,10 @@ namespace Resemble
             if (error)
                 Debug.LogError("Error : " + error.code + " - " + error.message);
             else
+            {
                 Resemble_Window.preview = preview;
+                drawProgressBar = true;
+            }
         }
 
         private void GetAllPodsCallback(ResemblePod[] pods, Error error)

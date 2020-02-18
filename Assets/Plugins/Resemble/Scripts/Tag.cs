@@ -7,14 +7,16 @@ namespace Resemble
     public class Tag
     {
         public Type type;
+        public Emotion emotion;
         public int start;
         public int end;
         public Rect[] rects;
         public Color color;
 
-        public Tag(Type type, int idA, int idB)
+        public Tag(Type type, Emotion emotion, int idA, int idB)
         {
             this.type = type;
+            this.emotion = emotion;
             this.color = type.Color();
             start = Mathf.Min(idA, idB);
             end = Mathf.Max(idA, idB);
@@ -23,14 +25,35 @@ namespace Resemble
         public enum Type
         {
             Wait,
-            None,
-            Angry,
-            Happy,
-            Sad,
-            Confuse,
+            Emotion,
             COUNT,
         }
 
+        public string OpenTag()
+        {
+            switch (type)
+            {
+                case Type.Wait:
+                    return "<break time=\"1S\"/>";
+                case Type.Emotion:
+                    return emotion.OpenTag();
+                default:
+                    return "";
+            }
+        }
+
+        public string CloseTag()
+        {
+            switch (type)
+            {
+                case Type.Wait:
+                    return "";
+                case Type.Emotion:
+                    return emotion.CloseTag();
+                default:
+                    return "";
+            }
+        }
 
     }
 
@@ -49,23 +72,6 @@ namespace Resemble
         public static Color Color(this Tag.Type tag)
         {
             return colors[(int)tag];
-        }
-
-        public static Tag.Type GetEmotion(string value)
-        {
-            switch (value)
-            {
-                case "Angry":
-                    return Tag.Type.Angry;
-                case "Happy":
-                    return Tag.Type.Happy;
-                case "Sad":
-                    return Tag.Type.Sad;
-                case "Confuse":
-                    return Tag.Type.Confuse;
-                default:
-                    return Tag.Type.None;
-            }
         }
     }
 }

@@ -13,20 +13,18 @@ namespace Resemble
 
         public string url;
         public AudioClip clip;
-
-
-        private UnityWebRequestAsyncOperation op;
+        public UnityWebRequestAsyncOperation download;
 
         public AudioPreview(string url)
         {
             this.url = url;
-            op = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.WAV).SendWebRequest();
-            op.completed += OnWavDownloaded;
+            download = UnityWebRequestMultimedia.GetAudioClip(url, AudioType.WAV).SendWebRequest();
+            download.completed += OnWavDownloaded;
         }
 
         private void OnWavDownloaded(AsyncOperation obj)
         {
-            clip = DownloadHandlerAudioClip.GetContent(op.webRequest);
+            clip = DownloadHandlerAudioClip.GetContent(download.webRequest);
             SceneView.RepaintAll();
         }
 
