@@ -14,7 +14,7 @@ You can add Assets and Projects settings folders to your project or directly dow
   
   
 #### Version
-The plugin was created on version 2019.2.8 of Unity. I recommend to have the same version in order to avoid any incompatibility problems.  
+The plugin was created on version [2019.2.8](https://unity3d.com/fr/unity/whats-new/2019.2.8) of Unity. I recommend to have the same version in order to avoid any incompatibility problems.  
   
   
   
