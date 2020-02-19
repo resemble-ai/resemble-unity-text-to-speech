@@ -19,7 +19,7 @@ The plugin was created on version 2019.2.8 of Unity. I recommend to have the sam
   
   
 #### Instal package
-The builds are present in the form of [https://docs.unity3d.com/Manual/AssetPackages.html](Unitypackage).  
+The builds are present in the form of [Unitypackage](https://docs.unity3d.com/Manual/AssetPackages.html).  
 To load a Unitypackage into your project :
 > Assets > Import Package > Custom Package...
   
