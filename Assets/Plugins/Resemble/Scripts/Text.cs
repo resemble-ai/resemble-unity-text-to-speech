@@ -3,13 +3,39 @@ using System.Collections.Generic;
 
 namespace Resemble
 {
+    [System.Serializable]
     public class Text
     {
+        /// <summary> Contains the text typed in by the user. </summary>
         public string userString = "";
+        /// <summary> Contains the tags applied to the text. </summary>
         public List<Tag> tags = new List<Tag>();
 
+        /// <summary> Return a plain text string with SSML tags supported by the Resemble API. </summary>
+        public string BuildResembleString()
+        {
+            //Order tags
+            List<TagKey> keys = new List<TagKey>();
+            keys.AddRange(tags.Select(x => new TagKey(x, true)));
+            keys.AddRange(tags.Select(x => new TagKey(x, false)));
+            keys = keys.OrderBy(x => (x.id + (x.open ? 0.5f : 0.0f))).ToList();
 
-        struct TagKey
+            //Insert tags in string
+            int offset = 0;
+            string s = userString;
+            for (int i = 0; i < keys.Count; i++)
+            {
+                string tagString = keys[i].open ? keys[i].tag.OpenTag() : keys[i].tag.CloseTag();
+                s = s.Insert(keys[i].id + offset, tagString);
+                offset += tagString.Length;
+            }
+
+            //Return result
+            return "<speak><p>" + s + "</p></speak>";
+        }
+
+        /// <summary> Little struct used to merge the userStrings and tags easily. See BuildResembleString() methode. </summary>
+        private struct TagKey
         {
             public int id;
             public Tag tag;
@@ -22,25 +48,10 @@ namespace Resemble
                 id = open ? tag.start : tag.end;
             }
 
-        }
-
-        public string BuildResembleString()
-        {
-            List<TagKey> keys = new List<TagKey>();
-            keys.AddRange(tags.Select(x => new TagKey(x, true)));
-            keys.AddRange(tags.Select(x => new TagKey(x, false)));
-            keys.OrderBy(x => x.id);
-
-            int offset = 0;
-            string s = userString;
-            for (int i = 0; i < keys.Count; i++)
+            public override string ToString()
             {
-                string tagString = keys[i].open ? keys[i].tag.OpenTag() : keys[i].tag.CloseTag();
-                s = s.Insert(keys[i].id + offset, tagString);
-                offset += tagString.Length;
+                return string.Format("(id : {0}, open : {1}, tag : {2})", id, open, tag);
             }
-
-            return s;
         }
     }
 }

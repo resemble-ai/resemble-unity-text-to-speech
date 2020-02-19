@@ -4,18 +4,18 @@
     [System.Serializable]
     public class CreateClipRequest
     {
-        public PostPod data;
+        public CreateClipData data;
         public string quality;
         public bool raw;
 
-        public CreateClipRequest(PostPod data)
+        public CreateClipRequest(CreateClipData data)
         {
             this.data = data;
             quality = "high";
             raw = false;
         }
 
-        public CreateClipRequest(PostPod data, string quality, bool raw)
+        public CreateClipRequest(CreateClipData data, string quality, bool raw)
         {
             this.data = data;
             this.quality = quality;
@@ -25,6 +25,21 @@
         public string Json()
         {
             return UnityEngine.JsonUtility.ToJson(this);
+        }
+    }
+
+    [System.Serializable]
+    public class CreateClipData
+    {
+        public string title;
+        public string body;
+        public string voice;
+
+        public CreateClipData(string title, string body, string voice)
+        {
+            this.title = title;
+            this.body = body;
+            this.voice = voice;
         }
     }
 }

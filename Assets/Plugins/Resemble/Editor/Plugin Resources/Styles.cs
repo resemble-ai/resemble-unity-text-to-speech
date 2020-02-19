@@ -107,6 +107,7 @@ namespace Resemble
 
             textStyle = new GUIStyle(EditorStyles.largeLabel);
             textStyle.wordWrap = true;
+            textStyle.fontSize = 14;
 
             folderPathField = new GUIStyle(GUI.skin.textField);
             folderPathFieldRight = new GUIStyle(folderPathField);

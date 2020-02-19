@@ -18,12 +18,18 @@
 
             switch (code)
             {
-                case 400:
-                    this.message = "Bad Request - The query format does not match the API. Please check for plugin updates.";
-                    break;
-                default:
-                    this.message = message;
-                    break;
+                case 400: this.message = "Bad Request - The query format does not match the API. Please check for plugin updates."; break;
+                case 401: this.message = "Unauthorized -- Your API key is wrong."; break;
+                case 403: this.message = "Forbidden -- The endpointt requested is hidden for administrators only."; break;
+                case 404: this.message = "Not Found -- The specified endpointt could not be found."; break;
+                case 405: this.message = "Method Not Allowed -- You tried to access endpoint with an invalid method."; break;
+                case 406: this.message = "Not Acceptable -- You requested a format that isn't json."; break;
+                case 410: this.message = "Gone -- The resource requested has been removed from our servers."; break;
+                case 418: this.message = "I'm a teapot."; break;
+                case 429: this.message = "Too Many Requests -- You're requesting too fast! Slow down!"; break;
+                case 500: this.message = "Internal Server Error -- We had a problem with our server. Try again later."; break;
+                case 503: this.message = "	Service Unavailable -- We're temporarily offline for maintenance. Please try again later."; break;
+                default: this.message = message; break;
             }
         }
 

@@ -274,8 +274,12 @@ namespace Resemble
             {
                 if (GUILayout.Button("Delete"))
                 {
-                    APIBridge.DeleteProject(project);
-                    Settings.projects = Settings.projects.ToList().Where(x => x.uuid != project.uuid).ToArray();
+                    if (EditorUtility.DisplayDialog("Delete Resemble project",
+                       string.Format("Delete the project \"{0}\" ?", project.name), "Yes", "Cancel"))
+                    {
+                        APIBridge.DeleteProject(project);
+                        Settings.projects = Settings.projects.ToList().Where(x => x.uuid != project.uuid).ToArray();
+                    }
                 }
                 if (GUILayout.Button("Get"))
                 {
@@ -284,7 +288,7 @@ namespace Resemble
                 if (GUILayout.Button("Bind"))
                 {
                     Settings.project = project;
-                    Settings.project.uuid = project.uuid;
+                    Settings.projectUUID = project.uuid;
                     Settings.haveProject = true;
                     Settings.SetDirty();
                 }
@@ -294,16 +298,6 @@ namespace Resemble
             //Close box area
             GUILayout.EndVertical();
             GUILayout.Space(16);
-        }
-
-        private void GetProjectCallback(Project[] projects, Error error)
-        {
-            this.tryConnecting = false;
-            this.connectError = error;
-            Settings.connected = !error;
-            Settings.projects = projects;
-            RefreshSelected();
-            Repaint();
         }
     }
 }

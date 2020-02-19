@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -7,14 +7,15 @@ namespace Resemble
 {
     public class Resources : ScriptableObject
     {
-        public GUISkin resembleButton;
         public Texture2D icon;
         public Texture2D projectHeader;
         public Texture2D externalLink;
+        public Texture2D breakIco;
         public Texture2D[] docImages;
         public Texture2D[] pathImages;
         public Material textMat;
         public Font font;
+        public Text text = new Text();
 
         public static string path
         {
@@ -37,7 +38,10 @@ namespace Resemble
             get
             {
                 if (_instance == null)
+                {
+                    AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
                     _instance = AssetDatabase.LoadAssetAtPath<Resources>(path);
+                }
                 return _instance;
             }
         }

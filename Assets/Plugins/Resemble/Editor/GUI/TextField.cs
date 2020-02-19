@@ -10,6 +10,7 @@ namespace Resemble
 
         //Target
         public Text target;
+        public bool dirty;
 
         //Text edition stuff
         private string userString
@@ -87,7 +88,7 @@ namespace Resemble
         {
             GUILayout.BeginHorizontal();
 
-            if (GUIUtils.FlatButtonLayout("Break", Color.red, 1.0f, 0.0f))
+            if (GUIUtils.FlatButtonLayout(Resources.instance.breakIco, Color.red, 1.0f, 0.0f))
                 ApplyTag(Tag.Type.Wait, 0);
 
             for (int i = 0; i < (int)Emotion.COUNT; i++)
@@ -103,13 +104,14 @@ namespace Resemble
             GUILayout.EndHorizontal();
         }
 
-        public void DrawTextArea(Rect rect)
+        public void DrawTextArea(Rect rect, bool interactable)
         {
             //Init components
             if (target == null)
                 return;
             Styles.Load();
             Event e = Event.current;
+            dirty = false;
 
             //Draw background and set clip area
             Rect rectBox = new Rect(rect.x, rect.y, rect.width, rect.height);
@@ -132,13 +134,14 @@ namespace Resemble
             //EditorGUI.DrawRect(textRect, Color.red * 0.1f);
 
             //Draw carret
-            DrawCarret();
+            if (interactable)
+                DrawCarret();
 
             //Handle events
 
             ManageFocus(e);
 
-            if (focus)
+            if (focus && interactable)
             {
                 if (e.type == EventType.KeyDown)
                     ReceiveKeyEvent(e);
@@ -147,7 +150,7 @@ namespace Resemble
             }
 
             //Get scroll by mouse scrollwheel
-            if (e.type == EventType.ScrollWheel)
+            if (e.type == EventType.ScrollWheel && interactable)
                 scroll.y += e.delta.y * 5;
 
             //Clamp scroll to content area
@@ -166,7 +169,8 @@ namespace Resemble
                 GUI.VerticalScrollbar(scrollRect, 0.0f, 1.0f, 0.0f, 1.0f);
 
             //Add text cursor area
-            EditorGUIUtility.AddCursorRect(rectBox.Offset(0, 0, -20, 0), MouseCursor.Text);
+            if (interactable)
+                EditorGUIUtility.AddCursorRect(rectBox.Offset(0, 0, -20, 0), MouseCursor.Text);
         }
 
         public void DrawCharCountBar(Rect rect)
@@ -299,6 +303,7 @@ namespace Resemble
                             int offset = e.control ? WordLenght(carretID, true) : 1;
                             if (IsInString(carretID - offset, carretID))
                             {
+                                OnEditText(carretID, offset, false);
                                 userString = userString.Remove(carretID - offset, offset);
                                 carretID -= offset;
                                 selectID -= offset;
@@ -316,6 +321,7 @@ namespace Resemble
                             if (carretID == length)
                                 break;
                             int offset = e.control ? WordLenght(carretID, false) : 1;
+                            OnEditText(carretID + offset, offset, false);
                             offset = Mathf.Min(length - carretID, offset);
                             userString = userString.Remove(carretID, offset);
                         }
@@ -337,6 +343,7 @@ namespace Resemble
                 void InsertChar(char c)
                 {
                     ClearSelection();
+                    OnEditText(carretID, 1, true);
                     userString = userString.Insert(carretID, c.ToString());
                     carretID++;
                     selectID++;
@@ -369,6 +376,7 @@ namespace Resemble
                             {
                                 int min = Mathf.Min(carretID, selectID);
                                 int max = Mathf.Max(carretID, selectID);
+                                OnEditText(min, max - min, false);
                                 GUIUtility.systemCopyBuffer = userString.Substring(min, max - min);
                                 ClearSelection();
                             }
@@ -388,6 +396,7 @@ namespace Resemble
                                 string pastString = GUIUtility.systemCopyBuffer.
                                     Replace("\r", "").
                                     Replace(System.Environment.NewLine, "");
+                                OnEditText(carretID, pastString.Length, true);
                                 userString = userString.Insert(carretID, pastString);
                                 selectID = carretID = carretID + pastString.Length;
                             }
@@ -399,6 +408,7 @@ namespace Resemble
             e.Use();
             RefreshTagsRects();
             lastInputTime = EditorApplication.timeSinceStartup;
+            dirty = true;
         }
 
         private void ReceiveMouseEvent(Event e)
@@ -456,14 +466,45 @@ namespace Resemble
 
         private void ApplyTag(Tag.Type type, Emotion emotion)
         {
+            //No selection
+            if (!haveSelection)
+                return;
+
+            //Remove tags in this area
+            int start = Mathf.Min(selectID, carretID);
+            int end = Mathf.Max(selectID, carretID);
+            int count = target.tags.Count;
+            for (int i = 0; i < count; i++)
+            {
+                Tag tag = null;
+                if (target.tags[i].ClearCharacters(start, end - start, out tag))
+                {
+                    target.tags.RemoveAt(i);
+                    i--;
+                    count--;
+                    if (tag != null)
+                        target.tags.Add(tag);
+                }
+            }
+
+            //Just remove old tags and stop process herefor neutral emotion
+            if (type == Tag.Type.Emotion && emotion == Emotion.Neutral)
+            {
+                RefreshTagsRects();
+                return;
+            }
+
+            //Add the new tag
             target.tags.Add(new Tag(type, emotion, selectID, carretID));
             RefreshTagsRects();
+            dirty = true;
         }
 
         private void ClearTags()
         {
             target.tags.Clear();
             RefreshTagsRects();
+            dirty = true;
         }
 
         private void ManageFocus(Event e)
@@ -471,7 +512,7 @@ namespace Resemble
             if (e.clickCount != clickCount)
             {
                 clickCount = e.clickCount;
-                focus = clipRect.Contains(e.mousePosition);
+                focus = clipRect.Shrink(-10).Contains(e.mousePosition) || drag;
             }
         }
 
@@ -483,6 +524,7 @@ namespace Resemble
             int min = Mathf.Min(carretID, selectID);
             int max = Mathf.Max(carretID, selectID);
 
+            OnEditText(min, max - min, false);
             userString = userString.Remove(min, max - min);
             selectID = carretID = min;
             rects = null;
@@ -572,6 +614,32 @@ namespace Resemble
             carretID = id - min;
             selectID = Mathf.Min(id + max, length);
         }
+
+        private void OnEditText(int id, int length, bool add)
+        {
+            if (add)
+            {
+                for (int i = 0; i < target.tags.Count; i++)
+                {
+                    target.tags[i].AddCharacters(id, length);
+                }
+            }
+            else
+            {
+                int count = target.tags.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    if (target.tags[i].RemoveCharacters(id, length))
+                    {
+                        target.tags.RemoveAt(i);
+                        i--;
+                        count--;
+                    }
+                }
+            }
+        }
+
+
         #endregion
 
         private void RefreshSelectionRects()

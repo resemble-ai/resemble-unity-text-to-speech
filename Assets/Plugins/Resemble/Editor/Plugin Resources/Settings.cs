@@ -136,7 +136,10 @@ namespace Resemble
             get
             {
                 if (_instance == null)
+                {
+                    AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
                     _instance = AssetDatabase.LoadAssetAtPath<Settings>(path);
+                }
                 return _instance;
             }
         }

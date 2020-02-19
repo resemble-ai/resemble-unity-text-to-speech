@@ -32,12 +32,4 @@ namespace Resemble
             public ResemblePod[] pods;
         }
     }
-
-    [System.Serializable]
-    public class PostPod
-    {
-        public string title;
-        public string body;
-        public string voice;
-    }
 }

@@ -34,8 +34,6 @@ namespace Resemble
         {
             if (!string.IsNullOrEmpty(Settings.token))
                 APIBridge.GetProjects(GetProjectCallback);
-
-            RefreshSelected();
             visualElement = rootElement;
         }
 
@@ -44,8 +42,11 @@ namespace Resemble
             //Get selected project
             if (Settings.projects != null)
                 for (int i = 0; i < Settings.projects.Length; i++)
-                    if (Settings.projects[i] == Settings.project)
+                    if (Settings.projects[i].uuid == Settings.projectUUID)
+                    {
                         selected = i;
+                        Settings.haveProject = true;
+                    }
         }
 
         public override void OnGUI(string searchContext)
@@ -78,7 +79,7 @@ namespace Resemble
                     break;
             }
 
-            //Close the scrollble layout area
+            //Close the scrollable layout area
             GUILayout.EndScrollView();
             GUILayout.EndArea();
             GUI.EndClip();
@@ -103,6 +104,16 @@ namespace Resemble
         private void DrawToolbar()
         {
             pageID = GUILayout.Toolbar(pageID, new string[] { "Project", "Paths", "Help" });
+        }
+
+        private void GetProjectCallback(Project[] projects, Error error)
+        {
+            this.tryConnecting = false;
+            this.connectError = error;
+            Settings.connected = !error;
+            Settings.projects = projects;
+            RefreshSelected();
+            Repaint();
         }
 
         //Settings tags

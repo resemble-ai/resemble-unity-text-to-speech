@@ -85,12 +85,27 @@ namespace Resemble
 
         public static bool FlatButtonLayout(string label, Color color, float roundness, float borderOnly)
         {
-            GUIContent content = new GUIContent(label);
+            return FlatButtonLayout(new GUIContent(label), color, roundness, borderOnly);
+        }
+
+        public static bool FlatButtonLayout(Texture2D texture, Color color, float roundness, float borderOnly)
+        {
+            float width = texture.width;
+            Rect rect = GUILayoutUtility.GetRect(width, 30);
+            rect.Set(rect.x, rect.y, width, 30);
+            FlatRect(rect, color, roundness, borderOnly);
+            rect.y += 3;
+            rect.height -= 6;
+            return GUI.Button(rect, texture, Styles.centredLabel);
+        }
+
+        public static bool FlatButtonLayout(GUIContent content, Color color, float roundness, float borderOnly)
+        {
             float width = Styles.centredLabel.CalcSize(content).x;
             Rect rect = GUILayoutUtility.GetRect(width, 30);
             rect.Set(rect.x, rect.y, width, 30);
             FlatRect(rect, color, roundness, borderOnly);
-            return GUI.Button(rect, label, Styles.centredLabel);
+            return GUI.Button(rect, content, Styles.centredLabel);
         }
 
         public static void DragArea(Rect rect, Object dragAsset)
@@ -140,7 +155,10 @@ namespace Resemble
             if (Settings.haveProject)
                 return;
             if (BoxWithLink("You are not connected to any Resemble project.", "Go to Resemble settings", MessageType.Error))
+            {
+                RessembleSettingsProvider.pageID = 0;
                 Settings.OpenWindow();
+            }
         }
 
         public static bool BoxWithLink(string message, string linkLabel, MessageType boxType)

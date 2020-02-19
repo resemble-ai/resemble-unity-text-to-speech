@@ -110,11 +110,8 @@ namespace Resemble
 
         public static void DeleteProject(Project project)
         {
-            string uri = apiUri + "/" + Settings.project.uuid;
-            EnqueueDelete(uri, (string content, Error error) =>
-            {
-                Debug.Log(content);
-            });
+            string uri = apiUri + "/" + project.uuid;
+            EnqueueDelete(uri, (string content, Error error) => {});
         }
 
         public static void CreateProject(Project project, CreateProjectCallback callback)
@@ -122,12 +119,7 @@ namespace Resemble
             string uri = apiUri;
             string data = "{\"data\":" + JsonUtility.ToJson(project) + "}";
 
-            Debug.Log(uri);
-            Debug.Log(data);
-
-            return;
-
-            EnqueuePost(apiUri, data, (string content, Error error) =>
+            EnqueuePost(uri, data, (string content, Error error) =>
             {
                 ProjectStatus status = error ? null : JsonUtility.FromJson<ProjectStatus>(content);
                 callback.Method.Invoke(callback.Target, new object[] { status, error });
@@ -144,7 +136,7 @@ namespace Resemble
             });
         }
 
-        public static Task CreateClipSync(PostPod podData, GetClipCallback callback)
+        public static Task CreateClipSync(CreateClipData podData, GetClipCallback callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/sync";
             string data = new CreateClipRequest(podData, "high", false).Json();
@@ -330,7 +322,7 @@ namespace Resemble
         {
             task.status = Task.Status.completed;
 
-            if (task.resultProcessor == null)
+            if (task.resultProcessor == null || task.type == Task.Type.Delete)
                 return;
 
             //Fail - Network error
