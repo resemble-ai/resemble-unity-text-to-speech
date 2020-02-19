@@ -20,7 +20,7 @@ The plugin was created on version [2019.2.8](https://unity3d.com/fr/unity/whats-
   
 #### Instal package
 The builds are present in the form of [Unitypackage](https://docs.unity3d.com/Manual/AssetPackages.html).  
-To load a Unitypackage into your project :
+To load a Unitypackage into your Unity project :
 > Assets > Import Package > Custom Package...
   
   
