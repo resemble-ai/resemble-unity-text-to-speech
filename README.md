@@ -27,4 +27,5 @@ To load a Unitypackage into your project :
 ## Help
 You can find a documentation page about the plugin here :
 >  Edit > Preferences... > Resemble > Help
+  
 ![Preference page](https://i.imgur.com/0jAWjOc.png?1)
