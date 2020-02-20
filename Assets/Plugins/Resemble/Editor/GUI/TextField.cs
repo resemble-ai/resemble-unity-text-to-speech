@@ -84,24 +84,58 @@ namespace Resemble
 
         #region Draw functions
 
-        public void DrawTagsBtnsLayout()
+        public void DrawTagsBtnsLayout(bool disabled)
         {
+            DrawTagMenu(disabled);
+            return;
+
             GUILayout.BeginHorizontal();
 
             if (GUIUtils.FlatButtonLayout(Resources.instance.breakIco, Color.red, 1.0f, 0.0f))
-                ApplyTag(Tag.Type.Wait, 0);
+                AddBreak();
 
             for (int i = 0; i < (int)Emotion.COUNT; i++)
             {
                 Emotion emot = (Emotion)i;
                 if (GUIUtils.FlatButtonLayout(emot.ToString(), emot.Color(), 1.0f, 0.0f))
-                    ApplyTag(Tag.Type.Emotion, emot);
+                    ApplyTag(emot);
             }
             if (GUIUtils.FlatButtonLayout("Clear", Color.grey, 1.0f, 1.0f))
                 ClearTags();
 
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+        }
+
+
+        GUIUtils.ButtonState breakBtn;
+        GUIUtils.ButtonState emotionBtn;
+
+        public void DrawTagMenu(bool disabled)
+        {
+            Rect rect = GUILayoutUtility.GetRect(Screen.width, 50).Shrink(10);
+            Rect btnRect = rect;
+
+            //Update disable state of buttons based on selection
+            breakBtn = DisableIf(haveSelection, breakBtn);
+            emotionBtn = DisableIf(!haveSelection, emotionBtn);
+
+            //Break button
+            btnRect.width = 60;
+            GUIUtils.FlatButton(btnRect, new GUIContent(Resources.instance.breakIco), new Color(0.956f, 0.361f, 0.259f), ref breakBtn);
+
+            //Emotion button
+            btnRect.Set(btnRect.x + btnRect.width + 5, btnRect.y, 140, btnRect.height);
+            GUIUtils.FlatButton(btnRect, new GUIContent("Add Emotion..."), new Color(0.259f, 0.6f, 0.956f), ref emotionBtn);
+        }
+
+        private GUIUtils.ButtonState DisableIf(bool value, GUIUtils.ButtonState state)
+        {
+            if (value)
+                return GUIUtils.ButtonState.Disable;
+            else if (state == GUIUtils.ButtonState.Disable)
+                return GUIUtils.ButtonState.None;
+            return state;
         }
 
         public void DrawTextArea(Rect rect, bool interactable)
@@ -464,7 +498,7 @@ namespace Resemble
                 lastInputTime = EditorApplication.timeSinceStartup;
         }
 
-        private void ApplyTag(Tag.Type type, Emotion emotion)
+        private void ApplyTag(Emotion emotion)
         {
             //No selection
             if (!haveSelection)
@@ -488,15 +522,26 @@ namespace Resemble
             }
 
             //Just remove old tags and stop process herefor neutral emotion
-            if (type == Tag.Type.Emotion && emotion == Emotion.Neutral)
+            if (emotion == Emotion.Neutral)
             {
                 RefreshTagsRects();
                 return;
             }
 
             //Add the new tag
-            target.tags.Add(new Tag(type, emotion, selectID, carretID));
+            target.tags.Add(new Tag(Tag.Type.Emotion, emotion, selectID, carretID));
             RefreshTagsRects();
+            dirty = true;
+        }
+
+        private void AddBreak()
+        {
+            userString = userString.Insert(carretID, "      ");
+            OnEditText(carretID, 6, true);
+            target.tags.Add(new Tag(Tag.Type.Wait, Emotion.Neutral, carretID, carretID + 6));
+            RefreshTagsRects();
+            carretID++;
+            selectID++;
             dirty = true;
         }
 

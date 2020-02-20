@@ -21,6 +21,13 @@ namespace Resemble
             }
         }
 
+
+        //GUI stuff
+        private Dropdown fileDropDown;
+        private Dropdown editDropDown;
+        private Dropdown settingsDropDown;
+
+
         /// <summary> Open the Resemble window. This window is used to generate one-shot audioclips. </summary>
         [MenuItem("Window/Audio/Resemble")]
         public static void Open()
@@ -60,7 +67,7 @@ namespace Resemble
             }
 
             //Tags
-            drawer.DrawTagsBtnsLayout();
+            drawer.DrawTagsBtnsLayout(!Settings.haveProject);
 
             //Draw text area
             Rect rect = GUILayoutUtility.GetRect(Screen.width, 300).Shrink(10);
@@ -92,48 +99,34 @@ namespace Resemble
         private void DrawToolbar()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
-            if (GUILayout.Button("File", EditorStyles.toolbarButton))
-                FileDropDown();
-            if (GUILayout.Button("Edit", EditorStyles.toolbarButton))
-                EditDropDown();
+
+            //File button
+            fileDropDown.DoLayout(new GUIContent("File"),
+                new Dropdown.Item("Save audioclip file...", preview != null && preview.clip != null, SaveClipFile),
+                new Dropdown.Item("Save as CharacterSet...", SaveAsCharacterPod)
+            );
+
+            //Edit button
+            editDropDown.DoLayout(new GUIContent("Edit"),
+                new Dropdown.Item("Generate", !string.IsNullOrEmpty(text.userString), Generate),
+                new Dropdown.Item(""),
+                new Dropdown.Item("Clear tags", ClearTags),
+                new Dropdown.Item("Clear", Clear)
+            );
+
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button(Styles.popupBtn, EditorStyles.toolbarButton))
-                SettingsDropDown();
+
+            //Settings button
+            settingsDropDown.DoLayout(new GUIContent(Styles.popupBtn),
+                new Dropdown.Item("Copy clip body", CopyClipBody),
+                new Dropdown.Item("Settings", Settings.OpenWindow),
+                new Dropdown.Item(""),
+                new Dropdown.Item("Help", () => { WebPage.PluginWindow.Open(); }),
+                new Dropdown.Item("Resemble API", () => { WebPage.ResembleAPIDoc.Open(); })
+            );
+
             GUILayout.Space(-6);
             GUILayout.EndHorizontal();
-        }
-
-        private void FileDropDown()
-        {
-            GenericMenu menu = new GenericMenu();
-
-            if (preview == null || preview.clip == null)
-                menu.AddDisabledItem(new GUIContent("Save audioclip file..."));
-            else
-                menu.AddItem(new GUIContent("Save audioclip file..."), false, SaveClipFile);
-            menu.AddItem(new GUIContent("Save as CharacterSet..."), false, SaveAsCharacterPod);
-            menu.ShowAsContext();
-        }
-
-        private void EditDropDown()
-        {
-            GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Generate"), false, Generate);
-            menu.AddSeparator("");
-            menu.AddItem(new GUIContent("Clear tags"), false, ClearTags);
-            menu.AddItem(new GUIContent("Clear"), false, Clear);
-            menu.ShowAsContext();
-        }
-
-        private void SettingsDropDown()
-        {
-            GenericMenu menu = new GenericMenu();
-            menu.AddItem(new GUIContent("Copy clip body"), false, CopyClipBody);
-            menu.AddItem(new GUIContent("Settings"), false, Settings.OpenWindow);
-            menu.AddSeparator("");
-            menu.AddItem(new GUIContent("Help"), false, () => { WebPage.PluginWindow.Open(); });
-            menu.AddItem(new GUIContent("Resemble API"), false, () => { WebPage.ResembleAPIDoc.Open(); });
-            menu.ShowAsContext();
         }
 
         private void SaveClipFile()

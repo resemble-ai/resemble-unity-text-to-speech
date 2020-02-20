@@ -139,7 +139,7 @@ namespace Resemble
         public static Task CreateClipSync(CreateClipData podData, GetClipCallback callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/sync";
-            string data = new CreateClipRequest(podData, "high", false).Json();
+            string data = new CreateClipRequest(podData, "x-high", false).Json();
 
             return EnqueuePost(uri, data, (string content, Error error) =>
             {

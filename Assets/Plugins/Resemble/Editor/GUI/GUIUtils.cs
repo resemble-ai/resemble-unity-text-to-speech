@@ -70,6 +70,72 @@ namespace Resemble
             return GUI.Button(rect, label, Styles.centredLabel);
         }
 
+        public static bool FlatButton(Rect rect, GUIContent content, Color color, float roundness, float borderOnly)
+        {
+            FlatRect(rect, color, roundness, borderOnly);
+            return GUI.Button(rect, content, Styles.centredLabel);
+        }
+
+        public static bool FlatButton(Rect rect, GUIContent content, Color color, bool enable)
+        {
+            bool mouseOver = rect.Contains(Event.current.mousePosition);
+            FlatRect(rect, color, 1.0f, enable ? 0.0f : (mouseOver ? 1.0f : 0.8f));
+            GUI.Button(rect, content, Styles.centredLabel);
+            return mouseOver;
+        }
+
+        public static bool FlatButton(Rect rect, GUIContent content, Color color, ref ButtonState state)
+        {
+            Event e = Event.current;
+            bool contains = (state == ButtonState.Over || state == ButtonState.Press);
+            if(e.type == EventType.Repaint)
+                contains = rect.Contains(e.mousePosition);
+
+            switch (e.type)
+            {
+                case EventType.MouseDown:
+                    if (contains)
+                        state = ButtonState.Press;
+                    break;
+                case EventType.MouseUp:
+                        state = contains ? ButtonState.Over : ButtonState.None;
+                    break;
+                case EventType.Repaint:
+                    if (contains && state == ButtonState.None)
+                        state = ButtonState.Over;
+                    else if (!contains && state == ButtonState.Over)
+                        state = ButtonState.None;
+                    break;
+            }
+
+            switch (state)
+            {
+                case ButtonState.None:
+                    FlatRect(rect, color, 1.0f, 0.0f);
+                    break;
+                case ButtonState.Over:
+                    FlatRect(rect, color, 1.0f, 0.2f);
+                    break;
+                case ButtonState.Press:
+                    FlatRect(rect, color, 0.5f, 0.5f);
+                    break;
+                case ButtonState.Disable:
+                    color.a = 0.6f;
+                    FlatRect(rect, color, 1.0f, 0.2f);
+                    break;
+            }
+
+            rect = rect.Shrink(3);
+            if (state == ButtonState.Disable)
+            {
+                EditorGUI.BeginDisabledGroup(true);
+                GUI.Button(rect, content, Styles.centredLabel);
+                EditorGUI.EndDisabledGroup();
+                return false;
+            }
+            return GUI.Button(rect, content, Styles.centredLabel);
+        }
+
         public static bool FlatButton(Rect rect, string label, Color color)
         {
             FlatRect(rect, color, 1.0f, rect.Contains(Event.current.mousePosition) ? 0.8f : 1.0f);
@@ -183,9 +249,26 @@ namespace Resemble
             return rect;
         }
 
+        public static Rect Drop(this Rect rect)
+        {
+            rect.Set(rect.x, rect.y + rect.height, 1, 1);
+            return rect;
+        }
+
         public static void OpenProjectInBrowser(string projectID)
         {
             throw new System.Exception();
         }
+
+
+
+        public enum ButtonState
+        {
+            None,
+            Over,
+            Press,
+            Disable,
+        }
+
     }
 }

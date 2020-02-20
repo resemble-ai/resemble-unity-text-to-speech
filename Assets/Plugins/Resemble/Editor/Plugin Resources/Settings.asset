@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ec1a61af7b103b44adfd0840239d03f, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
-  _token: 
-  _projectUUID: 
+  _token: k7N8n5WXQ587jutISStouAtt
+  _projectUUID: 770b9577
   pathMethode: 1
   useSubFolder: 1
-  showWelcomePopup: 1
+  showWelcomePopup: 0
   folderPathA: 
   folderPathB: 
   _projects:
@@ -38,7 +38,7 @@ MonoBehaviour:
   - id: 38637
     uuid: 5d2437a7
     name: The great journey
-    description: 
+    description: Wait for delete
     publish_google: 0
   - id: 45256
     uuid: f58a52f1

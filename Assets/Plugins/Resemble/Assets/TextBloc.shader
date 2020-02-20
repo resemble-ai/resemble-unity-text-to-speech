@@ -84,14 +84,24 @@
 				return o;
 			}
 
+			float sdRoundedBox(float2 p, float2 b, float4 r )
+			{
+				r.xy = (p.x>0.0)?r.xy : r.zw;
+				r.x  = (p.y>0.0)?r.x  : r.y;
+				float2 q = abs(p)-b+r.x;
+				return min(max(q.x,q.y),0.0) + length(max(q,0.0)) - r.x;
+			}
+
 			fixed4 frag(v2f i) : SV_Target
 			{
 				i.texcoord.x *= _Ratio;
-				float r = _Roundness;
+				float r = _Roundness * 0.6 + 0.4;
+
 				float2 center = float2(clamp(i.texcoord.x, 0.5 * r, _Ratio - 0.5 * r), clamp(i.texcoord.y, 0.5 * r, 1.0 - 0.5 * r));
-				float dist = distance(center, i.texcoord) * 2 * r;
-				dist = smoothstep(1.0, 0.9, dist) * (1.0 - smoothstep(0.9, 0.8, dist) * _BorderOnly);
-				return float4(_Color.rgb, dist);
+				float dist = ((distance(center, i.texcoord)) * 2) / r;
+				float offset = (1.0 / r) * 0.05;
+				dist = smoothstep(0.9, 0.9 - offset, dist) * (1.0 - smoothstep(0.8, 0.8 - offset, dist) * _BorderOnly);
+				return float4(_Color.rgb, dist * _Color.a);
 			}
 			ENDCG
 		}

@@ -29,5 +29,5 @@ MonoBehaviour:
   textMat: {fileID: 2100000, guid: c3076581994fb3c4db3a4b47a4449ce0, type: 2}
   font: {fileID: 12800000, guid: be60bfb435fff2b4ab8d2cf748a1b25c, type: 3}
   text:
-    userString: 
+    userString: Hello again, friend of a friend, I knew you when.
     tags: []
