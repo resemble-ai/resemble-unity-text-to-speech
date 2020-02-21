@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -11,7 +11,7 @@ namespace Resemble
         public static Resemble_Window window;
         public static AudioPreview preview;
         private static APIBridge.Task task;
-        private static TextField drawer = new TextField();
+        private static Text_Editor drawer = new Text_Editor();
         private static bool drawProgressBar;
         private static Text text
         {

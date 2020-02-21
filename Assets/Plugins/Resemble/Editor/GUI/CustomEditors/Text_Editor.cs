@@ -1,11 +1,11 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
 namespace Resemble
 {
-    public class TextField
+    public class Text_Editor
     {
 
         //Target
@@ -107,6 +107,10 @@ namespace Resemble
             GUILayout.EndHorizontal();
         }
 
+        private void TagSelectPopup()
+        {
+
+        }
 
         GUIUtils.ButtonState breakBtn;
         GUIUtils.ButtonState emotionBtn;
