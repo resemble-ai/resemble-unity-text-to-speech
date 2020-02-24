@@ -102,7 +102,7 @@ namespace Resemble
 
             //File button
             fileDropDown.DoLayout(new GUIContent("File"),
-                new Dropdown.Item("Save audioclip file...", preview != null && preview.clip != null, SaveClipFile),
+                new Dropdown.Item("Save wav file...", preview != null && preview.clip != null, SaveClipFile),
                 new Dropdown.Item("Save as CharacterSet...", SaveAsCharacterPod)
             );
 
@@ -132,14 +132,15 @@ namespace Resemble
         private void SaveClipFile()
         {
             //Open file browser
-            string path = EditorUtility.SaveFilePanel("Save clip file", Application.dataPath, "new audioclip", "wav");
+            string path = EditorUtility.SaveFilePanel("Save wav file", Application.dataPath, "OneShotClip", "wav");
 
             //Cancel by user
             if (string.IsNullOrEmpty(path))
                 return;
 
             //Save and import file
-            AssetDatabase.CreateAsset(preview.clip, path);
+            System.IO.File.WriteAllBytes(path, preview.download.webRequest.downloadHandler.data);
+            path = path.Remove(0, Application.dataPath.Length - 6);
             AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
 
             //Ping file

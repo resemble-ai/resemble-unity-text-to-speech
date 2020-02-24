@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using UnityEditor;
 
 namespace Resemble
@@ -152,6 +152,12 @@ namespace Resemble
         public static bool FlatButtonLayout(string label, Color color, float roundness, float borderOnly)
         {
             return FlatButtonLayout(new GUIContent(label), color, roundness, borderOnly);
+        }
+
+        public static bool FlatButtonLayout(GUIContent content, Color color, ref ButtonState state)
+        {
+            Rect rect = GUILayoutUtility.GetRect(Styles.centredLabel.CalcSize(content).x, 30);
+            return FlatButton(rect, content, color, ref state);
         }
 
         public static bool FlatButtonLayout(Texture2D texture, Color color, float roundness, float borderOnly)

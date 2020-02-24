@@ -129,8 +129,13 @@ namespace Resemble
             GUIUtils.FlatButton(btnRect, new GUIContent(Resources.instance.breakIco), new Color(0.956f, 0.361f, 0.259f), ref breakBtn);
 
             //Emotion button
-            btnRect.Set(btnRect.x + btnRect.width + 5, btnRect.y, 140, btnRect.height);
-            GUIUtils.FlatButton(btnRect, new GUIContent("Add Emotion..."), new Color(0.259f, 0.6f, 0.956f), ref emotionBtn);
+            btnRect.Set(btnRect.x + btnRect.width + 5, btnRect.y, 130, btnRect.height);
+            if (GUIUtils.FlatButton(btnRect, new GUIContent("Add Emotion"), new Color(0.259f, 0.6f, 0.956f), ref emotionBtn))
+            {
+                Tag tag = ApplyTag(Emotion.Angry);
+                selectID = carretID;
+                TagPopup.Show(GetTagPos(tag), tag, true);
+            }
         }
 
         private GUIUtils.ButtonState DisableIf(bool value, GUIUtils.ButtonState state)
@@ -320,6 +325,20 @@ namespace Resemble
             return true;
         }
 
+        /// <summary> Return the bottom left corner in screenPos of a tag. </summary>
+        private Vector2 GetTagPos(Tag tag)
+        {
+            Vector2 min = tag.rects[0].min;
+            for (int i = 1; i < tag.rects.Length; i++)
+            {
+                if (min.y > tag.rects[i].min.y)
+                    min = tag.rects[i].min;
+            }
+
+            min += clipRect.min + new Vector2(2, -scroll.y + Styles.textStyle.lineHeight);
+            return GUIUtility.GUIToScreenPoint(min);
+        }
+
         #endregion
 
         #region User Events
@@ -502,11 +521,11 @@ namespace Resemble
                 lastInputTime = EditorApplication.timeSinceStartup;
         }
 
-        private void ApplyTag(Emotion emotion)
+        private Tag ApplyTag(Emotion emotion)
         {
             //No selection
             if (!haveSelection)
-                return;
+                return null;
 
             //Remove tags in this area
             int start = Mathf.Min(selectID, carretID);
@@ -514,14 +533,14 @@ namespace Resemble
             int count = target.tags.Count;
             for (int i = 0; i < count; i++)
             {
-                Tag tag = null;
-                if (target.tags[i].ClearCharacters(start, end - start, out tag))
+                Tag otherTag = null;
+                if (target.tags[i].ClearCharacters(start, end - start, out otherTag))
                 {
                     target.tags.RemoveAt(i);
                     i--;
                     count--;
-                    if (tag != null)
-                        target.tags.Add(tag);
+                    if (otherTag != null)
+                        target.tags.Add(otherTag);
                 }
             }
 
@@ -529,13 +548,15 @@ namespace Resemble
             if (emotion == Emotion.Neutral)
             {
                 RefreshTagsRects();
-                return;
+                return null;
             }
 
             //Add the new tag
-            target.tags.Add(new Tag(Tag.Type.Emotion, emotion, selectID, carretID));
+            Tag tag = new Tag(Tag.Type.Emotion, emotion, selectID, carretID);
+            target.tags.Add(tag);
             RefreshTagsRects();
             dirty = true;
+            return tag;
         }
 
         private void AddBreak()

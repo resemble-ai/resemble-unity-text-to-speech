@@ -29,5 +29,22 @@ MonoBehaviour:
   textMat: {fileID: 2100000, guid: c3076581994fb3c4db3a4b47a4449ce0, type: 2}
   font: {fileID: 12800000, guid: be60bfb435fff2b4ab8d2cf748a1b25c, type: 3}
   text:
-    userString: Hello again, friend of a friend, I knew you when.
-    tags: []
+    userString: 'Hello again, friend of a friend, I knew you when
+
+      Our common goal was waiting for the world to end
+
+      Now that the truth is just a rule that you can bend
+
+      You crack the whip, shape-shift and trick the past again'
+    tags:
+    - type: 1
+      emotion: 1
+      start: 111
+      end: 116
+      rects:
+      - serializedVersion: 2
+        x: 105
+        y: 71
+        width: 36
+        height: 16
+      color: {r: 1, g: 0.3, b: 0.1, a: 1}

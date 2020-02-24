@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -58,7 +58,7 @@ namespace Resemble
 
         public bool Contains(int id)
         {
-            return id > start && id <= end;
+            return id > start && id < end;
         }
 
         public ChangeState Contains(int id, int length)
