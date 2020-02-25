@@ -6,10 +6,10 @@ namespace Resemble
 {
     public class Clip : ScriptableObject
     {
-        public CharacterSet set;
+        public Speech set;
         public AudioClip clip;
         public AudioClip clipCopy;
-        public PodText text;
+        public Text text;
         public bool autoRename;
     }
 }

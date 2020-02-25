@@ -82,40 +82,26 @@ namespace Resemble
             }
         }
 
-        #region Draw functions
-
-        public void DrawTagsBtnsLayout(bool disabled)
-        {
-            DrawTagMenu(disabled);
-            return;
-
-            GUILayout.BeginHorizontal();
-
-            if (GUIUtils.FlatButtonLayout(Resources.instance.breakIco, Color.red, 1.0f, 0.0f))
-                AddBreak();
-
-            for (int i = 0; i < (int)Emotion.COUNT; i++)
-            {
-                Emotion emot = (Emotion)i;
-                if (GUIUtils.FlatButtonLayout(emot.ToString(), emot.Color(), 1.0f, 0.0f))
-                    ApplyTag(emot);
-            }
-            if (GUIUtils.FlatButtonLayout("Clear", Color.grey, 1.0f, 1.0f))
-                ClearTags();
-
-            GUILayout.FlexibleSpace();
-            GUILayout.EndHorizontal();
-        }
-
-        private void TagSelectPopup()
-        {
-
-        }
-
         GUIUtils.ButtonState breakBtn;
         GUIUtils.ButtonState emotionBtn;
 
-        public void DrawTagMenu(bool disabled)
+
+        public delegate void DrawerEvent();
+
+
+        #region Draw functions
+
+        public void DoLayout(bool enable, DrawerEvent onEditCallback, DrawerEvent onGenerateCallback)
+        {
+            DrawTagsBtnsLayout(!enable);
+
+            Rect rect = GUILayoutUtility.GetRect(Screen.width, 300).Shrink(10);
+            DrawTextArea(rect, Settings.haveProject);
+            if (dirty)
+                onEditCallback.Invoke();
+        }
+
+        public void DrawTagsBtnsLayout(bool disabled)
         {
             Rect rect = GUILayoutUtility.GetRect(Screen.width, 50).Shrink(10);
             Rect btnRect = rect;
@@ -219,6 +205,13 @@ namespace Resemble
         public void DrawCharCountBar(Rect rect)
         {
             EditorGUI.ProgressBar(rect, length / 1000.0f, length + "/1000");
+        }
+
+        public void Refresh()
+        {
+            lines = LinesPack.FromText(userString, textRect, Styles.textStyle);
+            RefreshSelectionRects();
+            RefreshTagsRects();
         }
 
         /// <summary> 

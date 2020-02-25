@@ -34,6 +34,7 @@ namespace Resemble
                 {
                     tag.emotion = em;
                     tag.color = em.Color();
+                    Close();
                 }
             }
 

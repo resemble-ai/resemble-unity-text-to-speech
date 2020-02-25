@@ -20,6 +20,7 @@ namespace Resemble
         private AudioImporter importer;
         private bool dirtySettings;
         private PlaceHolderAPIBridge.ClipRequest request;
+        public Text_Editor drawer = new Text_Editor();
 
         protected override void OnHeaderGUI()
         {
@@ -27,6 +28,8 @@ namespace Resemble
             Styles.Load();
             clip = target as Clip;
             e = Event.current;
+            if (drawer.target == null)
+                drawer.target = clip.text;
 
             //Bar
             Rect rect = new Rect(0, 0, Screen.width, 46);
@@ -95,18 +98,8 @@ namespace Resemble
 
         public override void OnInspectorGUI()
         {
-            //Draw Text gui
-            if (clip.text.OnGUI(request))
-            {
-                request = PlaceHolderAPIBridge.GetAudioClip(clip.text.userString, GetClipCallback);
-                if (clip.clip != null)
-                    AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(clip.clip));
-                if (clip.clipCopy != null)
-                    AssetDatabase.RemoveObjectFromAsset(clip.clipCopy);
-                clip.clip = null;
-                clip.clipCopy = null;
-                clipEditor = null;
-            }
+            //Draw text layout
+            drawer.DoLayout(true, OnEditClipCallback, OnGenerateCallback);
 
             if (clip.clip != null)
             {
@@ -146,6 +139,16 @@ namespace Resemble
             GUIUtils.ConnectionRequireMessage();
         }
 
+        private void OnEditClipCallback()
+        {
+            EditorUtility.SetDirty(clip);
+        }
+
+        private void OnGenerateCallback()
+        {
+
+        }
+
         private void GetClipCallback(AudioClip clip, Error error)
         {
             request = null;
@@ -168,8 +171,8 @@ namespace Resemble
             value += ApplicationUpdate;
             info.SetValue(null, value);
             Clip pod = target as Clip;
-            if (pod != null && pod.text != null)
-                pod.text.Refresh();
+            if (pod != null && pod.text != null && drawer != null)
+                drawer.Refresh();
         }
 
         public void OnDisable()
@@ -293,7 +296,7 @@ namespace Resemble
             if (!EditorUtility.DisplayDialog("Delete pod ?", path + "\nYou cannot undo this action.", "Delete", "Cancel"))
                 return;
             AssetDatabase.RemoveObjectFromAsset(clip);
-            EditorUtility.SetDirty(AssetDatabase.LoadAssetAtPath<CharacterSet>(path));
+            EditorUtility.SetDirty(AssetDatabase.LoadAssetAtPath<Speech>(path));
             AssetDatabase.ImportAsset(path);
         }
 
@@ -323,7 +326,7 @@ namespace Resemble
 
             for (int i = 0; i < sets.Count; i++)
             {
-                EditorUtility.SetDirty(AssetDatabase.LoadAssetAtPath<CharacterSet>(sets[i]));
+                EditorUtility.SetDirty(AssetDatabase.LoadAssetAtPath<Speech>(sets[i]));
                 AssetDatabase.ImportAsset(sets[i]);
             }
         }

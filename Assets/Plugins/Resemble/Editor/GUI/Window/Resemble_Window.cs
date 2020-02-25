@@ -26,6 +26,22 @@ namespace Resemble
         private Dropdown fileDropDown;
         private Dropdown editDropDown;
         private Dropdown settingsDropDown;
+        private Vector2 windowSize
+        {
+            get
+            {
+                return _windowSize;
+            }
+            set
+            {
+                if (_windowSize != value)
+                {
+                    _windowSize = value;
+                    OnResize();
+                }
+            }
+        }
+        private Vector2 _windowSize;
 
 
         /// <summary> Open the Resemble window. This window is used to generate one-shot audioclips. </summary>
@@ -44,6 +60,7 @@ namespace Resemble
             Styles.Load();
             if (drawer.target == null)
                 drawer.target = text;
+            windowSize = new Vector2(Screen.width, Screen.height);
 
             //Toolbar
             EditorGUI.BeginDisabledGroup(!Settings.haveProject);
@@ -93,6 +110,13 @@ namespace Resemble
 
             EditorGUI.EndDisabledGroup();
             Repaint();
+        }
+
+        /// <summary> Called when the window is resized. </summary>
+        private void OnResize()
+        {
+            if (drawer != null)
+                drawer.Refresh();
         }
 
         #region Context menu functions
@@ -157,7 +181,7 @@ namespace Resemble
                 return;
 
             //Create instance
-            CharacterSet set = ScriptableObject.CreateInstance<CharacterSet>();
+            Speech set = ScriptableObject.CreateInstance<Speech>();
 
             //Save and import file
             AssetDatabase.CreateAsset(set, path);
