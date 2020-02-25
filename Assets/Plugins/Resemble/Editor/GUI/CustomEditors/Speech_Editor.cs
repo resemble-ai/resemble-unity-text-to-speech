@@ -4,8 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
+using Resemble;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     [CustomEditor(typeof(Speech))]
     public class Speech_Editor : Editor
@@ -110,7 +111,7 @@ namespace Resemble
             GUILayout.EndHorizontal();
 
             //Draw connected error
-            GUIUtils.ConnectionRequireMessage();
+            Utils.ConnectionRequireMessage();
         }
 
         private void OnEnable()
@@ -143,11 +144,11 @@ namespace Resemble
 
             float width = rect.width;
             rect.Set(width - 90, rect.y + 2, 50, rect.height - 4);
-            if (GUIUtils.FlatButton(rect, "Pod", Styles.podColor, 1.0f, rect.Contains(mp) ? 0.5f : 0.2f))
+            if (Utils.FlatButton(rect, "Pod", Styles.podColor, 1.0f, rect.Contains(mp) ? 0.5f : 0.2f))
                 Selection.activeObject = speech.clips[index];
             rect.Set(width - 35, rect.y, 50, rect.height);
-            GUIUtils.DragArea(rect, speech.clips[index].clip);
-            if (GUIUtils.FlatButton(rect, "Clip", Styles.clipColor, 1.0f, haveClip ? (rect.Contains(mp) ? 0.5f : 0.2f) : 1.0f) && haveClip)
+            Utils.DragArea(rect, speech.clips[index].clip);
+            if (Utils.FlatButton(rect, "Clip", Styles.clipColor, 1.0f, haveClip ? (rect.Contains(mp) ? 0.5f : 0.2f) : 1.0f) && haveClip)
                 EditorGUIUtility.PingObject(speech.clips[index].clipCopy);
         }
 
@@ -165,7 +166,7 @@ namespace Resemble
             EditorGUI.indentLevel--;
 
             GUILayout.Space(5);
-            GUIUtils.DrawSeparator();
+            Utils.DrawSeparator();
         }
 
         public void RegenerateAllPods()

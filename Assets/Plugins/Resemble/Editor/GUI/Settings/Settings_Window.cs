@@ -3,8 +3,10 @@ using UnityEngine;
 using UnityEngine.UIElements;
 using System.Linq;
 using UnityEditor.IMGUI.Controls;
+using Resemble;
+using Resemble.Structs;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     public partial class RessembleSettingsProvider : SettingsProvider
     {
@@ -58,7 +60,7 @@ namespace Resemble
             DrawToolbar();
 
             //Open a scrollable layout area
-            GUIUtils.DrawSeparator();
+            Utils.DrawSeparator();
             winRect = visualElement.contentRect.Offset(9, 30, -20, -80);
             GUI.BeginClip(winRect);
             GUILayout.BeginArea(new Rect(0, 5, winRect.width, winRect.height - 10));
@@ -84,7 +86,7 @@ namespace Resemble
             GUILayout.EndArea();
             GUI.EndClip();
             GUILayout.Space(winRect.height - 20);
-            GUIUtils.DrawSeparator();
+            Utils.DrawSeparator();
 
             //Draw page footer
             switch (pageID)

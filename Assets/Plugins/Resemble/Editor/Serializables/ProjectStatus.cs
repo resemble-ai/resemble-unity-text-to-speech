@@ -1,4 +1,4 @@
-﻿namespace Resemble
+﻿namespace Resemble.Structs
 {
     [System.Serializable]
     public class ProjectStatus

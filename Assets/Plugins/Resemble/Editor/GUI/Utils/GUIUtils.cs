@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEditor;
+using Resemble;
+using Resemble.Structs;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
-    public static class GUIUtils
+    public static class Utils
     {
         public static void DrawErrorBox(this Error error, string message = null)
         {
@@ -266,6 +268,10 @@ namespace Resemble
             throw new System.Exception();
         }
 
+        public static string LocalPath(string absolutePath)
+        {
+            return absolutePath.Remove(0, Application.dataPath.Length - 6);
+        }
 
 
         public enum ButtonState

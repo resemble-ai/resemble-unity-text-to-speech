@@ -15,36 +15,9 @@ MonoBehaviour:
   voice: 
   pitch: 2
   speed: 2
-  pods:
-  - {fileID: 8505791047450393319}
-  - {fileID: 4192873837649474840}
---- !u!114 &4192873837649474840
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: Windmill Valley
-  m_EditorClassIdentifier: 
-  set: {fileID: 11400000}
-  clip: {fileID: 0}
-  clipCopy: {fileID: 0}
-  text:
-    carretPosition: 0
-    tags:
-    - content: 
-      emotion: 0
-      startIndex: 0
-      endIndex: 0
-      rawStartIndex: 0
-      rawEndIndex: 0
-    _originString: 
-  autoRename: 0
---- !u!114 &8505791047450393319
+  clips:
+  - {fileID: 5550723420705241138}
+--- !u!114 &5550723420705241138
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -60,13 +33,17 @@ MonoBehaviour:
   clip: {fileID: 0}
   clipCopy: {fileID: 0}
   text:
-    carretPosition: 0
+    userString: gsrdfg fsdfdssd fsdfsd fsd
     tags:
-    - content: 'Did you '
-      emotion: 0
-      startIndex: 0
-      endIndex: 8
-      rawStartIndex: 0
-      rawEndIndex: 8
-    _originString: 'Did you '
+    - type: 1
+      emotion: 1
+      start: 23
+      end: 26
+      rects:
+      - serializedVersion: 2
+        x: 174
+        y: 7
+        width: 22
+        height: 16
+      color: {r: 1, g: 0.3, b: 0.1, a: 1}
   autoRename: 0

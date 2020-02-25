@@ -16,6 +16,7 @@ namespace Resemble
         public Material textMat;
         public Font font;
         public Text text = new Text();
+        public Object processClip;
 
         public static string path
         {

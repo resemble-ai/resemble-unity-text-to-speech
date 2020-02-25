@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Resemble.Structs;
 
 namespace Resemble
 {

@@ -13,7 +13,10 @@ namespace Resemble
 
         public string url;
         public AudioClip clip;
+        public OnCompleted onDowloaded;
         public UnityWebRequestAsyncOperation download;
+
+        public delegate void OnCompleted();
 
         public AudioPreview(string url)
         {
@@ -26,6 +29,7 @@ namespace Resemble
         {
             clip = DownloadHandlerAudioClip.GetContent(download.webRequest);
             SceneView.RepaintAll();
+            onDowloaded.Invoke();
         }
 
         public void OnGUI()

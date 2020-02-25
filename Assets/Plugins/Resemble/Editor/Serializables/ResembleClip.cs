@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 
-namespace Resemble
+namespace Resemble.Structs
 {
     [System.Serializable]
-    public class ResemblePod
+    public class ResembleClip
     {
         public int id;
         public string title;
@@ -20,7 +20,7 @@ namespace Resemble
             return string.Format("(Title: {0}, Body: {1}, Finished: {2})", title, body, finished);
         }
 
-        public static ResemblePod[] FromJson(string json)
+        public static ResembleClip[] FromJson(string json)
         {
             return JsonUtility.FromJson<SerializablePodArray>(string.Format("{0}\"pods\": {2}{1}", '{', '}', json)).pods;
         }
@@ -29,7 +29,7 @@ namespace Resemble
         public struct SerializablePodArray
         {
             [SerializeField]
-            public ResemblePod[] pods;
+            public ResembleClip[] pods;
         }
     }
 }

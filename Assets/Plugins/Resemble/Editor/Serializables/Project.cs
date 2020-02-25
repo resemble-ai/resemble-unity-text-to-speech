@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Resemble
+namespace Resemble.Structs
 {
     [System.Serializable]
     public class Project

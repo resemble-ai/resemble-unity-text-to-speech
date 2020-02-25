@@ -1,8 +1,9 @@
 ﻿using UnityEditor;
 using System.Linq;
 using System.Reflection;
+using Resemble;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     public static class EditorProgressBar
     {

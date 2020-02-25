@@ -10,6 +10,11 @@ namespace Resemble
 
         public static string GetSavePath(this Clip clip)
         {
+            return GetSaveFolder(clip) + clip.name + ".wav";
+        }
+
+        public static string GetSaveFolder(this Clip clip)
+        {
             string path = AssetDatabase.GetAssetPath(clip.set);
 
             //Adapts the path according to the settings
@@ -20,7 +25,7 @@ namespace Resemble
                     path = RemoveFilenameFromPath(path);
                     break;
                 case Settings.PathMethode.Absolute:
-                    path = Settings.instance.folderPathA;
+                    path = Settings.instance.folderPathA.Remove(0, Application.dataPath.Length);
                     break;
                 case Settings.PathMethode.MirrorHierarchy:
                     path = RemoveFilenameFromPath(path);
@@ -37,7 +42,6 @@ namespace Resemble
                 path += "/" + clip.set.name + "/";
             else
                 path += "/";
-            path += clip.name + ".wav";
 
             //Return result
             return path;

@@ -1,6 +1,7 @@
 using UnityEditor;
+using Resemble;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     /// <summary> Open preferences window on the first load </summary>
     public class WelcomePopup

@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Resemble;
+using Resemble.Structs;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     public partial class RessembleSettingsProvider
     {
@@ -19,7 +21,7 @@ namespace Resemble
             EditorGUI.indentLevel++;
             DrawConnectGUI();
             EditorGUI.indentLevel--;
-            GUIUtils.DrawSeparator();
+            Utils.DrawSeparator();
             GUILayout.Space(10);
 
             if (!connectError && Settings.connected)
@@ -56,7 +58,7 @@ namespace Resemble
         public void DrawConnectGUI()
         {
             //Resemble API link
-            GUIUtils.DrawLinkLabel("You can find your Resemble token here: ", resembleAPILinkLabel,
+            Utils.DrawLinkLabel("You can find your Resemble token here: ", resembleAPILinkLabel,
                 "https://app.resemble.ai/account/api", Styles.bodyStyle, Styles.linkStyle);
 
             //Token field
@@ -86,7 +88,7 @@ namespace Resemble
             //Draw errors
             if (connectError)
             {
-                GUIUtils.DrawErrorBox(connectError, connectError.code == 401 ?
+                Utils.DrawErrorBox(connectError, connectError.code == 401 ?
                     "Autentification error. Please, check your token validity." :
                     "Unable to connect to Resemble API");
             }
@@ -177,7 +179,7 @@ namespace Resemble
                 }
                 else
                 {
-                    if (GUIUtils.BoxWithLink("You don't have a project on Resemble yet. Please go to",
+                    if (Utils.BoxWithLink("You don't have a project on Resemble yet. Please go to",
                         "Resemble.ai to create a new project.", MessageType.Info))
                         WebPage.ResembleProjects.Open(); ;
                 }
@@ -212,13 +214,13 @@ namespace Resemble
             if (Settings.haveProject)
             {
                 rect.Set(rect.x, rect.y, 200, rect.height);
-                GUIUtils.FlatButton(rect, "Import all pods in wav", Color.grey, 1.0f, rect.Contains(Event.current.mousePosition) ? 0.8f : 1.0f);
+                Utils.FlatButton(rect, "Import all pods in wav", Color.grey, 1.0f, rect.Contains(Event.current.mousePosition) ? 0.8f : 1.0f);
                 rect.x += rect.width;
-                GUIUtils.FlatButton(rect, "Unbind", Color.grey);
+                Utils.FlatButton(rect, "Unbind", Color.grey);
             }
             else
             {
-                if (GUIUtils.FlatButton(rect, "Bind", Color.grey, 1.0f, rect.Contains(Event.current.mousePosition) ? 0.8f : 1.0f))
+                if (Utils.FlatButton(rect, "Bind", Color.grey, 1.0f, rect.Contains(Event.current.mousePosition) ? 0.8f : 1.0f))
                 {
                     Settings.haveProject = true;
                     Settings.project = Settings.projects[selected];
@@ -230,7 +232,7 @@ namespace Resemble
             rect.Set(rect.x + rect.width - 30, rect.y - 142, 30, 30);
             EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
             if (GUI.Button(rect, Resources.instance.externalLink, GUIStyle.none))
-                GUIUtils.OpenProjectInBrowser(Settings.project.uuid);
+                Utils.OpenProjectInBrowser(Settings.project.uuid);
         }
 
         private void DrawProjectAreaUnityStyle()

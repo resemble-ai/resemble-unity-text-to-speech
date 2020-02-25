@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Resemble;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     public class TagPopup : EditorWindow
     {
@@ -11,7 +12,7 @@ namespace Resemble
         private static bool releaseFocusOnclose;
         private static Tag tag;
 
-        private static GUIUtils.ButtonState[] btns;
+        private static Utils.ButtonState[] btns;
 
         public static void Show(Vector2 pos, Tag tag, bool fromResembleWindow)
         {
@@ -20,7 +21,7 @@ namespace Resemble
             window.ShowPopup();
             releaseFocusOnclose = fromResembleWindow;
             TagPopup.tag = tag;
-            btns = new GUIUtils.ButtonState[(int)Emotion.COUNT];
+            btns = new Utils.ButtonState[(int)Emotion.COUNT];
         }
 
         void OnGUI()
@@ -30,7 +31,7 @@ namespace Resemble
             for (int i = 0; i < btns.Length; i++)
             {
                 Emotion em = (Emotion)i;
-                if (GUIUtils.FlatButtonLayout(new GUIContent(em.ToString()), em.Color(), ref btns[i]))
+                if (Utils.FlatButtonLayout(new GUIContent(em.ToString()), em.Color(), ref btns[i]))
                 {
                     tag.emotion = em;
                     tag.color = em.Color();

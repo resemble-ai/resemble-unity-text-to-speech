@@ -2,8 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Resemble;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     public class Text_Editor
     {
@@ -17,6 +18,8 @@ namespace Resemble
         {
             get
             {
+                if (target == null || target.userString == null)
+                    return "";
                 return target.userString;
             }
             set
@@ -82,8 +85,8 @@ namespace Resemble
             }
         }
 
-        GUIUtils.ButtonState breakBtn;
-        GUIUtils.ButtonState emotionBtn;
+        Utils.ButtonState breakBtn;
+        Utils.ButtonState emotionBtn;
 
 
         public delegate void DrawerEvent();
@@ -99,6 +102,9 @@ namespace Resemble
             DrawTextArea(rect, Settings.haveProject);
             if (dirty)
                 onEditCallback.Invoke();
+
+            if (GUILayout.Button("Generate"))
+                onGenerateCallback.Invoke();
         }
 
         public void DrawTagsBtnsLayout(bool disabled)
@@ -112,11 +118,11 @@ namespace Resemble
 
             //Break button
             btnRect.width = 60;
-            GUIUtils.FlatButton(btnRect, new GUIContent(Resources.instance.breakIco), new Color(0.956f, 0.361f, 0.259f), ref breakBtn);
+            Utils.FlatButton(btnRect, new GUIContent(Resources.instance.breakIco), new Color(0.956f, 0.361f, 0.259f), ref breakBtn);
 
             //Emotion button
             btnRect.Set(btnRect.x + btnRect.width + 5, btnRect.y, 130, btnRect.height);
-            if (GUIUtils.FlatButton(btnRect, new GUIContent("Add Emotion"), new Color(0.259f, 0.6f, 0.956f), ref emotionBtn))
+            if (Utils.FlatButton(btnRect, new GUIContent("Add Emotion"), new Color(0.259f, 0.6f, 0.956f), ref emotionBtn))
             {
                 Tag tag = ApplyTag(Emotion.Angry);
                 selectID = carretID;
@@ -124,12 +130,12 @@ namespace Resemble
             }
         }
 
-        private GUIUtils.ButtonState DisableIf(bool value, GUIUtils.ButtonState state)
+        private Utils.ButtonState DisableIf(bool value, Utils.ButtonState state)
         {
             if (value)
-                return GUIUtils.ButtonState.Disable;
-            else if (state == GUIUtils.ButtonState.Disable)
-                return GUIUtils.ButtonState.None;
+                return Utils.ButtonState.Disable;
+            else if (state == Utils.ButtonState.Disable)
+                return Utils.ButtonState.None;
             return state;
         }
 
@@ -228,7 +234,7 @@ namespace Resemble
                 r.y -= scroll.y;
 
                 if (flatStyle)
-                    GUIUtils.FlatRect(r, color, 0.95f, 0.0f);
+                    Utils.FlatRect(r, color, 0.95f, 0.0f);
                 else
                     EditorGUI.DrawRect(r, color);
             }

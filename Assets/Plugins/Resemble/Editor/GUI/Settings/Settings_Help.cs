@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Resemble;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     public partial class RessembleSettingsProvider
     {
@@ -21,7 +22,7 @@ namespace Resemble
             DrawLink("4. Generate one shot clips", titleHeights[4]);
             DrawLink("5. Use the plugin functions in your code", titleHeights[5]);
             titleID = 0;
-            GUIUtils.DrawSeparator();
+            Utils.DrawSeparator();
             GUILayout.Space(10);
 
             //Begin with Resemble

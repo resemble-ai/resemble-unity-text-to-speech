@@ -14,11 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _token: k7N8n5WXQ587jutISStouAtt
   _projectUUID: 770b9577
-  pathMethode: 1
+  pathMethode: 2
   useSubFolder: 1
   showWelcomePopup: 0
-  folderPathA: 
-  folderPathB: 
+  folderPathA: D:/Workspace/Resemble/ResemblePlugin/Assets/Audio/Audioclips
+  folderPathB: D:/Workspace/Resemble/ResemblePlugin/Assets/Audio/CharacterSets
   _projects:
   - id: 9321
     uuid: ccd231ce

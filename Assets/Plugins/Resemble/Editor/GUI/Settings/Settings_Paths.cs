@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Resemble;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     public partial class RessembleSettingsProvider
     {

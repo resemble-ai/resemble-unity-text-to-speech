@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEditor;
 using UnityEngine.Networking;
 using Resemble.Structs;
+using Resemble.GUIEditor;
 
 namespace Resemble
 {
@@ -24,7 +25,7 @@ namespace Resemble
         //Callbacks for each functions type
         public delegate void GetProjectCallback(Project[] projects, Error error);
         public delegate void GetClipCallback(AudioPreview preview, Error error);
-        public delegate void GetPodsCallback(ResemblePod[] pods, Error error);
+        public delegate void GetClipsCallback(ResembleClip[] preview, Error error);
         public delegate void CreateProjectCallback(ProjectStatus status, Error error);
         public delegate void ErrorCallback(long errorCode, string errorMessage);
         public delegate void GenericCallback(string content, Error error);
@@ -126,16 +127,6 @@ namespace Resemble
             });
         }
 
-        public static void GetAllPods(GetPodsCallback callback)
-        {
-            string uri = apiUri + "/" + Settings.project.uuid + "/clips";
-            EnqueueGet(uri, (string content, Error error) =>
-            {
-                ResemblePod[] pods = error ? null : ResemblePod.FromJson(content);
-                callback.Method.Invoke(callback.Target, new object[] { pods, error });
-            });
-        }
-
         public static Task CreateClipSync(CreateClipData podData, GetClipCallback callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/sync";
@@ -157,7 +148,6 @@ namespace Resemble
         public static void GetClip(string uuid, GetClipCallback callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/" + uuid;
-            Debug.Log(uri);
 
             EnqueueGet(uri, (string content, Error error) =>
             {
@@ -168,6 +158,24 @@ namespace Resemble
                 else
                 {
                     Debug.Log(content);
+                }
+            });
+        }
+
+        public static void GetClips(GetClipsCallback callback)
+        {
+            string uri = apiUri + "/" + Settings.project.uuid + "/clips/";
+
+            EnqueueGet(uri, (string content, Error error) =>
+            {
+                if (error)
+                {
+                    callback.Method.Invoke(callback.Target, new object[] { null, error });
+                }
+                else
+                {
+                    Debug.Log(content);
+                    callback.Method.Invoke(callback.Target, new object[] { ResembleClip.FromJson(content), Error.None }) ;
                 }
             });
         }

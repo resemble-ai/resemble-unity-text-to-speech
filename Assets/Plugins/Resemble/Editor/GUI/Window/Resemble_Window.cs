@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Resemble.Structs;
+using Resemble;
 
-namespace Resemble
+namespace Resemble.GUIEditor
 {
     public class Resemble_Window : EditorWindow
     {
@@ -46,7 +47,7 @@ namespace Resemble
 
         /// <summary> Open the Resemble window. This window is used to generate one-shot audioclips. </summary>
         [MenuItem("Window/Audio/Resemble")]
-        public static void Open()
+        public static void Open()   
         {
             window = (Resemble_Window)EditorWindow.GetWindow(typeof(Resemble_Window));
             window.minSize = new Vector2(300, 400);
@@ -62,6 +63,27 @@ namespace Resemble
                 drawer.target = text;
             windowSize = new Vector2(Screen.width, Screen.height);
 
+            //TEMP
+            if (GUILayout.Button("Clean project"))
+            {
+                APIBridge.GetClips((ResembleClip[] clips, Error error) => 
+                {
+                    if (error)
+                    {
+                        Debug.LogError(error.message);
+                    }
+                    else
+                    {
+                        foreach (var item in clips)
+                        {
+                            Debug.Log(item.title + "  " + item.id);
+                        }
+                    }
+                }
+                );
+            }
+
+
             //Toolbar
             EditorGUI.BeginDisabledGroup(!Settings.haveProject);
             DrawToolbar();
@@ -69,7 +91,7 @@ namespace Resemble
 
             //Check connection
             if (!Settings.haveProject)
-                GUIUtils.ConnectionRequireMessage();
+                Utils.ConnectionRequireMessage();
             EditorGUI.BeginDisabledGroup(!Settings.haveProject);
 
             //Update progress bar if exist
@@ -237,7 +259,7 @@ namespace Resemble
             }
         }
 
-        private void GetAllPodsCallback(ResemblePod[] pods, Error error)
+        private void GetAllPodsCallback(ResembleClip[] pods, Error error)
         {
             if (error)
                 Debug.LogError("Error : " + error.code + " - " + error.message);
