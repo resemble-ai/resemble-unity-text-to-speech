@@ -38,7 +38,8 @@ namespace Resemble.GUIEditor
             if (!string.IsNullOrEmpty(Settings.token))
                 APIBridge.GetProjects(GetProjectCallback);
             visualElement = rootElement;
-            if (visualElement.focusController.focusedElement != null)
+            if (visualElement != null && visualElement.focusController != null && 
+                visualElement.focusController.focusedElement != null)
             {
                 EditorWindow win = EditorWindow.focusedWindow;
                 win.minSize = new Vector2(550, 510);
