@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ec1a61af7b103b44adfd0840239d03f, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
-  _token: k7N8n5WXQ587jutISStouAtt
-  _projectUUID: 770b9577
-  pathMethode: 2
+  _token: 
+  _projectUUID: 
+  pathMethode: 1
   useSubFolder: 1
-  showWelcomePopup: 0
-  folderPathA: D:/Workspace/Resemble/ResemblePlugin/Assets/Audio/Audioclips
-  folderPathB: D:/Workspace/Resemble/ResemblePlugin/Assets/Audio/CharacterSets
+  showWelcomePopup: 1
+  folderPathA: 
+  folderPathB: 
   _projects:
   - id: 37167
     uuid: 770b9577
