@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -35,6 +35,8 @@ namespace Resemble
         public static Color podColor = new Color(0.1921f, 0.8196f, 0.6352f);
         public static Color clipColor = new Color(1.0f, 0.6509f, 0.0f);
         public static Color selectColor = new Color(0.0f, 0.611f, 1.0f, 0.5f);
+        public static Color lightGreen = new Color(0.196f, 0.8196f, 0.6352f);
+        public static Color purple = new Color(0.3921f, 0.2705f, 0.5921f);
 
 
         public static void Load()

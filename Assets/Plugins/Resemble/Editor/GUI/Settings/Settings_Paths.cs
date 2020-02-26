@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using Resemble;
 
 namespace Resemble.GUIEditor
 {
+    /// <summary> Paths tab of preference window. </summary>
     public partial class RessembleSettingsProvider
     {
         private GUIContent pathMethode = new GUIContent("Path methode", "Indicates the method chosen by the plugin to " +
@@ -33,7 +31,7 @@ namespace Resemble.GUIEditor
                 case Settings.PathMethode.SamePlace:
                     break;
                 case Settings.PathMethode.MirrorHierarchy:
-                    Settings.instance.folderPathB = FolderField("CharacterSets root", Settings.instance.folderPathB);
+                    Settings.instance.folderPathB = FolderField("Resemble Speechs root", Settings.instance.folderPathB);
                     Settings.instance.folderPathA = FolderField("AudioClips root", Settings.instance.folderPathA);
                     break;
             }

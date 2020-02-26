@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
@@ -15,7 +15,7 @@ namespace Resemble
 
         public static string GetSaveFolder(this Clip clip)
         {
-            string path = AssetDatabase.GetAssetPath(clip.set);
+            string path = AssetDatabase.GetAssetPath(clip.speech);
 
             //Adapts the path according to the settings
             switch (Settings.instance.pathMethode)
@@ -39,7 +39,7 @@ namespace Resemble
 
             //Add sub folder and extension
             if (Settings.instance.useSubFolder)
-                path += "/" + clip.set.name + "/";
+                path += "/" + clip.speech.name + "/";
             else
                 path += "/";
 

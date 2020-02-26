@@ -8,7 +8,7 @@ using Resemble.GUIEditor;
 
 namespace Resemble
 {
-    public static class APIBridge
+    public static partial class APIBridge
     {
         /// <summary> Max request count per seconds. </summary>
         private const int mv = 9;
@@ -22,56 +22,9 @@ namespace Resemble
         private static List<Task> executionLoop = new List<Task>();
         private static bool receiveUpdates;
 
-        //Callbacks for each functions type
-        public delegate void GetProjectCallback(Project[] projects, Error error);
-        public delegate void GetClipCallback(AudioPreview preview, Error error);
-        public delegate void GetClipsCallback(ResembleClip[] preview, Error error);
-        public delegate void CreateProjectCallback(ProjectStatus status, Error error);
-        public delegate void ErrorCallback(long errorCode, string errorMessage);
-        public delegate void GenericCallback(string content, Error error);
-
-        /// <summary> Request format in a queue. Also contains the status of the request. </summary>
-        public class Task
-        {
-            public string uri;
-            public string data;
-            public GenericCallback resultProcessor;
-            public string result;
-            public double time;
-            public Error error;
-            public Type type;
-            public Status status;
-
-            public Task(string uri, string data, GenericCallback resultProcessor, Type type)
-            {
-                this.uri = uri;
-                this.data = data;
-                this.resultProcessor = resultProcessor;
-                this.type = type;
-                time = EditorApplication.timeSinceStartup;
-                result = "";
-                error = Error.None;
-                status = Status.waitToBeExecuted;
-            }
-
-            public enum Type
-            {
-                Get,
-                Post,
-                Delete,
-            }
-
-            public enum Status
-            {
-                waitToBeExecuted,
-                waitApiResponse,
-                completed,
-            }
-        }
-
         //Generic functions exposed to the user.
         #region Generics
-        public static void SendGetRequest(string uri, GenericCallback callback)
+        public static void SendGetRequest(string uri, Callback.Simple callback)
         {
             EnqueueGet(uri, (string content, Error error) =>
             {
@@ -79,7 +32,7 @@ namespace Resemble
             });
         }
 
-        public static void SendPostRequest(string uri, string data, GenericCallback callback)
+        public static void SendPostRequest(string uri, string data, Callback.Simple callback)
         {
             EnqueuePost(uri, data, (string content, Error error) =>
             {
@@ -90,7 +43,7 @@ namespace Resemble
 
         //Functions used by the plugin.
         #region Basics Methodes
-        public static void GetProjects(GetProjectCallback callback)
+        public static void GetProjects(Callback.GetProject callback)
         {
             string uri = apiUri;
             EnqueueGet(uri, (string content, Error error) =>
@@ -115,7 +68,13 @@ namespace Resemble
             EnqueueDelete(uri, (string content, Error error) => {});
         }
 
-        public static void CreateProject(Project project, CreateProjectCallback callback)
+        public static void DeleteClip(string uuid)
+        {
+            string uri = apiUri + "/" + Settings.project.uuid + "/clips/" + uuid;
+            EnqueueDelete(uri, (string content, Error error) => { });
+        }
+
+        public static void CreateProject(Project project, Callback.CreateProject callback)
         {
             string uri = apiUri;
             string data = "{\"data\":" + JsonUtility.ToJson(project) + "}";
@@ -127,7 +86,7 @@ namespace Resemble
             });
         }
 
-        public static Task CreateClipSync(CreateClipData podData, GetClipCallback callback)
+        public static Task CreateClipSync(CreateClipData podData, Callback.Simple callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/sync";
             string data = new CreateClipRequest(podData, "x-high", false).Json();
@@ -140,12 +99,12 @@ namespace Resemble
                 }
                 else
                 {
-                    callback.Invoke(new AudioPreview(content), Error.None);
+                    callback.Invoke(content, Error.None);
                 }
             });
         }
 
-        public static void GetClip(string uuid, GetClipCallback callback)
+        public static void GetClip(string uuid, Callback.GetClip callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/" + uuid;
 
@@ -162,22 +121,22 @@ namespace Resemble
             });
         }
 
-        public static void GetClips(GetClipsCallback callback)
+        public static void GetClips(Callback.GetClips callback)
         {
             string uri = apiUri + "/" + Settings.project.uuid + "/clips/";
 
             EnqueueGet(uri, (string content, Error error) =>
             {
                 if (error)
-                {
                     callback.Method.Invoke(callback.Target, new object[] { null, error });
-                }
                 else
-                {
-                    Debug.Log(content);
                     callback.Method.Invoke(callback.Target, new object[] { ResembleClip.FromJson(content), Error.None }) ;
-                }
             });
+        }
+
+        public static Task DownloadClip(string uri, Callback.Download callback)
+        {
+            return Task.DowloadTask(uri, callback);
         }
 
         #endregion
@@ -206,11 +165,11 @@ namespace Resemble
                 if (time - task.time > timout)
                 {
                     task.error = Error.Timeout;
-                    task.status = Task.Status.completed;
+                    task.status = Task.Status.Completed;
                 }
 
                 //Remove completed tasks
-                if (task.status == Task.Status.completed)
+                if (task.status == Task.Status.Completed)
                 {
                     executionLoop.RemoveAt(i);
                     exeCount--;
@@ -239,7 +198,7 @@ namespace Resemble
             for (int i = 0; i < executionLoop.Count; i++)
             {
                 Task task = executionLoop[i];
-                if (task.status == Task.Status.waitToBeExecuted)
+                if (task.status == Task.Status.WaitToBeExecuted)
                 {
                     switch (task.type)
                     {
@@ -253,14 +212,14 @@ namespace Resemble
                             SendDeleteRequest(task);
                             break;
                     }
-                    task.status = Task.Status.waitApiResponse;
+                    task.status = Task.Status.WaitApiResponse;
                     task.time = EditorApplication.timeSinceStartup;
                 }
             }
         }
 
         /// <summary> Enqueue a Get web request to the task list. This task will be executed as soon as possible. </summary>
-        public static Task EnqueueGet(string uri, GenericCallback resultProcessor)
+        public static Task EnqueueGet(string uri, Callback.Simple resultProcessor)
         {
             Task task = new Task(uri, null, resultProcessor, Task.Type.Get);
             tasks.Enqueue(task);
@@ -273,7 +232,7 @@ namespace Resemble
         }
 
         /// <summary> Enqueue a Pos web request to the task list. This task will be executed as soon as possible. </summary>
-        public static Task EnqueuePost(string uri, string data, GenericCallback resultProcessor)
+        public static Task EnqueuePost(string uri, string data, Callback.Simple resultProcessor)
         {
             Task task = new Task(uri, data, resultProcessor, Task.Type.Post);
             tasks.Enqueue(task);
@@ -286,7 +245,7 @@ namespace Resemble
         }
 
         /// <summary> Enqueue a Delete web request to the task list. This task will be executed as soon as possible. </summary>
-        public static void EnqueueDelete(string uri, GenericCallback resultProcessor)
+        public static void EnqueueDelete(string uri, Callback.Simple resultProcessor)
         {
             tasks.Enqueue(new Task(uri, null, resultProcessor, Task.Type.Delete));
             if (!receiveUpdates)
@@ -328,7 +287,7 @@ namespace Resemble
         /// <summary> Responses from requests are received here. The content of the response is process by the resultProcessor and then the callback is executed with the result. </summary>
         private static void CompleteAsyncOperation(AsyncOperation asyncOp, UnityWebRequest webRequest, Task task)
         {
-            task.status = Task.Status.completed;
+            task.status = Task.Status.Completed;
 
             if (task.resultProcessor == null || task.type == Task.Type.Delete)
                 return;

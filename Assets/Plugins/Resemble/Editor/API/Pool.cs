@@ -1,22 +1,22 @@
-﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using Resemble.Structs;
+using Resemble.GUIEditor;
 
 namespace Resemble
 {
+    /// <summary> Contains and displays all current requests to Resemble API. </summary>
     public static class Pool
     {
-        private static List<APIBridge.Task> tasks = new List<APIBridge.Task>();
+        public static List<Task> tasks = new List<Task>();
+        private static int lastID;
 
-        public static void DrawGUI()
+        /// <summary> Add a task to the pool. Make this task visible for the user.
+        /// /!\ This is a pool for visibility only, no execution. </summary>
+        public static void AddTask(Task task)
         {
-
-        }
-
-        public static void AddTask(APIBridge.Task task)
-        {
+            task.poolID = lastID;
+            lastID++;
             tasks.Add(task);
+            Resemble_Window.RefreshPoolList();
         }
     }
 }

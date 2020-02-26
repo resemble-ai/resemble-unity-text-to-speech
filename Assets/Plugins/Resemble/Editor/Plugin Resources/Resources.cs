@@ -8,12 +8,35 @@ namespace Resemble
     public class Resources : ScriptableObject
     {
         public Texture2D icon;
-        public Texture2D projectHeader;
         public Texture2D externalLink;
         public Texture2D breakIco;
         public Texture2D[] docImages;
         public Texture2D[] pathImages;
-        public Material textMat;
+
+        public Material textMat
+        {
+            get
+            {
+                if (_textMat == null)
+                    _textMat = new Material(textShader);
+                return _textMat;
+            }
+        }
+        public Material boxMat
+        {
+            get
+            {
+                if (_boxMat == null)
+                    _boxMat = new Material(boxShader);
+                return _boxMat;
+            }
+        }
+        private Material _textMat;
+        private Material _boxMat;
+
+        public Shader textShader;
+        public Shader boxShader;
+
         public Font font;
         public Text text = new Text();
         public Object processClip;

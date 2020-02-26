@@ -1,4 +1,4 @@
-﻿namespace Resemble.Structs
+namespace Resemble.Structs
 {
     public struct Error
     {
@@ -9,6 +9,16 @@
         public static implicit operator bool(Error error)
         {
             return error.exist;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Error : {0} : {1}", code, message);
+        }
+
+        public void Log()
+        {
+            UnityEngine.Debug.LogError(ToString());
         }
 
         public Error(long code, string message)

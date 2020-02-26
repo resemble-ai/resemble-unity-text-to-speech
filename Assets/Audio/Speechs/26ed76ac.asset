@@ -10,14 +10,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0da67f1a901af494288cbafce6a4e541, type: 3}
-  m_Name: Julie
+  m_Name: 26ed76ac
   m_EditorClassIdentifier: 
-  voice: 
+  voice: 26ed76ac
   pitch: 2
   speed: 2
   clips:
-  - {fileID: 5550723420705241138}
---- !u!114 &5550723420705241138
+  - {fileID: 5590165779953535020}
+--- !u!114 &5590165779953535020
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -27,23 +27,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: Welcome
+  m_Name: Steve Taylor test
   m_EditorClassIdentifier: 
-  set: {fileID: 11400000}
+  speech: {fileID: 11400000}
   clip: {fileID: 0}
   clipCopy: {fileID: 0}
   text:
-    userString: gsrdfg fsdfdssd fsdfsd fsd
-    tags:
-    - type: 1
-      emotion: 1
-      start: 23
-      end: 26
-      rects:
-      - serializedVersion: 2
-        x: 174
-        y: 7
-        width: 22
-        height: 16
-      color: {r: 1, g: 0.3, b: 0.1, a: 1}
+    userString: <speak><p>Hello again,<break time="0.2s"/> friend of a friend,<break
+      time="0.2s"/> I knew you when.<break time="0.5s"/></p><p>Our common goal was
+      waiting for the world to end.<break time="0.5s"/></p><p>Now that the truth is
+      just a rule that you can bend.</p><p>You crack the whip, shape-shift and trick
+      the past again.</p></speak>
+    tags: []
   autoRename: 0

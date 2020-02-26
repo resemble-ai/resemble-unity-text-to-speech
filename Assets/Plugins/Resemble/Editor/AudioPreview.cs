@@ -9,9 +9,30 @@ namespace Resemble
 {
     public class AudioPreview
     {
-
-
         public string url;
+        public bool done
+        {
+            get
+            {
+                return download.isDone;
+            }
+        }
+        public byte[] data
+        {
+            get
+            {
+                if (!done)
+                    return null;
+                return download.webRequest.downloadHandler.data;
+            }
+        }
+        public float progress
+        {
+            get
+            {
+                return download.progress;
+            }
+        }
         public AudioClip clip;
         public OnCompleted onDowloaded;
         public UnityWebRequestAsyncOperation download;

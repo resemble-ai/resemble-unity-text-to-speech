@@ -13,7 +13,6 @@ MonoBehaviour:
   m_Name: Resources
   m_EditorClassIdentifier: 
   icon: {fileID: 2800000, guid: 95588b7c499ae544589ae4b2d9576341, type: 3}
-  projectHeader: {fileID: 2800000, guid: 107b23c4a18974b429430e8bfa420e6e, type: 3}
   externalLink: {fileID: 2800000, guid: 0955e96553cadfb48b293dd1f99aff1a, type: 3}
   breakIco: {fileID: 2800000, guid: 93cc70252f68a75468a611368c24d614, type: 3}
   docImages:
@@ -26,9 +25,10 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 7c1021d79290c234c97c54fe71f102c7, type: 3}
   - {fileID: 2800000, guid: f6ffec570336e4f4ea56bae6391e5f39, type: 3}
   - {fileID: 2800000, guid: 9665fcaa158bfa14fa392325833e5faa, type: 3}
-  textMat: {fileID: 2100000, guid: c3076581994fb3c4db3a4b47a4449ce0, type: 2}
+  textShader: {fileID: 4800000, guid: 9baa43913a7fbab4ebcfa075b0183455, type: 3}
+  boxShader: {fileID: 4800000, guid: 141736c3605ea5f409d75ef3bca5121f, type: 3}
   font: {fileID: 12800000, guid: be60bfb435fff2b4ab8d2cf748a1b25c, type: 3}
   text:
-    userString: This audioclip is in processing...
+    userString: 
     tags: []
   processClip: {fileID: 102900000, guid: 5bc78681a20100349a602d423bb35862, type: 3}

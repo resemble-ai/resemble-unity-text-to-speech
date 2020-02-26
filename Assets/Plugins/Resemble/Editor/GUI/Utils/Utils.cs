@@ -26,26 +26,26 @@ namespace Resemble.GUIEditor
             EditorGUILayout.HelpBox(message, MessageType.Error);
         }
 
-        public static void DrawLinkLabel(string label, string linkLabel, string url, GUIStyle labelStyle, GUIStyle linkStyle)
+        public static bool DrawLinkLabel(string label, string linkLabel, GUIStyle labelStyle, GUIStyle linkStyle)
         {
-            DrawLinkLabel(new GUIContent(label), new GUIContent(linkLabel), url, labelStyle, linkStyle);
+            return DrawLinkLabel(new GUIContent(label), new GUIContent(linkLabel), labelStyle, linkStyle);
         }
 
-        public static void DrawLinkLabel(string label, GUIContent linkLabel, string url, GUIStyle labelStyle, GUIStyle linkStyle)
+        public static bool DrawLinkLabel(string label, GUIContent linkLabel, GUIStyle labelStyle, GUIStyle linkStyle)
         {
-            DrawLinkLabel(new GUIContent(label), linkLabel, url, labelStyle, linkStyle);
+            return DrawLinkLabel(new GUIContent(label), linkLabel, labelStyle, linkStyle);
         }
 
-        public static void DrawLinkLabel(GUIContent label, GUIContent linkLabel, string url, GUIStyle labelStyle, GUIStyle linkStyle)
+        public static bool DrawLinkLabel(GUIContent label, GUIContent linkLabel, GUIStyle labelStyle, GUIStyle linkStyle)
         {
             GUILayout.BeginHorizontal();
             GUILayout.Space(20);
             GUILayout.Label(label, labelStyle);
-            if (GUILayout.Button(linkLabel, linkStyle))
-                Application.OpenURL(url);
+            bool clic = GUILayout.Button(linkLabel, linkStyle);
             EditorGUIUtility.AddCursorRect(GUILayoutUtility.GetLastRect(), MouseCursor.Link);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
+            return clic;
         }
 
         public static void DrawSeparator()
@@ -54,6 +54,15 @@ namespace Resemble.GUIEditor
             Rect rect = GUILayoutUtility.GetRect(1.0f, 1.0f);
             rect.Set(rect.x + 10, rect.y, rect.width - 20, 1.0f);
             EditorGUI.DrawRect(rect, Color.grey);
+        }
+
+        public static void FlatBox(Rect rect, Color headerColor, Color backColor, float cornerSize, float headerHeight)
+        {
+            Material mat = Resources.instance.boxMat;
+            mat.SetColor("_BackColor", backColor);
+            mat.SetColor("_HeaderColor", headerColor);
+            mat.SetVector("_Sizes", new Vector4(rect.width, rect.height, cornerSize, headerHeight));
+            EditorGUI.DrawPreviewTexture(rect, Texture2D.whiteTexture, mat);
         }
 
         public static void FlatRect(Rect rect, Color color, float roundness, float borderOnly)
@@ -273,6 +282,13 @@ namespace Resemble.GUIEditor
             return absolutePath.Remove(0, Application.dataPath.Length - 6);
         }
 
+        public static bool LocalPath(ref string path)
+        {
+            if (!path.Contains(Application.dataPath))
+                return false;
+            path = path.Remove(0, Application.dataPath.Length - 6);
+            return true;
+        }
 
         public enum ButtonState
         {

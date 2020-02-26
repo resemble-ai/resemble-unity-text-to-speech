@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -99,7 +99,7 @@ namespace Resemble.GUIEditor
             {
                 Clip clip = CreateInstance<Clip>();
                 clip.name = "New clip";
-                clip.set = speech;
+                clip.speech = speech;
                 clip.autoRename = true;
                 AssetDatabase.AddObjectToAsset(clip, speech);
                 EditorUtility.SetDirty(speech);

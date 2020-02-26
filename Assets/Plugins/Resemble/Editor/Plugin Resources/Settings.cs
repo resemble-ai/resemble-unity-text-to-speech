@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Linq;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Resemble.Structs;
+using Resemble.GUIEditor;
 
 namespace Resemble
 {
@@ -156,6 +158,160 @@ namespace Resemble
             project = instance._projectNames[name];
             projectUUID = project.uuid;
             EditorUtility.SetDirty(instance);
+        }
+
+        /// <summary> Bind a Resemble project to this UnityProject. </summary>
+        public static void BindProject(Project value)
+        {
+            project = value;
+            projectUUID = value.uuid;
+            haveProject = true;
+            SetDirty();
+        }
+
+        /// <summary> Unbind the current Resemble project from this UnityProject. </summary>
+        public static void UnbindProject()
+        {
+            project = null;
+            projectUUID = "";
+            haveProject = false;
+            SetDirty();
+        }
+
+        /// <summary> Request a delete on a Resemble project. (Show a confirmation dialog before) </summary>
+        public static void DeleteProject(Project value)
+        {
+            if (EditorUtility.DisplayDialog("Delete Resemble project",
+            string.Format("Are you sure you want to delete the project \"{0}\" ?\n\nThis action will delete " +
+            "the resemble project (not only in Unity) and is irreversible !", value.name), "Suppress it anyway", "Cancel"))
+            {
+                APIBridge.DeleteProject(value);
+                projects = projects.ToList().Where(x => x.uuid != value.uuid).ToArray();
+            }
+        }
+
+        /// <summary> Show a complexe dialog offering to import wav file or speech files. </summary>
+        public static void ImportClips(Project value)
+        {
+            //Display complex dialog
+            int choice = EditorUtility.DisplayDialogComplex("Import resemble clips", "In what format do you want to import the clips?",
+                "Cancel", "Resemble Speechs", "Wav files only");
+
+            string path = "";
+            switch(choice)
+            {
+                //Cancel by user
+                case 0:
+                    return;
+
+                   //Import speechs
+                case 1:
+                    path = EditorUtility.SaveFolderPanel("Import Resemble Speechs", "Assets/", "");
+                    if (string.IsNullOrEmpty(path))
+                        return;
+                    if (!Utils.LocalPath(ref path))
+                    {
+                        EditorUtility.DisplayDialog("Error", "Path need be in the project unity.", "Ok");
+                        return;
+                    }
+                    ImportProjectSpeechs(path);
+                    break;
+
+                    //Import wav files
+                case 2:
+                    path = EditorUtility.SaveFolderPanel("Import Resemble wav files", "Assets/", "");
+                    if (string.IsNullOrEmpty(path))
+                        return;
+                    ImportProjectWavfiles(path);
+                    break;
+            }
+        }
+
+        /// <summary> Import all speechs from current project. </summary>
+        public static void ImportProjectSpeechs(string path)
+        {
+            APIBridge.GetClips((ResembleClip[] result, Error error) => 
+            {
+                if (error)
+                    error.Log();
+                else
+                    DownloadSpeechs(path, result);
+            });
+        }
+
+        private static void DownloadSpeechs(string path, ResembleClip[] clips)
+        {
+            Dictionary<string, Speech> speechs = new Dictionary<string, Speech>();
+
+            //Group speech by voices
+            for (int i = 0; i < clips.Length; i++)
+            {
+                ResembleClip clip = clips[i];
+
+                //Add new speech to the dictionnary
+                Speech speech;
+                if (!speechs.ContainsKey(clip.voice))
+                {
+                    speech = ScriptableObject.CreateInstance<Speech>();
+                    speech.voice = clip.voice;
+                    speech.name = clip.voice;
+                    speechs.Add(clip.voice, speech);
+                }
+
+                //Get existing speech
+                else
+                {
+                    speech = speechs[clip.voice];
+                }
+
+                Clip clipAsset = ScriptableObject.CreateInstance<Clip>();
+                clipAsset.name = clip.title;
+                clipAsset.text = new Text();
+                clipAsset.text.userString = clip.body;
+                clipAsset.text.tags = new List<Tag>();
+                clipAsset.speech = speech;
+                speech.clips.Add(clipAsset);
+            }
+
+            //Write assets
+            foreach (var speech in speechs)
+            {
+                AssetDatabase.CreateAsset(speech.Value, path + "/" + speech.Value.name + ".asset");
+                foreach (var subClip in speech.Value.clips)
+                    AssetDatabase.AddObjectToAsset(subClip, speech.Value);
+            }
+
+            //Import assets
+            foreach (var speech in speechs)
+                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(speech.Value), ImportAssetOptions.ForceUpdate);
+        }
+
+        /// <summary> Import all wav files from current project. </summary>
+        public static void ImportProjectWavfiles(string path)
+        {
+            APIBridge.GetClips((ResembleClip[] result, Error error) =>
+            {
+                if (error)
+                    error.Log();
+                else
+                    DownloadtWavFiles(path, result);
+            });
+        }
+
+        private static void DownloadtWavFiles(string path, ResembleClip[] clips)
+        {
+            bool localPath = path.Contains(Application.dataPath);
+            for (int i = 0; i < clips.Length; i++)
+            {
+                string filePath = path + "/" + clips[i].title + ".wav";
+                Task task = APIBridge.DownloadClip(clips[i].link, (byte[] data, Error error) =>
+                {
+                    System.IO.File.WriteAllBytes(filePath, data);
+                    if (localPath)
+                        AssetDatabase.ImportAsset(Utils.LocalPath(filePath), ImportAssetOptions.ForceUpdate);
+                });
+                Pool.AddTask(task);
+            }
         }
 
         /// <summary> Open the preference page about Resemble in the Editor. </summary>

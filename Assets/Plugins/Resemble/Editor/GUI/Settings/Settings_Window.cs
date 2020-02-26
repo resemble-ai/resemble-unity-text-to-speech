@@ -1,4 +1,4 @@
-﻿using UnityEditor;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Linq;
@@ -32,11 +32,17 @@ namespace Resemble.GUIEditor
         private GUIContent resembleAPILinkLabel = new GUIContent("Resemble API.", "Go to the token page on resemble.ai.");
         private GUIContent tokenLabel = new GUIContent("Token", "Your token is used to identify you to Resemble services.");
 
+
         public override void OnActivate(string searchContext, VisualElement rootElement)
         {
             if (!string.IsNullOrEmpty(Settings.token))
                 APIBridge.GetProjects(GetProjectCallback);
             visualElement = rootElement;
+            if (visualElement.focusController.focusedElement != null)
+            {
+                EditorWindow win = EditorWindow.focusedWindow;
+                win.minSize = new Vector2(550, 510);
+            }
         }
 
         private void RefreshSelected()

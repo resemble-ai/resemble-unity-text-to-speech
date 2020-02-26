@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Resemble.Structs
 {
@@ -6,14 +7,23 @@ namespace Resemble.Structs
     public class ResembleClip
     {
         public int id;
+        public int project_id;
         public string title;
         public string body;
         public string published;
         public string author;
+        public string created_at;
+        public string updated_at;
         public bool finished;
         public string link;
+        public string uuid;
         public string voice;
-        public int project_id;
+        public bool @public;
+        public string html;
+        public bool archive;
+        public string emotion;
+        public string team_id;
+        public string callback_uri;
 
         public override string ToString()
         {
@@ -22,7 +32,7 @@ namespace Resemble.Structs
 
         public static ResembleClip[] FromJson(string json)
         {
-            return JsonUtility.FromJson<SerializablePodArray>(string.Format("{0}\"pods\": {2}{1}", '{', '}', json)).pods;
+            return JsonUtility.FromJson<SerializablePodArray>(json).pods;
         }
 
         [System.Serializable]

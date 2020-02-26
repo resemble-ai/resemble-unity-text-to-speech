@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.IO;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,9 +17,8 @@ namespace Resemble.GUIEditor
         private int renameControlID;
         private Editor clipEditor;
         private AudioImporter importer;
-        private AudioPreview preview;
         private bool dirtySettings;
-        private APIBridge.Task task;
+        private Task task;
         private Error error = Error.None;
         public Text_Editor drawer = new Text_Editor();
 
@@ -40,10 +39,10 @@ namespace Resemble.GUIEditor
             GUI.DrawTexture(rect, Resources.instance.icon);
 
             //Name & Rename field
-            float width = Styles.header.CalcSize(new GUIContent(clip.set.name + " > ")).x;
+            float width = Styles.header.CalcSize(new GUIContent(clip.speech.name + " > ")).x;
             rect.Set(44, 4, width, 22);
-            if (GUI.Button(rect, clip.set.name + " > ", Styles.header))
-                Selection.activeObject = clip.set;
+            if (GUI.Button(rect, clip.speech.name + " > ", Styles.header))
+                Selection.activeObject = clip.speech;
             rect.Set(rect.x + rect.width, rect.y, Screen.width - (rect.x + rect.width + 50), rect.height);
 
             //Autorename
@@ -101,15 +100,22 @@ namespace Resemble.GUIEditor
             //Draw text layout
             drawer.DoLayout(true, OnEditText, OnGenerate);
 
+            //Show pending request button
+            if (task != null && task.status != Task.Status.Completed)
+            {
+                if (GUILayout.Button("Show pending request"))
+                    Resemble_Window.Open(Resemble_Window.Tab.Pool);
+            }
+
             if (error)
                 error.DrawErrorBox();
 
-            if (preview != null)
+            if (task != null && task.preview != null && task.status == Task.Status.Downloading)
             {
-                if (!preview.download.isDone)
+                if (!task.preview.done)
                 {
                     Rect rect = GUILayoutUtility.GetRect(Screen.width, 16);
-                    float progress = preview.download.progress;
+                    float progress = task.preview.download.progress;
                     EditorGUI.ProgressBar(rect, progress, "Download : " + Mathf.RoundToInt(progress * 100) + "%");
                 }
                 else
@@ -178,27 +184,29 @@ namespace Resemble.GUIEditor
 
             //Send request to the API
             CreateClipData pod = new CreateClipData(clip.name, clip.text.BuildResembleString(), "9816e4ee");
-            task = APIBridge.CreateClipSync(pod, (AudioPreview preview, Error error) => 
+            task = APIBridge.CreateClipSync(pod, (string audioUri, Error error) => 
             {
                 if (!error)
                 {
                     this.error = Error.None;
-                    this.preview = preview;
-                    this.preview.onDowloaded += OnDownloaded;
+                    task.DownloadResult(audioUri, OnDownloaded);
                 }
                 else
                 {
                     this.error = error;
                 }
             });
+            Pool.AddTask(task);
         }
 
-        private void OnDownloaded()
+        private void OnDownloaded(byte[] data, Error error)
         {
+            if (error)
+                return;
+
             //Write file
-            preview.onDowloaded -= OnDownloaded;
             string savePath = clip.GetSavePath();
-            File.WriteAllBytes(savePath, preview.download.webRequest.downloadHandler.data);
+            File.WriteAllBytes(savePath, data);
 
             //Import asset
             AssetDatabase.ImportAsset(savePath, ImportAssetOptions.ForceUpdate);
@@ -210,8 +218,8 @@ namespace Resemble.GUIEditor
             EditorApplication.CallbackFunction value = (EditorApplication.CallbackFunction)info.GetValue(null);
             value += ApplicationUpdate;
             info.SetValue(null, value);
-            Clip pod = target as Clip;
-            if (pod != null && pod.text != null && drawer != null)
+            Clip clip = target as Clip;
+            if (clip != null && clip.text != null && drawer != null && drawer.target != null)
                 drawer.Refresh();
         }
 

@@ -1,13 +1,10 @@
-﻿using System.Linq;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using Resemble;
 using Resemble.Structs;
 
 namespace Resemble.GUIEditor
 {
+    /// <summary> Project tab of preference window. </summary>
     public partial class RessembleSettingsProvider
     {
         private Vector2 projectListScroll;
@@ -34,7 +31,7 @@ namespace Resemble.GUIEditor
                     DrawProjectList(rect);
                     GUILayout.EndVertical();
                 }
-                DrawProjectAreaUnityStyle();
+                DrawProjectArea();
             }
 
             //Apply changes to scriptable object
@@ -58,8 +55,9 @@ namespace Resemble.GUIEditor
         public void DrawConnectGUI()
         {
             //Resemble API link
-            Utils.DrawLinkLabel("You can find your Resemble token here: ", resembleAPILinkLabel,
-                "https://app.resemble.ai/account/api", Styles.bodyStyle, Styles.linkStyle);
+            if (Utils.DrawLinkLabel("You can find your Resemble token here: ", 
+                resembleAPILinkLabel, Styles.bodyStyle, Styles.linkStyle))
+                WebPage.ResembleToken.Open();
 
             //Token field
             EditorGUI.BeginDisabledGroup(Settings.connected);
@@ -190,53 +188,7 @@ namespace Resemble.GUIEditor
 
         private void DrawProjectArea()
         {
-            if (selected == -1)
-            {
-                EditorGUILayout.HelpBox("Please select a project from the list above", MessageType.Info);
-                return;
-            }
-
-            Project project = Settings.projects[selected];
-            if (Settings.haveProject)
-                project = Settings.project;
-
-            Rect rect = GUILayoutUtility.GetRect(winRect.width - 100, 200);
-            rect.Set(rect.x + 5, rect.y + 20, Mathf.Min(rect.width, 446), 183);
-            GUI.DrawTexture(rect, Resources.instance.projectHeader);
-            rect.Set(rect.x + 20, rect.y, rect.width - 50, 63);
-            GUI.Label(rect, project.name, Styles.projectHeaderLabel);
-
-            rect.Set(rect.x, rect.y + rect.height, rect.width + 10, 80);
-            GUI.Label(rect, project.description, EditorStyles.largeLabel);
-
-            rect.Set(rect.x - 10, rect.y + rect.height + 5, rect.width + 20, 30);
-
-            if (Settings.haveProject)
-            {
-                rect.Set(rect.x, rect.y, 200, rect.height);
-                Utils.FlatButton(rect, "Import all pods in wav", Color.grey, 1.0f, rect.Contains(Event.current.mousePosition) ? 0.8f : 1.0f);
-                rect.x += rect.width;
-                Utils.FlatButton(rect, "Unbind", Color.grey);
-            }
-            else
-            {
-                if (Utils.FlatButton(rect, "Bind", Color.grey, 1.0f, rect.Contains(Event.current.mousePosition) ? 0.8f : 1.0f))
-                {
-                    Settings.haveProject = true;
-                    Settings.project = Settings.projects[selected];
-                    Settings.projectUUID = Settings.projects[selected].uuid;
-                    EditorUtility.SetDirty(Settings.instance);
-                }
-            }
-
-            rect.Set(rect.x + rect.width - 30, rect.y - 142, 30, 30);
-            EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
-            if (GUI.Button(rect, Resources.instance.externalLink, GUIStyle.none))
-                Utils.OpenProjectInBrowser(Settings.project.uuid);
-        }
-
-        private void DrawProjectAreaUnityStyle()
-        {
+            //Help box if nothing is selected
             if (selected >= Settings.projects.Length)
                 selected = Settings.projects.Length - 1;
             if (selected == -1)
@@ -245,61 +197,59 @@ namespace Resemble.GUIEditor
                 return;
             }
 
+            //Init vars
             Project project = Settings.projects[selected];
             if (Settings.haveProject)
                 project = Settings.project;
 
-            //Begin box area
-            GUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandHeight(true));
+            //Background box
+            Rect rect = EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true)).Shrink(1);
+            GUILayout.Space(160);
+            EditorGUILayout.EndVertical();
+            Utils.FlatBox(rect, Styles.lightGreen, Color.white, 0.01f, 40.0f);
 
-            //Name and description
-            GUILayout.Label("Project name : " + project.name);
-            GUILayout.Label("Project uuid : " + project.uuid);
-            GUILayout.Label("Project description : " + project.description);
+            //Header Label
+            Rect temp = rect;
+            temp.Set(temp.x + 10, temp.y + 10, temp.width - 50, 20);
+            GUI.Label(temp, project.name, Styles.projectHeaderLabel);
 
-            GUILayout.FlexibleSpace();
+            //Open project in extern browser button
+            temp.Set(temp.x + temp.width + 5, temp.y - 5, 30, 30);
+            EditorGUIUtility.AddCursorRect(temp, MouseCursor.Link);
+            if (GUI.Button(temp, Resources.instance.externalLink, GUIStyle.none))
+                WebPage.ResembleProjects.Open(project.uuid);
 
-            //Bot buttons
-            GUILayout.BeginHorizontal();
-            GUILayout.FlexibleSpace();
+            //Description
+            temp.Set(rect.x + 5, rect.y + 50, rect.width - 10, rect.height - 90);
+            GUI.Label(temp, project.description, EditorStyles.largeLabel);
+
+            //Buttons area
+            rect.Set(temp.x, temp.y + temp.height + 5, temp.width, 30);
+
             if (Settings.haveProject)
             {
-                if (GUILayout.Button("Unbind"))
-                {
-                    Settings.project = null;
-                    Settings.projectUUID = "";
-                    Settings.haveProject = false;
-                    Settings.SetDirty();
-                }
+                //Unbind button
+                temp.Set(rect.x + rect.width - 250, rect.y, 80, rect.height);
+                if (Utils.FlatButton(temp, new GUIContent("Unbind"), Color.grey, 0.4f, 0.8f))
+                    Settings.UnbindProject();
+
+                //Delete button
+                temp.Set(rect.x + rect.width - 170, rect.y, 170, rect.height);
+                if (Utils.FlatButton(temp, new GUIContent("Import clips"), Styles.purple, 0.4f, 0.8f))
+                    Settings.ImportClips(project);
             }
             else
             {
-                if (GUILayout.Button("Delete"))
-                {
-                    if (EditorUtility.DisplayDialog("Delete Resemble project",
-                       string.Format("Delete the project \"{0}\" ?", project.name), "Yes", "Cancel"))
-                    {
-                        APIBridge.DeleteProject(project);
-                        Settings.projects = Settings.projects.ToList().Where(x => x.uuid != project.uuid).ToArray();
-                    }
-                }
-                if (GUILayout.Button("Get"))
-                {
-                    APIBridge.GetProject(project.uuid);
-                }
-                if (GUILayout.Button("Bind"))
-                {
-                    Settings.project = project;
-                    Settings.projectUUID = project.uuid;
-                    Settings.haveProject = true;
-                    Settings.SetDirty();
-                }
-            }
-            GUILayout.EndHorizontal();
+                //Bind button
+                temp.Set(rect.x + rect.width - 80, rect.y, 80, rect.height);
+                if (Utils.FlatButton(temp, new GUIContent("Bind"), Styles.purple, 0.4f, 0.8f))
+                    Settings.BindProject(project);
 
-            //Close box area
-            GUILayout.EndVertical();
-            GUILayout.Space(16);
+                //Delete button
+                temp.Set(rect.x + rect.width - 180, rect.y, 100, rect.height);
+                if (Utils.FlatButton(temp, new GUIContent("Delete"), Color.grey, 0.4f, 0.8f))
+                    Settings.DeleteProject(project);
+            }
         }
     }
 }

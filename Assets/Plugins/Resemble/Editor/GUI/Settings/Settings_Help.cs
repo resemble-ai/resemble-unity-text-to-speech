@@ -1,11 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
-using Resemble;
 
 namespace Resemble.GUIEditor
 {
+    /// <summary> Help tab of preference window. </summary>
     public partial class RessembleSettingsProvider
     {
 
