@@ -14,25 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _token: k7N8n5WXQ587jutISStouAtt
   _projectUUID: 770b9577
-  pathMethode: 1
-  useSubFolder: 1
-  showWelcomePopup: 0
-  folderPathA: 
-  folderPathB: 
-  _projects:
-  - id: 37167
-    uuid: 770b9577
-    name: The great journey
-    description: My first unity project with Resemble
-    publish_google: 0
-  - id: 42534
-    uuid: 016c6aae
-    name: Warner Demos
-    description: Demos for WB
-    publish_google: 0
-  _project:
-    id: 37167
-    uuid: 770b9577
-    name: The great journey
-    description: My first unity project with Resemble
-    publish_google: 0
+  _pathMethode: 1
+  _useSubFolder: 1
+  _showWelcomePopup: 0
+  _folderPathA: 
+  _folderPathB: 

@@ -18,27 +18,27 @@ namespace Resemble
             string path = AssetDatabase.GetAssetPath(clip.speech);
 
             //Adapts the path according to the settings
-            switch (Settings.instance.pathMethode)
+            switch (Settings.pathMethode)
             {
                 default:
                 case Settings.PathMethode.SamePlace:
                     path = RemoveFilenameFromPath(path);
                     break;
                 case Settings.PathMethode.Absolute:
-                    path = Settings.instance.folderPathA.Remove(0, Application.dataPath.Length);
+                    path = Settings.folderPathA.Remove(0, Application.dataPath.Length);
                     break;
                 case Settings.PathMethode.MirrorHierarchy:
                     path = RemoveFilenameFromPath(path);
                     string dataPath = Application.dataPath;
-                    string folderB = Settings.instance.folderPathB.Remove(0, dataPath.Length);
-                    string folderA = Settings.instance.folderPathA.Remove(0, dataPath.Length);
+                    string folderB = Settings.folderPathB.Remove(0, dataPath.Length);
+                    string folderA = Settings.folderPathA.Remove(0, dataPath.Length);
                     if (path.Contains(folderB))
                         path = path.Replace(folderB, folderA);
                     break;
             }
 
             //Add sub folder and extension
-            if (Settings.instance.useSubFolder)
+            if (Settings.useSubFolder)
                 path += "/" + clip.speech.name + "/";
             else
                 path += "/";

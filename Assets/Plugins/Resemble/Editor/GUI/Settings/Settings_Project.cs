@@ -21,15 +21,16 @@ namespace Resemble.GUIEditor
             Utils.DrawSeparator();
             GUILayout.Space(10);
 
-            if (!connectError && Settings.connected)
+            if (!Settings.connectionError && Settings.connected)
             {
                 if (!Settings.haveProject)
                 {
-                    GUILayout.BeginVertical(GUI.skin.box);
-                    Rect rect = DrawProjectsSearchBar();
+                    Rect rect = EditorGUILayout.BeginVertical(GUI.skin.box);
+                    EditorGUI.DrawRect(rect.Shrink(1), new Color(1.0f, 1.0f, 1.0f, 0.2f));
+                    rect = DrawProjectsSearchBar();
                     rect.Set(rect.x, rect.y + 20, rect.width, winRect.height - 200);
                     DrawProjectList(rect);
-                    GUILayout.EndVertical();
+                    EditorGUILayout.EndVertical();
                 }
                 DrawProjectArea();
             }
@@ -70,23 +71,21 @@ namespace Resemble.GUIEditor
             EditorGUI.BeginDisabledGroup(!Settings.connected);
             if (GUILayout.Button("Disconnect"))
             {
-                Settings.connected = false;
-                Settings.haveProject = false;
+                Settings.Disconnect();
             }
             EditorGUI.EndDisabledGroup();
-            EditorGUI.BeginDisabledGroup(Settings.connected || string.IsNullOrEmpty(Settings.token) || tryConnecting);
+            EditorGUI.BeginDisabledGroup(Settings.connected || string.IsNullOrEmpty(Settings.token) || Settings.tryToConnect);
             if (GUILayout.Button("Connect"))
             {
-                tryConnecting = true;
-                APIBridge.GetProjects(GetProjectCallback);
+                Settings.Connect();
             }
             EditorGUI.EndDisabledGroup();
             GUILayout.EndHorizontal();
 
             //Draw errors
-            if (connectError)
+            if (Settings.connectionError)
             {
-                Utils.DrawErrorBox(connectError, connectError.code == 401 ?
+                Utils.DrawErrorBox(Settings.connectionError, Settings.connectionError.code == 401 ?
                     "Autentification error. Please, check your token validity." :
                     "Unable to connect to Resemble API");
             }
@@ -106,14 +105,11 @@ namespace Resemble.GUIEditor
             rect = GUILayoutUtility.GetRect(150, 16);
             rect.Set(rect.x - 6, rect.y + 2, rect.width, rect.height);
             search = searchField.OnToolbarGUI(rect, search);
-            searchRect = GUILayoutUtility.GetLastRect();
 
             //Draw refresh button
-            if (GUILayout.Button(tryConnecting ? "Refreshing..." : " Refresh list ", EditorStyles.toolbarButton, GUILayout.ExpandWidth(false)) && !tryConnecting)
+            if (GUILayout.Button(Settings.tryToConnect ? "Refreshing..." : " Refresh list ", EditorStyles.toolbarButton, GUILayout.ExpandWidth(false)) && !Settings.tryToConnect)
             {
-                Settings.projects = new Project[0];
-                tryConnecting = true;
-                APIBridge.GetProjects(GetProjectCallback);
+                Settings.Connect();
             }
 
             //End toolbar area
@@ -144,7 +140,7 @@ namespace Resemble.GUIEditor
                         continue;
 
                 //Draw project line
-                Rect rect = GUILayoutUtility.GetRect(1, 16f);
+                Rect rect = GUILayoutUtility.GetRect(Screen.width, 16f);
                 rect.Set(rect.x, rect.y, rect.width, rect.height);
                 if (rect.Contains(mp))
                 {
@@ -156,7 +152,7 @@ namespace Resemble.GUIEditor
                 if (j == selected)
                     EditorGUI.DrawRect(rect, Color.cyan * 0.2f);
                 else if (j % 2 == 0)
-                    EditorGUI.DrawRect(rect, Color.grey * 0.1f);
+                    EditorGUI.DrawRect(rect, Color.white * 0.1f);
 
                 j++;
                 GUI.Label(rect, Settings.projects[i].name);
@@ -171,7 +167,7 @@ namespace Resemble.GUIEditor
             //No project on Resemble
             if (Settings.projects.Length == 0)
             {
-                if (tryConnecting)
+                if (Settings.tryToConnect)
                 {
                     GUILayout.Label("Refreshing...", EditorStyles.centeredGreyMiniLabel);
                 }
@@ -250,6 +246,11 @@ namespace Resemble.GUIEditor
                 if (Utils.FlatButton(temp, new GUIContent("Delete"), Color.grey, 0.4f, 0.8f))
                     Settings.DeleteProject(project);
             }
+        }
+
+        public static void Refresh()
+        {
+
         }
     }
 }

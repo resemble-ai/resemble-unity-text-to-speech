@@ -9,30 +9,132 @@ namespace Resemble
 {
     public class Settings : ScriptableObject
     {
-        //Saved settings - Saved
-        [SerializeField] public string _token;
-        [SerializeField] public string _projectUUID;
-        [SerializeField] public PathMethode pathMethode = PathMethode.SamePlace;
-        [SerializeField] public bool useSubFolder = true;
-        [SerializeField] public bool showWelcomePopup = true;
-        [SerializeField] public string folderPathA = "";
-        [SerializeField] public string folderPathB = "";
+
+        #region Saved settings
+
+        //Saved settings - Saved between session - Acces via static getter only
+        [SerializeField] private string _token;
+        [SerializeField] private string _projectUUID;
+        [SerializeField] private PathMethode _pathMethode = PathMethode.SamePlace;
+        [SerializeField] private bool _useSubFolder = true;
+        [SerializeField] private bool _showWelcomePopup = true;
+        [SerializeField] private string _folderPathA = "";
+        [SerializeField] private string _folderPathB = "";
 
 
-        [HideInInspector] public Project[] _projects;
-        [HideInInspector] public Project _project;
-        [HideInInspector] public Dictionary<string, Project> _projectNames = new Dictionary<string, Project>();
+        //Acces to the saved settings - Make this object dirty when change
+        /// <summary> User token, Used to authenticate to the Resemble API.  </summary>
+        public static string token
+        {
+            get { return instance._token; }
+            set { if (instance._token != value) instance._token = value; SetDirty(); }
+        }
 
-        //Editor only - Not saved
-        private static string _path;
+        /// <summary> UUID of the current binded project. </summary>
+        public static string projectUUID
+        {
+            get { return instance._projectUUID; }
+        }
+
+        /// <summary> Indicates the method used to generate the path for saving new audio files. </summary>
+        public static PathMethode pathMethode
+        {
+            get { return instance._pathMethode; }
+            set { if (instance._pathMethode != value) instance._pathMethode = value; SetDirty(); }
+        }
+
+        /// <summary> Indicates if the method used to generate the path for saving new audio files need a sub folder. </summary>
+        public static bool useSubFolder
+        {
+            get { return instance._useSubFolder; }
+            set { if (instance._useSubFolder != value) instance._useSubFolder = value; SetDirty(); }
+        }
+
+        /// <summary> Indicate if the Welcome panel need the be show on the first opening of the plugin. </summary>
+        public static bool showWelcomePopup
+        {
+            get { return instance._showWelcomePopup; }
+            set { if (instance._showWelcomePopup != value) instance._showWelcomePopup = value; SetDirty(); }
+        }
+
+        /// <summary> Used to generate the save path of new audio files. </summary>
+        public static string folderPathA
+        {
+            get { return instance._folderPathA; }
+            set { if (instance._folderPathA != value) instance._folderPathA = value; SetDirty(); }
+        }
+
+        /// <summary> Used to generate the save path of new audio files. </summary>
+        public static string folderPathB
+        {
+            get { return instance._folderPathB; }
+            set { if (instance._folderPathB != value) instance._folderPathB = value; SetDirty(); }
+        }
+
+        #endregion
+
+        #region Acces to the saved data
+        private static Settings _instance;
+        /// <summary> Returns the path of the scriptable object that holds all the information related to the user's connection.
+        public static Settings instance
+        {
+            get
+            {
+                if (_instance == null)
+                {
+                    //Build path - This particular method allows to move the location of the plugin without any problem.
+                    Settings settings = CreateInstance<Settings>();
+                    string path = AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(settings));
+                    DestroyImmediate(settings);
+                    path = path.Replace(".cs", ".asset");
+
+                    //Force unity to import asset (Required for the first load of the plugin)
+                    AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
+
+                    //Load scriptable object
+                    _instance = AssetDatabase.LoadAssetAtPath<Settings>(path);
+                }
+                return _instance;
+            }
+        }
+        #endregion
+
+        //Cached data - Not save between session - Often refreshed
+        //Accessible only via the getter that will perform a refresh if needed.
+        private Voice[] _voices;
+        private Project[] _projects;
+        private Project _project;
+        private Dictionary<string, Project> _projectNames = new Dictionary<string, Project>();
+
+        /// <summary> Voices that the user has access to. Automatically regenerated if null. 
+        /// You can call RefreshVoices() to refresh the value. </summary>
+        public static Voice[] voices
+        {
+            get
+            {
+                if (instance._voices == null)
+                {
+                    RefreshVoices();
+                    return new Voice[0];
+                }
+                return instance._voices;
+            }
+        }
 
         /// <summary> Indicate if the project is connected to the API. </summary>
-        public static bool connected;
+        public static bool connected { private set; get; }
 
-        /// <summary> Return true if there is a connect Resemble project. </summary>
+        /// <summary> Enable when th eplugin try to connect to the API. </summary>
+        public static bool tryToConnect { private set; get; }
+
+        /// <summary> Exit after a connection failure. </summary>
+        public static Error connectionError { private set; get; } = Error.None;
+
+        /// <summary> Return true if the plugin is bind to a Resemble project. </summary>
         public static bool haveProject;
 
         //Static acces
+
         public static IEnumerable<string> projectNames
         {
             get
@@ -40,21 +142,7 @@ namespace Resemble
                 return instance._projectNames.Keys;
             }
         }
-        public static string projectUUID
-        {
-            get
-            {
-                return instance._projectUUID;
-            }
-            set
-            {
-                if (instance._projectUUID != value)
-                {
-                    instance._projectUUID = value;
-                    EditorUtility.SetDirty(instance);
-                }
-            }
-        }
+
         public static Project[] projects
         {
             get
@@ -103,79 +191,118 @@ namespace Resemble
                 EditorUtility.SetDirty(instance);
             }
         }
-        public static string token
-        {
-            get
-            {
-                return instance._token;
-            }
-            set
-            {
-                if (instance._token != value)
-                {
-                    instance._token = value;
-                    EditorUtility.SetDirty(instance);
-                }
-            }
-        }
-        public static string path
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_path))
-                {
-                    Settings settings = ScriptableObject.CreateInstance<Settings>();
-                    _path = AssetDatabase.GetAssetPath(MonoScript.FromScriptableObject(settings));
-                    ScriptableObject.DestroyImmediate(settings);
-                    _path = _path.Replace(".cs", ".asset");
-                }
-                return _path;
-            }
-        }
+
 
         //Instance ref
-        public static Settings instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-                    _instance = AssetDatabase.LoadAssetAtPath<Settings>(path);
-                }
-                return _instance;
-            }
-        }
-        private static Settings _instance;
-        internal static SerializedObject GetSerializedSettings()
-        {
-            return new SerializedObject(instance);
-        }
+
+        #region  Callbacks
+        //Callbacks to get updates of any changes
+        public delegate void OnSettingsChange();
+        public static OnSettingsChange OnBind;
+        public static OnSettingsChange OnUnbind;
+        public static OnSettingsChange OnRefreshProjects;
+        public static OnSettingsChange OnRefreshVoices;
+        #endregion
 
         //Functions
-        public static void SelectProjectByName(string name)
+
+        /// <summary> Connect with the current token. </summary>
+        public static void Connect()
         {
-            project = instance._projectNames[name];
-            projectUUID = project.uuid;
-            EditorUtility.SetDirty(instance);
+            //Check token
+            if (string.IsNullOrEmpty(token))
+            {
+                Debug.LogError("You must enter a valid token to connect to the Resemble API.");
+                return;
+            }
+
+            //Indicates that the plugin is trying to make the connection
+            tryToConnect = true;
+
+            //If the projects are returned, the connection is considered established.
+            RefreshProjects();
+        }
+
+        /// <summary> Disconnect from the current token. </summary>
+        public static void Disconnect()
+        {
+            UnbindProject();
+            connected = false;
+        }
+
+        /// <summary> Make the request to refresh the list of projects. </summary>
+        public static void RefreshProjects()
+        {
+            //Clean old error if there are any. 
+            connectionError = Error.None;
+
+            //Make the request
+            APIBridge.GetProjects((Project[] projects, Error error) =>
+            {
+                tryToConnect = false;
+                connected = true;
+                if (error)
+                {
+                    connectionError = error;
+                }
+                else
+                {
+                    instance._projects = projects;
+                    if (OnRefreshProjects != null)
+                        OnRefreshProjects.Invoke();
+                }
+            });
+        }
+
+        /// <summary> Make the request to refresh the list of voices. </summary>
+        public static void RefreshVoices()
+        {
+            //Clean old error if there are any. 
+            connectionError = Error.None;
+
+            //Check connection
+            if (!connected)
+            {
+                Debug.LogError("You needs to be connected to the Resemble API before loading the voices list.");
+                return;
+            }
+
+            //Make the request
+            APIBridge.GetVoices((Voice[] voices, Error error) =>
+            {
+                if (error)
+                {
+                    connectionError = error;
+                }
+                else
+                {
+                    instance._voices = voices;
+                    if (OnRefreshVoices != null)
+                        OnRefreshVoices.Invoke();
+                }
+            });
         }
 
         /// <summary> Bind a Resemble project to this UnityProject. </summary>
         public static void BindProject(Project value)
         {
             project = value;
-            projectUUID = value.uuid;
+            instance._projectUUID = value.uuid;
             haveProject = true;
             SetDirty();
+            if (OnBind != null)
+                OnBind.Invoke();
         }
 
         /// <summary> Unbind the current Resemble project from this UnityProject. </summary>
         public static void UnbindProject()
         {
             project = null;
-            projectUUID = "";
+            instance._projectUUID = "";
             haveProject = false;
             SetDirty();
+            if (OnUnbind != null)
+                OnUnbind.Invoke();
         }
 
         /// <summary> Request a delete on a Resemble project. (Show a confirmation dialog before) </summary>
@@ -190,102 +317,13 @@ namespace Resemble
             }
         }
 
-        /// <summary> Show a complexe dialog offering to import wav file or speech files. </summary>
+        /// <summary> Show a save dialog then the import panel to select wav to import. </summary>
         public static void ImportClips(Project value)
         {
-            //Display complex dialog
-            int choice = EditorUtility.DisplayDialogComplex("Import resemble clips", "In what format do you want to import the clips?",
-                "Cancel", "Resemble Speechs", "Wav files only");
-
-            string path = "";
-            switch(choice)
-            {
-                //Cancel by user
-                case 0:
-                    return;
-
-                   //Import speechs
-                case 1:
-                    path = EditorUtility.SaveFolderPanel("Import Resemble Speechs", "Assets/", "");
-                    if (string.IsNullOrEmpty(path))
-                        return;
-                    if (!Utils.LocalPath(ref path))
-                    {
-                        EditorUtility.DisplayDialog("Error", "Path need be in the project unity.", "Ok");
-                        return;
-                    }
-                    ImportProjectSpeechs(path);
-                    break;
-
-                    //Import wav files
-                case 2:
-                    path = EditorUtility.SaveFolderPanel("Import Resemble wav files", "Assets/", "");
-                    if (string.IsNullOrEmpty(path))
-                        return;
-                    ImportProjectWavfiles(path);
-                    break;
-            }
-        }
-
-        /// <summary> Import all speechs from current project. </summary>
-        public static void ImportProjectSpeechs(string path)
-        {
-            APIBridge.GetClips((ResembleClip[] result, Error error) => 
-            {
-                if (error)
-                    error.Log();
-                else
-                {
-                    DownloadSpeechs(path, result);
-                }
-            });
-        }
-
-        private static void DownloadSpeechs(string path, ResembleClip[] clips)
-        {
-            Dictionary<string, Speech> speechs = new Dictionary<string, Speech>();
-
-            //Group speech by voices
-            for (int i = 0; i < clips.Length; i++)
-            {
-                ResembleClip clip = clips[i];
-
-                //Add new speech to the dictionnary
-                Speech speech;
-                if (!speechs.ContainsKey(clip.voice))
-                {
-                    speech = ScriptableObject.CreateInstance<Speech>();
-                    speech.voice = clip.voice;
-                    speech.name = clip.voice;
-                    speechs.Add(clip.voice, speech);
-                }
-
-                //Get existing speech
-                else
-                {
-                    speech = speechs[clip.voice];
-                }
-
-                Clip clipAsset = ScriptableObject.CreateInstance<Clip>();
-                clipAsset.name = clip.title;
-                clipAsset.text = new Text();
-                clipAsset.text.userString = clip.body;
-                clipAsset.text.tags = new List<Tag>();
-                clipAsset.speech = speech;
-                speech.clips.Add(clipAsset);
-            }
-
-            //Write assets
-            foreach (var speech in speechs)
-            {
-                AssetDatabase.CreateAsset(speech.Value, path + "/" + speech.Value.name + ".asset");
-                foreach (var subClip in speech.Value.clips)
-                    AssetDatabase.AddObjectToAsset(subClip, speech.Value);
-            }
-
-            //Import assets
-            foreach (var speech in speechs)
-                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(speech.Value), ImportAssetOptions.ForceUpdate);
+            string path = EditorUtility.SaveFolderPanel("Import Resemble wav files", "Assets/", "");
+            if (string.IsNullOrEmpty(path))
+                return;
+            ImportProjectWavfiles(path);
         }
 
         /// <summary> Import all wav files from current project. </summary>
@@ -303,6 +341,7 @@ namespace Resemble
             });
         }
 
+        /// <summary> Download and save at path clips in wav format. </summary>
         private static void DownloadWavFiles(string path, ResembleClip[] clips)
         {
             Resemble_Window.Open(Resemble_Window.Tab.Pool);
@@ -331,6 +370,7 @@ namespace Resemble
         {
             EditorUtility.SetDirty(instance);
         }
+
 
         public enum PathMethode
         {

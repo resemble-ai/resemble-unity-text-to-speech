@@ -144,22 +144,32 @@ namespace Resemble.GUIEditor
 
             float width = rect.width;
             rect.Set(width - 90, rect.y + 2, 50, rect.height - 4);
-            if (Utils.FlatButton(rect, "Pod", Styles.podColor, 1.0f, rect.Contains(mp) ? 0.5f : 0.2f))
+            if (Utils.FlatButton(rect, "Edit", Styles.clipGreenColor, 1.0f, rect.Contains(mp) ? 0.5f : 0.2f))
                 Selection.activeObject = speech.clips[index];
             rect.Set(width - 35, rect.y, 50, rect.height);
             Utils.DragArea(rect, speech.clips[index].clip);
-            if (Utils.FlatButton(rect, "Clip", Styles.clipColor, 1.0f, haveClip ? (rect.Contains(mp) ? 0.5f : 0.2f) : 1.0f) && haveClip)
+            if (Utils.FlatButton(rect, "AudioClip", Styles.clipOrangeColor, 1.0f, haveClip ? (rect.Contains(mp) ? 0.5f : 0.2f) : 1.0f) && haveClip)
                 EditorGUIUtility.PingObject(speech.clips[index].clipCopy);
         }
 
         private void List_DrawHeader(Rect rect)
         {
-            GUI.Label(rect, "Pods");
+            GUI.Label(rect, "Clips");
         }
 
         private void DrawContentHeader()
         {
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("Voice");
+            EditorGUILayout.Space(EditorGUIUtility.labelWidth);
+            if (EditorGUILayout.DropdownButton(new GUIContent("Current"), FocusType.Passive))
+            {
+                //Settings.voic
+            }
+            EditorGUILayout.EndHorizontal();
+
             EditorGUILayout.Popup("Voice", 0, new string[] { "Lucie", "Jhon", "OldMen" });
+
             EditorGUI.indentLevel++;
             speech.pitch = (Speech.Tuning)EditorGUILayout.EnumPopup("Pitch", speech.pitch);
             speech.speed = (Speech.Tuning)EditorGUILayout.EnumPopup("Speed", speech.speed);

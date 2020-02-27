@@ -18,14 +18,8 @@ namespace Resemble.GUIEditor
         private Rect winRect;
         public static int pageID;
 
-        //Connection
-        private Error connectError;
-        private bool haveProject;
-        private bool tryConnecting;
-
         //Search
         private string search;
-        private Rect searchRect;
         private SearchField searchField = new SearchField();
 
         //Labels & tooltips
@@ -35,8 +29,6 @@ namespace Resemble.GUIEditor
 
         public override void OnActivate(string searchContext, VisualElement rootElement)
         {
-            if (!string.IsNullOrEmpty(Settings.token))
-                APIBridge.GetProjects(GetProjectCallback);
             visualElement = rootElement;
             if (visualElement != null && visualElement.focusController != null && 
                 visualElement.focusController.focusedElement != null)
@@ -113,16 +105,6 @@ namespace Resemble.GUIEditor
         private void DrawToolbar()
         {
             pageID = GUILayout.Toolbar(pageID, new string[] { "Project", "Paths", "Help" });
-        }
-
-        private void GetProjectCallback(Project[] projects, Error error)
-        {
-            this.tryConnecting = false;
-            this.connectError = error;
-            Settings.connected = !error;
-            Settings.projects = projects;
-            RefreshSelected();
-            Repaint();
         }
 
         //Settings tags

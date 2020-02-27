@@ -15,7 +15,7 @@ namespace Resemble
         /// <summary> Timout for a request without response. </summary>
         private const float timout = 10.0f;
         /// <summary> API base url. </summary>
-        private const string apiUri = "https://app.resemble.ai/api/v1/projects";
+        private const string apiUri = "https://app.resemble.ai/api/v1";
 
         //Execution queue for tasks (Guaranteed a maximum of tasks at the same time)
         private static Queue<Task> tasks = new Queue<Task>();
@@ -45,7 +45,7 @@ namespace Resemble
         #region Basics Methodes
         public static void GetProjects(Callback.GetProject callback)
         {
-            string uri = apiUri;
+            string uri = apiUri + "/projects/";
             EnqueueGet(uri, (string content, Error error) =>
             {
                 Project[] projects = error ? null : Project.FromJson(content);
@@ -55,7 +55,7 @@ namespace Resemble
 
         public static void GetProject(string uuid)
         {
-            string uri = apiUri + "/" + uuid;
+            string uri = apiUri + "/projects/" + uuid;
             EnqueueGet(uri, (string content, Error error) =>
             {
                 Debug.Log(content);
@@ -64,19 +64,19 @@ namespace Resemble
 
         public static void DeleteProject(Project project)
         {
-            string uri = apiUri + "/" + project.uuid;
+            string uri = apiUri + "/projects/" + project.uuid;
             EnqueueDelete(uri, (string content, Error error) => {});
         }
 
         public static void DeleteClip(string uuid)
         {
-            string uri = apiUri + "/" + Settings.project.uuid + "/clips/" + uuid;
+            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + uuid;
             EnqueueDelete(uri, (string content, Error error) => { });
         }
 
         public static void CreateProject(Project project, Callback.CreateProject callback)
         {
-            string uri = apiUri;
+            string uri = apiUri + "/projects/";
             string data = "{\"data\":" + JsonUtility.ToJson(project) + "}";
 
             EnqueuePost(uri, data, (string content, Error error) =>
@@ -88,7 +88,7 @@ namespace Resemble
 
         public static Task CreateClipSync(CreateClipData podData, Callback.Simple callback)
         {
-            string uri = apiUri + "/" + Settings.project.uuid + "/clips/sync";
+            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/sync";
             string data = new CreateClipRequest(podData, "x-high", false).Json();
 
             return EnqueuePost(uri, data, (string content, Error error) =>
@@ -106,7 +106,7 @@ namespace Resemble
 
         public static void GetClip(string uuid, Callback.GetClip callback)
         {
-            string uri = apiUri + "/" + Settings.project.uuid + "/clips/" + uuid;
+            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + uuid;
 
             EnqueueGet(uri, (string content, Error error) =>
             {
@@ -123,7 +123,7 @@ namespace Resemble
 
         public static void GetClips(Callback.GetClips callback)
         {
-            string uri = apiUri + "/" + Settings.project.uuid + "/clips/";
+            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/";
 
             EnqueueGet(uri, (string content, Error error) =>
             {
@@ -137,6 +137,14 @@ namespace Resemble
         public static Task DownloadClip(string uri, Callback.Download callback)
         {
             return Task.DowloadTask(uri, callback);
+        }
+
+        public static void GetVoices(Callback.GetVoices callback)
+        {
+            EnqueueGet(apiUri + "/voices/", (string content, Error error) => {
+                callback.Method.Invoke(callback.Target, error ?
+                new object[] { null, error } : 
+                new object[] { Voice.FromJson(content), Error.None });});
         }
 
         #endregion

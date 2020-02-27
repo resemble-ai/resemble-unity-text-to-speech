@@ -21,10 +21,9 @@ namespace Resemble.GUIEditor
             if (frameCount >= 10)
             {
                 EditorApplication.update -= WaitSomeUpdate;
-                if (Settings.instance.showWelcomePopup)
+                if (Settings.showWelcomePopup)
                 {
-                    Settings.instance.showWelcomePopup = false;
-                    Settings.SetDirty();
+                    Settings.showWelcomePopup = false;
                     Settings.OpenWindow();
                     RessembleSettingsProvider.pageID = 2;
                 }

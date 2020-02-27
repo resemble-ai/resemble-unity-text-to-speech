@@ -19,25 +19,25 @@ namespace Resemble.GUIEditor
             GUILayout.Space(10);
 
             //Path methode
-            Settings.instance.pathMethode = (Settings.PathMethode) EditorGUILayout.EnumPopup(
-                pathMethode, Settings.instance.pathMethode);
+            Settings.pathMethode = (Settings.PathMethode) EditorGUILayout.EnumPopup(
+                pathMethode, Settings.pathMethode);
 
             //Target folders fields
-            switch (Settings.instance.pathMethode)
+            switch (Settings.pathMethode)
             {
                 case Settings.PathMethode.Absolute:
-                    Settings.instance.folderPathA = FolderField("Target folder", Settings.instance.folderPathA);
+                    Settings.folderPathA = FolderField("Target folder", Settings.folderPathA);
                     break;
                 case Settings.PathMethode.SamePlace:
                     break;
                 case Settings.PathMethode.MirrorHierarchy:
-                    Settings.instance.folderPathB = FolderField("Resemble Speechs root", Settings.instance.folderPathB);
-                    Settings.instance.folderPathA = FolderField("AudioClips root", Settings.instance.folderPathA);
+                    Settings.folderPathB = FolderField("Resemble Speechs root", Settings.folderPathB);
+                    Settings.folderPathA = FolderField("AudioClips root", Settings.folderPathA);
                     break;
             }
 
             //Use subFolders
-            Settings.instance.useSubFolder = EditorGUILayout.Toggle(useSubFolder, Settings.instance.useSubFolder);
+            Settings.useSubFolder = EditorGUILayout.Toggle(useSubFolder, Settings.useSubFolder);
 
             //Example label
             GUILayout.Space(10);
@@ -45,7 +45,7 @@ namespace Resemble.GUIEditor
 
             //Draw example image
             Rect rect = GUILayoutUtility.GetRect(1, 1);
-            Texture image = Resources.instance.pathImages[(int)Settings.instance.pathMethode * 2 + (Settings.instance.useSubFolder ? 1 : 0)];
+            Texture image = Resources.instance.pathImages[(int)Settings.pathMethode * 2 + (Settings.useSubFolder ? 1 : 0)];
             rect.Set(rect.x, rect.y, image.width+1, image.height+1);
             GUI.Label(rect, image);
         }
