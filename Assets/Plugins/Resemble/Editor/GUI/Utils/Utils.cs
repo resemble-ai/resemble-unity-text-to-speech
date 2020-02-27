@@ -279,7 +279,9 @@ namespace Resemble.GUIEditor
 
         public static string LocalPath(string absolutePath)
         {
-            return absolutePath.Remove(0, Application.dataPath.Length - 6);
+            if (absolutePath.Contains(Application.dataPath))
+                return absolutePath.Remove(0, Application.dataPath.Length - 6);
+            return absolutePath;
         }
 
         public static bool LocalPath(ref string path)

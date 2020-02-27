@@ -235,7 +235,9 @@ namespace Resemble
                 if (error)
                     error.Log();
                 else
+                {
                     DownloadSpeechs(path, result);
+                }
             });
         }
 
@@ -294,12 +296,16 @@ namespace Resemble
                 if (error)
                     error.Log();
                 else
-                    DownloadtWavFiles(path, result);
+                {
+                    ImportPopup.ImpAsset[] assets = result.Select(x => new ImportPopup.ImpAsset() { content = new GUIContent(x.title + ".wav"), import = true, obj = x }).ToArray();
+                    ImportPopup.Show(assets, path, (ImportPopup.ImpAsset[] selecteds) => { DownloadWavFiles(path, selecteds.Select(x => x.obj as ResembleClip).ToArray()); });
+                }
             });
         }
 
-        private static void DownloadtWavFiles(string path, ResembleClip[] clips)
+        private static void DownloadWavFiles(string path, ResembleClip[] clips)
         {
+            Resemble_Window.Open(Resemble_Window.Tab.Pool);
             bool localPath = path.Contains(Application.dataPath);
             for (int i = 0; i < clips.Length; i++)
             {
