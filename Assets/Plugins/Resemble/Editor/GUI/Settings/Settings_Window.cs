@@ -38,18 +38,6 @@ namespace Resemble.GUIEditor
             }
         }
 
-        private void RefreshSelected()
-        {
-            //Get selected project
-            if (Settings.projects != null)
-                for (int i = 0; i < Settings.projects.Length; i++)
-                    if (Settings.projects[i].uuid == Settings.projectUUID)
-                    {
-                        selected = i;
-                        Settings.haveProject = true;
-                    }
-        }
-
         public override void OnGUI(string searchContext)
         {
             //Init styles

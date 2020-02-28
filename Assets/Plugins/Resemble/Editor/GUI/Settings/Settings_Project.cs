@@ -31,8 +31,13 @@ namespace Resemble.GUIEditor
                     rect.Set(rect.x, rect.y + 20, rect.width, winRect.height - 200);
                     DrawProjectList(rect);
                     EditorGUILayout.EndVertical();
+
+                    DrawProjectArea(selected == -1 ? null : Settings.projects[selected]);
                 }
-                DrawProjectArea();
+                else
+                {
+                    DrawProjectArea(Settings.project);
+                }
             }
 
             //Apply changes to scriptable object
@@ -182,21 +187,14 @@ namespace Resemble.GUIEditor
             GUILayout.EndScrollView();
         }
 
-        private void DrawProjectArea()
+        private void DrawProjectArea(Project project)
         {
             //Help box if nothing is selected
-            if (selected >= Settings.projects.Length)
-                selected = Settings.projects.Length - 1;
-            if (selected == -1)
+            if (project == null)
             {
                 EditorGUILayout.HelpBox("Please select a project from the list above", MessageType.Info);
                 return;
             }
-
-            //Init vars
-            Project project = Settings.projects[selected];
-            if (Settings.haveProject)
-                project = Settings.project;
 
             //Background box
             Rect rect = EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true)).Shrink(1);

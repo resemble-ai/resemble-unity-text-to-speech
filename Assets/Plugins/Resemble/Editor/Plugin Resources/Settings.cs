@@ -14,6 +14,7 @@ namespace Resemble
 
         //Saved settings - Saved between session - Acces via static getter only
         [SerializeField] private string _token;
+        [SerializeField] private bool _connected;
         [SerializeField] private string _projectUUID;
         [SerializeField] private PathMethode _pathMethode = PathMethode.SamePlace;
         [SerializeField] private bool _useSubFolder = true;
@@ -28,6 +29,13 @@ namespace Resemble
         {
             get { return instance._token; }
             set { if (instance._token != value) instance._token = value; SetDirty(); }
+        }
+
+        /// <summary> Indicate if the user is connected. </summary>
+        public static bool connected
+        {
+            get { return instance._connected; }
+            set { if (instance._connected != value) instance._connected = value; SetDirty(); }
         }
 
         /// <summary> UUID of the current binded project. </summary>
@@ -71,6 +79,12 @@ namespace Resemble
             set { if (instance._folderPathB != value) instance._folderPathB = value; SetDirty(); }
         }
 
+        /// <summary> Return true if the plugin is bind to a Resemble project. </summary>
+        public static bool haveProject
+        {
+            get { return !string.IsNullOrEmpty(instance._projectUUID); }
+        }
+
         #endregion
 
         #region Acces to the saved data
@@ -106,32 +120,23 @@ namespace Resemble
         private Project _project;
         private Dictionary<string, Project> _projectNames = new Dictionary<string, Project>();
 
-        /// <summary> Voices that the user has access to. Automatically regenerated if null. 
-        /// You can call RefreshVoices() to refresh the value. </summary>
+        /// <summary> Voices that the user has access to. return empty array if null. 
+        /// You can call RefreshVoices() to fetch the value from API </summary>
         public static Voice[] voices
         {
             get
             {
                 if (instance._voices == null)
-                {
-                    RefreshVoices();
                     return new Voice[0];
-                }
                 return instance._voices;
             }
         }
-
-        /// <summary> Indicate if the project is connected to the API. </summary>
-        public static bool connected { private set; get; }
 
         /// <summary> Enable when th eplugin try to connect to the API. </summary>
         public static bool tryToConnect { private set; get; }
 
         /// <summary> Exit after a connection failure. </summary>
         public static Error connectionError { private set; get; } = Error.None;
-
-        /// <summary> Return true if the plugin is bind to a Resemble project. </summary>
-        public static bool haveProject;
 
         //Static acces
 
@@ -149,7 +154,7 @@ namespace Resemble
             {
                 return instance._projects;
             }
-            set
+            private set
             {
                 if (instance._projects != value)
                 {
@@ -175,23 +180,44 @@ namespace Resemble
                             }
                         }
                     }
-                    EditorUtility.SetDirty(instance);
+
+                    //Refresh binded project
+                    if (value != null && haveProject)
+                    {
+                        bool find = false;
+                        for (int i = 0; i < projects.Length; i++)
+                        {
+                            //Project UUID find - Refresh with new values from the list 
+                            if (projects[i].uuid == projectUUID)
+                            {
+                                project = projects[i];
+                                find = true;
+                                break;
+                            }
+                        }
+
+                        //Current project UUID not find in the list - Unbind project
+                        if (!find)
+                            UnbindProject();
+                    }
+                    SetDirty();
                 }
             }
         }
+
         public static Project project
         {
             get
             {
                 return instance._project;
             }
-            set
+            private set
             {
                 instance._project = value;
-                EditorUtility.SetDirty(instance);
+                instance._projectUUID = value == null ? null : value.uuid;
+                SetDirty();
             }
         }
-
 
         //Instance ref
 
@@ -240,14 +266,16 @@ namespace Resemble
             APIBridge.GetProjects((Project[] projects, Error error) =>
             {
                 tryToConnect = false;
-                connected = true;
                 if (error)
                 {
+                    connected = false;
                     connectionError = error;
                 }
                 else
                 {
-                    instance._projects = projects;
+                    connected = true;
+                    Settings.projects = projects;
+
                     if (OnRefreshProjects != null)
                         OnRefreshProjects.Invoke();
                 }
@@ -287,9 +315,6 @@ namespace Resemble
         public static void BindProject(Project value)
         {
             project = value;
-            instance._projectUUID = value.uuid;
-            haveProject = true;
-            SetDirty();
             if (OnBind != null)
                 OnBind.Invoke();
         }
@@ -298,9 +323,6 @@ namespace Resemble
         public static void UnbindProject()
         {
             project = null;
-            instance._projectUUID = "";
-            haveProject = false;
-            SetDirty();
             if (OnUnbind != null)
                 OnUnbind.Invoke();
         }

@@ -65,15 +65,15 @@ namespace Resemble.GUIEditor
             }
 
             //Resemble.ai link
-            rect.Set(Screen.width - 127, rect.y + 24, 125, 16);
+            rect.Set(Screen.width - 140, rect.y + 24, 135, 16);
             if (GUI.Button(rect, "Show in Resemble.ai", EditorStyles.linkLabel))
-                Application.OpenURL("https://www.resemble.ai");
+                WebPage.ResembleProjects.Open(Settings.projectUUID + "/clips/" + clip.UUID);
             EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
 
             //Help button
             rect.Set(Screen.width - 37, 6, 16, 16);
             if (GUI.Button(rect, Styles.characterSetHelpBtn, GUIStyle.none))
-                Application.OpenURL("https://www.resemble.ai");
+                WebPage.PluginDoc.Open();
 
             //Options button
             rect.x += 18;

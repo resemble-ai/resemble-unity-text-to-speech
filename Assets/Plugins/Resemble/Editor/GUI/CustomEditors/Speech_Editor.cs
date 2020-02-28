@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using UnityEditorInternal;
-using Resemble;
+using Resemble.Structs;
 
 namespace Resemble.GUIEditor
 {
@@ -15,6 +15,7 @@ namespace Resemble.GUIEditor
         private ReorderableList list;
         public AudioClip clip;
         private Vector2 mp;
+        private Rect voiceRect;
 
         protected override bool ShouldHideOpenButton()
         {
@@ -41,10 +42,10 @@ namespace Resemble.GUIEditor
 
             //Pod count
             rect.Set(44, 23, Screen.width - 130, 16);
-            GUI.Label(rect, "Pod count : " + speech.clips.Count);
+            GUI.Label(rect, "Clip count : " + speech.clips.Count);
 
             //Resemble.ai link
-            rect.Set(Screen.width - 117, rect.y + 5, 125, 16);
+            rect.Set(Screen.width - 122, rect.y + 5, 125, 16);
             if (GUI.Button(rect, "Open Resemble.ai", EditorStyles.linkLabel))
                 WebPage.ResembleHome.Open();
             EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
@@ -148,7 +149,7 @@ namespace Resemble.GUIEditor
                 Selection.activeObject = speech.clips[index];
             rect.Set(width - 35, rect.y, 50, rect.height);
             Utils.DragArea(rect, speech.clips[index].clip);
-            if (Utils.FlatButton(rect, "AudioClip", Styles.clipOrangeColor, 1.0f, haveClip ? (rect.Contains(mp) ? 0.5f : 0.2f) : 1.0f) && haveClip)
+            if (Utils.FlatButton(rect, "Clip", Styles.clipOrangeColor, 1.0f, haveClip ? (rect.Contains(mp) ? 0.5f : 0.2f) : 1.0f) && haveClip)
                 EditorGUIUtility.PingObject(speech.clips[index].clipCopy);
         }
 
@@ -160,20 +161,19 @@ namespace Resemble.GUIEditor
         private void DrawContentHeader()
         {
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Voice");
-            EditorGUILayout.Space(EditorGUIUtility.labelWidth);
-            if (EditorGUILayout.DropdownButton(new GUIContent("Current"), FocusType.Passive))
+            GUILayout.Label("Voice", GUILayout.Width(EditorGUIUtility.labelWidth));
+            if (EditorGUILayout.DropdownButton(new GUIContent(string.IsNullOrEmpty(speech.voiceName) ? "None" : speech.voiceName), FocusType.Passive))
             {
-                //Settings.voic
+                VoicePopup.Show(voiceRect, (Voice voice) =>
+                {
+                    speech.voiceName = voice.name;
+                    speech.voiceUUID = voice.uuid;
+                    EditorUtility.SetDirty(speech);
+                });
             }
+            if (Event.current.type == EventType.Repaint)
+                voiceRect = GUIUtility.GUIToScreenRect(GUILayoutUtility.GetLastRect().Offset(0, 18, 0, 100));
             EditorGUILayout.EndHorizontal();
-
-            EditorGUILayout.Popup("Voice", 0, new string[] { "Lucie", "Jhon", "OldMen" });
-
-            EditorGUI.indentLevel++;
-            speech.pitch = (Speech.Tuning)EditorGUILayout.EnumPopup("Pitch", speech.pitch);
-            speech.speed = (Speech.Tuning)EditorGUILayout.EnumPopup("Speed", speech.speed);
-            EditorGUI.indentLevel--;
 
             GUILayout.Space(5);
             Utils.DrawSeparator();
