@@ -36,6 +36,10 @@ namespace Resemble.GUIEditor
                 EditorWindow win = EditorWindow.focusedWindow;
                 win.minSize = new Vector2(550, 510);
             }
+
+            //Refresh projects
+            if (Settings.haveProject && Settings.project == null && !Settings.tryToConnect)
+                Settings.Connect();
         }
 
         public override void OnGUI(string searchContext)

@@ -64,6 +64,7 @@ namespace Resemble
             Post,
             Delete,
             Download,
+            Patch,
         }
 
         public enum Status

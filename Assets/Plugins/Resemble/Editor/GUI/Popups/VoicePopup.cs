@@ -22,14 +22,6 @@ namespace Resemble.GUIEditor
         private static Voice[] voices;
         public delegate void ValidateCallback(Voice voice);
 
-        public class ImpAsset
-        {
-            public object obj;
-            public GUIContent content;
-            public bool import;
-            public ImpAsset[] childs;
-        }
-
         public static void Show(Rect rect, ValidateCallback callback)
         {
             //Close window if already open

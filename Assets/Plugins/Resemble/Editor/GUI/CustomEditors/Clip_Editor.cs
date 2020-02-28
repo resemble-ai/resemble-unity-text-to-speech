@@ -11,15 +11,20 @@ namespace Resemble.GUIEditor
     [CustomEditor(typeof(Clip)), CanEditMultipleObjects]
     public class Clip_Editor : Editor
     {
+        //Data
         private Clip clip;
+        private Error error = Error.None;
+        private Editor clipEditor;
+        private Task task;
+        private AudioImporter importer;
+
+        //GUI
+        private Rect renameRect;
+        private bool goBackToParent;
+        private bool dirtySettings;
         private bool rename;
         private string renameLabel;
         private int renameControlID;
-        private Editor clipEditor;
-        private AudioImporter importer;
-        private bool dirtySettings;
-        private Task task;
-        private Error error = Error.None;
         public Text_Editor drawer = new Text_Editor();
 
         protected override void OnHeaderGUI()
@@ -38,36 +43,26 @@ namespace Resemble.GUIEditor
             rect.Set(6, 6, 32, 32);
             GUI.DrawTexture(rect, Resources.instance.icon);
 
-            //Name & Rename field
+            //Speech name and shorcut
             float width = Styles.header.CalcSize(new GUIContent(clip.speech.name + " > ")).x;
             rect.Set(44, 4, width, 22);
             if (GUI.Button(rect, clip.speech.name + " > ", Styles.header))
-                Selection.activeObject = clip.speech;
+                goBackToParent = true;
             rect.Set(rect.x + rect.width, rect.y, Screen.width - (rect.x + rect.width + 50), rect.height);
 
-            //Autorename
-            if (clip.autoRename)
+            //Clip name and rename
+            if (GUI.Button(rect, clip.name, Styles.header))
             {
-                clip.autoRename = false;
-                rename = true;
-                renameLabel = clip.name;
-            }
-
-            if (RenameableField(rect, ref rename, ref renameLabel, clip.name, out renameControlID))
-            {
-                clip.name = string.IsNullOrWhiteSpace(renameLabel) ? "Untitled" : renameLabel;
-                if (clip.clip != null)
-                    clip.clip.name = clip.name;
-                if (clip.clipCopy != null)
-                    clip.clipCopy.name = clip.name;
-                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(clip));
-                Repaint();
+                StringPopup.Show(GUIUtility.GUIToScreenRect(rect.Offset(0, 20, 0, 0)),
+                    "Rename clip", clip.name, (string value) => {
+                    if (!string.IsNullOrEmpty(clip.name) && value != clip.name)
+                        Rename(value);});
             }
 
             //Resemble.ai link
             rect.Set(Screen.width - 140, rect.y + 24, 135, 16);
             if (GUI.Button(rect, "Show in Resemble.ai", EditorStyles.linkLabel))
-                WebPage.ResembleProjects.Open(Settings.projectUUID + "/clips/" + clip.UUID);
+                WebPage.ResembleProjects.Open(Settings.projectUUID + "/clips/" + clip.uuid);
             EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
 
             //Help button
@@ -97,6 +92,14 @@ namespace Resemble.GUIEditor
 
         public override void OnInspectorGUI()
         {
+            //Go back to parent
+            if (goBackToParent && Event.current.type == EventType.Repaint)
+            {
+                goBackToParent = false;
+                Selection.activeObject = clip.speech;
+                return;
+            }
+
             //Draw text layout
             drawer.DoLayout(true, OnEditText, OnGenerate);
 
@@ -122,6 +125,12 @@ namespace Resemble.GUIEditor
                 {
 
                 }
+            }
+            
+            //Update button
+            if (GUILayout.Button("Update"))
+            {
+                UpdateClip();
             }
 
 
@@ -377,6 +386,41 @@ namespace Resemble.GUIEditor
                 EditorUtility.SetDirty(AssetDatabase.LoadAssetAtPath<Speech>(sets[i]));
                 AssetDatabase.ImportAsset(sets[i]);
             }
+        }
+
+        public void UpdateClip()
+        {
+            if (string.IsNullOrEmpty(clip.uuid))
+            {
+                Debug.LogError("This clip have no UUID");
+                return;
+            }
+
+            ClipPatch patch = new ClipPatch(clip.name, clip.text.BuildResembleString());
+            APIBridge.UpdateClip(clip.uuid, patch, (string content, Error error) =>
+            {
+                if (error)
+                    error.Log();
+                else
+                    Debug.Log(content);
+            });
+        }
+
+        public void Rename(string value)
+        {
+            clip.name = value;
+            SetDirty();
+            ReImport();
+        }
+
+        public new void SetDirty()
+        {
+            EditorUtility.SetDirty(clip);
+        }
+
+        public void ReImport()
+        {
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(clip), ImportAssetOptions.ForceUpdate);
         }
 
     }

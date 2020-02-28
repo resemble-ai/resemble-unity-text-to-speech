@@ -104,6 +104,26 @@ namespace Resemble
             });
         }
 
+        public static void CreateClip(CreateClipData podData, Callback.CreateClip callback)
+        {
+            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips";
+            string data = new CreateClipRequest(podData, "high", false).Json();
+            Debug.Log(uri);
+            Debug.Log(data);
+
+            EnqueuePost(uri, data, (string content, Error error) =>
+            {
+                if (error)
+                {
+                    callback.Method.Invoke(callback.Target, new object[] { null, error });
+                }
+                else
+                {
+                    callback.Invoke(JsonUtility.FromJson<ClipStatus>(content), Error.None);
+                }
+            });
+        }
+
         public static void GetClip(string uuid, Callback.GetClip callback)
         {
             string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + uuid;
@@ -145,6 +165,21 @@ namespace Resemble
                 callback.Method.Invoke(callback.Target, error ?
                 new object[] { null, error } : 
                 new object[] { Voice.FromJson(content), Error.None });});
+        }
+
+        public static void UpdateClip(string clipUUID, ClipPatch patch, Callback.Simple callback)
+        {
+            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + clipUUID;
+            string data = patch.ToJson();
+            Debug.Log(uri);
+            Debug.Log(data);
+            EnqueuePatch(uri, data, (string content, Error error) =>
+            {
+                if (error)
+                    callback.Method.Invoke(callback.Target, new object[] { null, error });
+                else
+                    callback.Method.Invoke(callback.Target, new object[] { content, Error.None });
+            });
         }
 
         #endregion
@@ -216,6 +251,9 @@ namespace Resemble
                         case Task.Type.Post:
                             SendPostRequest(task);
                             break;
+                        case Task.Type.Patch:
+                            SendPatchRequest(task);
+                            break;
                         case Task.Type.Delete:
                             SendDeleteRequest(task);
                             break;
@@ -239,10 +277,23 @@ namespace Resemble
             return task;
         }
 
-        /// <summary> Enqueue a Pos web request to the task list. This task will be executed as soon as possible. </summary>
+        /// <summary> Enqueue a Post web request to the task list. This task will be executed as soon as possible. </summary>
         public static Task EnqueuePost(string uri, string data, Callback.Simple resultProcessor)
         {
             Task task = new Task(uri, data, resultProcessor, Task.Type.Post);
+            tasks.Enqueue(task);
+            if (!receiveUpdates)
+            {
+                EditorApplication.update += Update;
+                receiveUpdates = true;
+            }
+            return task;
+        }
+
+        /// <summary> Enqueue a Patch web request to the task list. This task will be executed as soon as possible. </summary>
+        public static Task EnqueuePatch(string uri, string data, Callback.Simple resultProcessor)
+        {
+            Task task = new Task(uri, data, resultProcessor, Task.Type.Patch);
             tasks.Enqueue(task);
             if (!receiveUpdates)
             {
@@ -287,6 +338,17 @@ namespace Resemble
         private static void SendDeleteRequest(Task task)
         {
             UnityWebRequest request = UnityWebRequest.Delete(task.uri);
+            request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
+            request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
+            request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };
+        }
+
+        /// <summary> Send a Patch web request now. Call the callback with the response processed by the resultProcessor. </summary>
+        private static void SendPatchRequest(Task task)
+        {
+            //https://forum.unity.com/threads/posting-raw-json-into-unitywebrequest.397871/
+            UnityWebRequest request = UnityWebRequest.Put(task.uri, task.data);
+            request.method = "PATCH";
             request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
             request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
             request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };

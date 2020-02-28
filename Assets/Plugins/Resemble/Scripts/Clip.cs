@@ -10,7 +10,6 @@ namespace Resemble
         public AudioClip clip;
         public AudioClip clipCopy;
         public Text text;
-        public string UUID;
-        public bool autoRename;
+        public string uuid;
     }
 }

@@ -16,6 +16,8 @@ namespace Resemble.GUIEditor
         public AudioClip clip;
         private Vector2 mp;
         private Rect voiceRect;
+        private Rect createClipRect;
+        private Rect importClipRect;
 
         protected override bool ShouldHideOpenButton()
         {
@@ -60,10 +62,7 @@ namespace Resemble.GUIEditor
             if (GUI.Button(rect, Styles.popupBtn, GUIStyle.none))
             {
                 GenericMenu menu = new GenericMenu();
-                menu.AddItem(new GUIContent("Regenerate all pods"), false, RegenerateAllPods);
-                menu.AddItem(new GUIContent("Export all pods in wav"), false, ExportAllPodsInWav);
-                menu.AddSeparator("");
-                menu.AddItem(new GUIContent("Reset"), false, ResetSpeech);
+                menu.AddItem(new GUIContent("Export all clips in wav"), false, ExportAllClipsInWav);
                 menu.AddSeparator("");
                 menu.AddItem(new GUIContent("Help"), false, () => { WebPage.PluginCharacterSet.Open(); });
                 menu.AddItem(new GUIContent("Settings"), false, Settings.OpenWindow);
@@ -79,6 +78,13 @@ namespace Resemble.GUIEditor
             GUILayout.Space(10);
             DrawContentHeader();
             GUILayout.Space(10);
+
+            bool noVoice = string.IsNullOrEmpty(speech.voiceUUID);
+            if (noVoice)
+            {
+                EditorGUILayout.HelpBox("Please select a voice.", MessageType.Info);
+            }
+            EditorGUI.BeginDisabledGroup(noVoice);
 
             //Rebuild list
             if (list == null)
@@ -96,23 +102,89 @@ namespace Resemble.GUIEditor
             //Add clip btn
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Add new clip"))
+
+            //Import existing clip button
+            if (GUILayout.Button("Import existing clip"))
             {
-                Clip clip = CreateInstance<Clip>();
-                clip.name = "New clip";
-                clip.speech = speech;
-                clip.autoRename = true;
-                AssetDatabase.AddObjectToAsset(clip, speech);
-                EditorUtility.SetDirty(speech);
-                AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(speech), ImportAssetOptions.ForceUpdate);
-                speech.clips.Add(clip);
-                speech.clips = speech.clips.OrderBy(x => x.name).ToList();
-                Selection.activeObject = clip;
+                ClipPopup.Show(importClipRect.Offset(-200, 18, 200, 0),
+                    speech, (ResembleClip clip) =>
+                    {
+                        if (clip != null)
+                            ImportClip(clip);
+                    });
             }
+
+            //Get btn rect
+            if (Event.current.type == EventType.Repaint)
+                importClipRect = GUIUtility.GUIToScreenRect(GUILayoutUtility.GetLastRect());
+
+            //Create new clip button
+            if (GUILayout.Button("Create new clip"))
+            {
+                StringPopup.Show(createClipRect.Offset(-200, 18, 200, 0),
+                    "New clip name", (string value) =>
+                {
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        APIBridge.CreateClip(new CreateClipData(value, "", speech.voiceUUID), (ClipStatus status, Error error) =>
+                        {
+                            if (error)
+                                error.Log();
+                            else
+                            {
+                                if (status.status == "OK")
+                                    AddClip(value, status.id);
+                                else
+                                    Debug.LogError("Cannot create the clip, please try again later.");
+                            }
+                        });
+                    }
+                });
+            }
+            //Get btn rect
+            if (Event.current.type == EventType.Repaint)
+                createClipRect = GUIUtility.GUIToScreenRect(GUILayoutUtility.GetLastRect());
+
             GUILayout.EndHorizontal();
+            EditorGUI.EndDisabledGroup();
 
             //Draw connected error
             Utils.ConnectionRequireMessage();
+        }
+
+        public void AddClip(string name, string uuid)
+        {
+            Clip clip = CreateInstance<Clip>();
+            clip.name = name;
+            clip.uuid = uuid;
+            clip.text = new Text();
+            AddClipToAsset(clip);
+        }
+
+        public void ImportClip(ResembleClip source)
+        {
+            Clip clip = CreateInstance<Clip>();
+            clip.name = source.title;
+            clip.text = new Text();
+            clip.text.userString = source.body;
+            clip.uuid = source.uuid;
+            AddClipToAsset(clip);
+        }
+
+        public void AddClipToAsset(Clip clip)
+        {
+            //Add clip to list
+            clip.speech = speech;
+            speech.clips.Add(clip);
+            speech.clips = speech.clips.OrderBy(x => x.name).ToList();
+
+            //Add clip to assets
+            AssetDatabase.AddObjectToAsset(clip, speech);
+            EditorUtility.SetDirty(speech);
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(speech), ImportAssetOptions.ForceUpdate);
+
+            //Focus clip
+            Selection.activeObject = clip;
         }
 
         private void OnEnable()
@@ -179,29 +251,9 @@ namespace Resemble.GUIEditor
             Utils.DrawSeparator();
         }
 
-        public void RegenerateAllPods()
-        {
-
-        }
-
-        public void ExportAllPodsInWav()
+        public void ExportAllClipsInWav()
         {
             EditorUtility.SaveFolderPanel("Export wav files", "", "");
         }
-
-        public void ResetSpeech()
-        {
-            if (EditorUtility.DisplayDialog("Reset Character set", "This action will destroy all pods under \"" + speech.name + "\" CharacterSet and can't be undo !", "Ok", "Cancel"))
-            {
-                string path = AssetDatabase.GetAssetPath(speech);
-                AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(path);
-                if (clip != null)
-                {
-                    AssetDatabase.RemoveObjectFromAsset(clip);
-                    AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceUpdate);
-                }
-            }
-        }
-
     }
 }

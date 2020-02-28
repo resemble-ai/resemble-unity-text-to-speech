@@ -50,7 +50,7 @@ namespace Resemble.GUIEditor
 
         private void DrawProjectFooterGUI()
         {
-            GUIContent label = new GUIContent("Status : " + (Settings.haveProject ?
+            GUIContent label = new GUIContent("Status : " + ((Settings.haveProject && Settings.project != null) ?
             "<Color=green>Project \"" + Settings.project.name + "\" binded.</Color>" :
             (Settings.connected ?
             "<Color=red>No binded project.</Color>" :
