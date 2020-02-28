@@ -39,6 +39,7 @@ namespace Resemble.GUIEditor
             clips = null;
             error = Error.None;
             window = CreateInstance<ClipPopup>();
+            window.minSize = rect.size;
             window.ShowPopup();
             window.titleContent = new GUIContent("Voices");
             window.position = rect;

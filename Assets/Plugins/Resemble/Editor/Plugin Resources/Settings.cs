@@ -358,7 +358,7 @@ namespace Resemble
                 else
                 {
                     ImportPopup.ImpAsset[] assets = result.Select(x => new ImportPopup.ImpAsset() { content = new GUIContent(x.title + ".wav"), import = true, obj = x }).ToArray();
-                    ImportPopup.Show(assets, path, (ImportPopup.ImpAsset[] selecteds) => { DownloadWavFiles(path, selecteds.Select(x => x.obj as ResembleClip).ToArray()); });
+                    ImportPopup.Show(assets, path, (ImportPopup.ImpAsset[] selecteds) => { DownloadWavFiles(path, selecteds.Where(y => y.import).Select(x => x.obj as ResembleClip).ToArray()); });
                 }
             });
         }
