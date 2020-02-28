@@ -183,7 +183,7 @@ namespace Resemble.GUIEditor
             AssetDatabase.ImportAsset(savePath, ImportAssetOptions.ForceUpdate);
 
             //Send request to the API
-            CreateClipData pod = new CreateClipData(clip.name, clip.text.BuildResembleString(), "9816e4ee");
+            CreateClipData pod = new CreateClipData(clip.name, clip.text.BuildResembleString(), clip.speech.voiceUUID);    //"9816e4ee"
             task = APIBridge.CreateClipSync(pod, (string audioUri, Error error) => 
             {
                 if (!error)
