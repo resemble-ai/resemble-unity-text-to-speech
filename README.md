@@ -9,12 +9,12 @@
 Unity plugin to interface our API
 	
 ## Setup
-You can add Assets and Projects settings folders to your project or directly download the [latest build here](Output/ResemblePlugin_26-02-20.unitypackage).
+You can add Assets and Projects settings folders to your project or directly download the [latest build here](Output/ResemblePlugin_28-02-20.unitypackage).
   
   
   
 #### Version
-The plugin was created on version [2019.2.8](https://unity3d.com/fr/unity/whats-new/2019.2.8) of Unity. I recommend to have the same version in order to avoid any incompatibility problems.  
+The plugin was created on version [2019.3.2](https://unity3d.com/fr/unity/whats-new/2019.2.8) of Unity. I recommend to have the same version in order to avoid any incompatibility problems.  
   
   
   
