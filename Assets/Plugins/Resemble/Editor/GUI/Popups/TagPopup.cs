@@ -17,7 +17,7 @@ namespace Resemble.GUIEditor
         public static void Show(Vector2 pos, Tag tag, bool fromResembleWindow)
         {
             TagPopup window = ScriptableObject.CreateInstance<TagPopup>();
-            window.position = new Rect(pos.x, pos.y, 150, 250);
+            window.position = new Rect(pos.x, pos.y, 150, 125);
             window.ShowPopup();
             releaseFocusOnclose = fromResembleWindow;
             TagPopup.tag = tag;

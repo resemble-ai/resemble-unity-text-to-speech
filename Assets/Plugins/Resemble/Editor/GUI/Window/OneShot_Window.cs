@@ -10,7 +10,7 @@ namespace Resemble.GUIEditor
     {
         public static AudioPreview preview;
         private static Task task;
-        private static Text_Editor drawer = new Text_Editor();
+        private static Text_Editor drawer;
         private static bool drawProgressBar;
         private static Text text
         {
@@ -47,14 +47,19 @@ namespace Resemble.GUIEditor
                 }
             }
 
+
+            //Init components
+            if (Resources.instance.text == null)
+                Resources.instance.text = new Text();
+            if (drawer == null)
+                drawer = new Text_Editor(Resources.instance.text, SetDirty, Repaint);
+
             //Tags
             drawer.DrawTagsBtnsLayout(!Settings.haveProject);
 
             //Draw text area
             Rect rect = GUILayoutUtility.GetRect(Screen.width, 300).Shrink(10);
             drawer.DrawTextArea(rect, Settings.haveProject);
-            if (drawer.dirty)
-                EditorUtility.SetDirty(Resources.instance);
 
             //Draw char count progress bar
             rect.Set(rect.x, rect.y + rect.height, rect.width, 16);
@@ -144,6 +149,11 @@ namespace Resemble.GUIEditor
         private void CopyClipBody()
         {
             EditorGUIUtility.systemCopyBuffer = text.BuildResembleString();
+        }
+
+        public new void SetDirty()
+        {
+            EditorUtility.SetDirty(Resources.instance);
         }
 
         #region Callbacks

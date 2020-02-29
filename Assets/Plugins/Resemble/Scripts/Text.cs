@@ -12,7 +12,20 @@ namespace Resemble
         /// <summary> Contains the tags applied to the text. </summary>
         public List<Tag> tags = new List<Tag>();
 
-        public int 
+        /// <summary> Position of the start of selection. </summary>
+        public int selectID;
+
+        /// <summary> Position of the user carret. </summary>
+        public int carretID;
+
+        /// <summary> Returns true if there is currently a selection. </summary>
+        public bool haveSelection
+        {
+            get
+            {
+                return selectID != carretID;
+            }
+        }
 
         /// <summary> Return a plain text string with SSML tags supported by the Resemble API. </summary>
         public string BuildResembleString()
@@ -56,5 +69,23 @@ namespace Resemble
                 return string.Format("(id : {0}, open : {1}, tag : {2})", id, open, tag);
             }
         }
+
+        //Callbacks
+        public delegate void Callback();
+        public Callback onEdit;
+        public Callback onChangeSelect;
+
+        public void CallOnEdit()
+        {
+            if (onEdit != null)
+                onEdit.Invoke();
+        }
+
+        public void CallOnChangeSelect()
+        {
+            if (onChangeSelect != null)
+                onChangeSelect.Invoke();
+        }
+
     }
 }

@@ -18,14 +18,11 @@ namespace Resemble.GUIEditor
         {
             get
             {
-                if (text == null || text.userString == null)
-                    return "";
                 return text.userString;
             }
             set
             {
                 text.userString = value;
-                lines = null;
             }
         }
         private int length
@@ -48,28 +45,28 @@ namespace Resemble.GUIEditor
                 return carretID != selectID;
             }
         }
-        private int carretID;
+        private int carretID
+        {
+            get
+            {
+                return text.carretID;
+            }
+            set
+            {
+                text.carretID = value;
+            }
+        }
         private int selectID
         {
             get
             {
-                return _selectID;
+                return text.selectID;
             }
             set
             {
-                if (_selectID != value)
-                {
-                    _selectID = value;
-                    if (selectID != carretID)
-                    {
-                        RefreshSelectionRects();
-                    }
-                    else
-                        rects = null;
-                }
+                text.selectID = value;
             }
         }
-        private int _selectID = 0;
         private bool focus;
 
         //GUI stuff
@@ -89,19 +86,39 @@ namespace Resemble.GUIEditor
         Utils.ButtonState breakBtn;
         Utils.ButtonState emotionBtn;
 
+        //Repaint stuff
+        public delegate void Callback();
+        private bool needTagRefresh;
+        private Tag tagToEdit;
+        Callback requestRepaint;
 
-        public delegate void DrawerEvent();
-
+        //Constructor
+        public Text_Editor(Text text, Callback editCallback, Callback repaintCallback)
+        {
+            this.text = text;
+            text.onEdit += () => { needTagRefresh = true; repaintCallback.Invoke(); };
+            text.onChangeSelect += () => { RefreshLines(); RefreshSelectionRects(); repaintCallback.Invoke(); };
+            requestRepaint += repaintCallback;
+        }
 
         #region Draw functions
 
-        public void DoLayout(bool enable, bool fromOneShootWindow, DrawerEvent onEditCallback)
+        private void RefreshLines()
+        {
+            lines = LinesPack.FromText(userString, textRect, Styles.textStyle);
+        }
+
+        public void Refresh()
+        {
+            RefreshTagsRects();
+            RefreshSelectionRects();
+        }
+
+        public void DoLayout(bool enable, bool fromOneShootWindow)
         {
             this.fromOneShootWindow = fromOneShootWindow;
             Rect rect = GUILayoutUtility.GetRect(Screen.width, 300).Shrink(10);
             DrawTextArea(rect, Settings.haveProject);
-            if (dirty)
-                onEditCallback.Invoke();
         }
 
         public void DrawTagsBtnsLayout(bool disabled)
@@ -121,9 +138,7 @@ namespace Resemble.GUIEditor
             btnRect.Set(btnRect.x + btnRect.width + 5, btnRect.y, 130, btnRect.height);
             if (Utils.FlatButton(btnRect, new GUIContent("Add Emotion"), new Color(0.259f, 0.6f, 0.956f), ref emotionBtn))
             {
-                Tag tag = ApplyTag(Emotion.Angry);
-                selectID = carretID;
-                TagPopup.Show(GetTagPos(tag), tag, fromOneShootWindow);
+                tagToEdit = text.AddTag();
             }
         }
 
@@ -143,7 +158,20 @@ namespace Resemble.GUIEditor
                 return;
             Styles.Load();
             Event e = Event.current;
-            dirty = false;
+
+            //Refresh stuff
+            if (needTagRefresh || tagToEdit != null)
+            {
+                needTagRefresh = false;
+                RefreshLines();
+                RefreshTagsRects();
+                requestRepaint.Invoke();
+            }
+            if (tagToEdit != null)
+            {
+                ShowEditPopupOntag(tagToEdit);
+                tagToEdit = null;
+            }
 
             //Draw background and set clip area
             Rect rectBox = new Rect(rect.x, rect.y, rect.width, rect.height);
@@ -161,18 +189,16 @@ namespace Resemble.GUIEditor
 
             //Draw text
             float contentHeight = Styles.textStyle.CalcHeight(userStringGUIContent, rectBox.width - 30);
-            textRect = new Rect(5, 5 - scroll.y, rectBox.width - 26, contentHeight);
+            if (e.type == EventType.Repaint)
+                textRect = new Rect(5, 5 - scroll.y, rectBox.width - 26, contentHeight);
             GUI.Label(textRect, userString, Styles.textStyle);
-            //EditorGUI.DrawRect(textRect, Color.red * 0.1f);
 
             //Draw carret
             if (interactable)
                 DrawCarret();
 
             //Handle events
-
             ManageFocus(e);
-
             if (focus && interactable)
             {
                 if (e.type == EventType.KeyDown)
@@ -208,13 +234,6 @@ namespace Resemble.GUIEditor
         public void DrawCharCountBar(Rect rect)
         {
             EditorGUI.ProgressBar(rect, length / 1000.0f, length + "/1000");
-        }
-
-        public void Refresh()
-        {
-            lines = LinesPack.FromText(userString, textRect, Styles.textStyle);
-            RefreshSelectionRects();
-            RefreshTagsRects();
         }
 
         /// <summary> 
@@ -346,39 +365,51 @@ namespace Resemble.GUIEditor
                 switch (e.keyCode)
                 {
                     case KeyCode.Backspace:
+                        //Have selection
+                        if (text.haveSelection)
                         {
-                            if (haveSelection)
-                            {
-                                ClearSelection();
-                                break;
-                            }
-
-                            int offset = e.control ? WordLenght(carretID, true) : 1;
-                            if (IsInString(carretID - offset, carretID))
-                            {
-                                OnEditText(carretID, offset, false);
-                                userString = userString.Remove(carretID - offset, offset);
-                                carretID -= offset;
-                                selectID -= offset;
-                            }
+                            text.Delete();
                             break;
                         }
-                    case KeyCode.Delete:
-                        {
-                            if (haveSelection)
-                            {
-                                ClearSelection();
-                                break;
-                            }
 
-                            if (carretID == length)
-                                break;
-                            int offset = e.control ? WordLenght(carretID, false) : 1;
-                            OnEditText(carretID + offset, offset, false);
-                            offset = Mathf.Min(length - carretID, offset);
-                            userString = userString.Remove(carretID, offset);
+                        //Can't remove more characters
+                        if (carretID == 0)
+                            break;
+
+                        //Classic
+                        if (!e.control)
+                        {
+                            text.RemoveChars(-1);
+                            break;
                         }
+
+                        //Control modificator
+                        text.RemoveChars(-WordLenght(carretID, true));
                         break;
+
+                    case KeyCode.Delete:
+                        //Have selection
+                        if (text.haveSelection)
+                        {
+                            text.Delete();
+                            break;
+                        }
+
+                        //Can't remove more characters
+                        if (carretID == text.userString.Length)
+                            break;
+
+                        //Classic
+                        if (!e.control)
+                        {
+                            text.RemoveChars(1);
+                            break;
+                        }
+
+                        //Control modificator
+                        text.RemoveChars(WordLenght(carretID, false));
+                        break;
+
                     case KeyCode.LeftArrow:
                     case KeyCode.RightArrow:
                     case KeyCode.UpArrow:
@@ -392,53 +423,42 @@ namespace Resemble.GUIEditor
             }
             else
             {
-                //Insert character directly in userString
-                void InsertChar(char c)
-                {
-                    ClearSelection();
-                    OnEditText(carretID, 1, true);
-                    userString = userString.Insert(carretID, c.ToString());
-                    carretID++;
-                    selectID++;
-                }
-
+                //Type simple character
                 if (!char.IsControl(e.character))
-                {
-                    InsertChar(e.character);
-                }
+                    text.TypeChar(e.character);
+
+                //Control + character
                 else
                 {
                     switch (e.keyCode)
                     {
                         case KeyCode.Return:
                         case KeyCode.KeypadEnter:
-                            ClearSelection();
-                            InsertChar('\n');
+                            text.Delete();
+                            text.TypeChar('\n');
                             break;
                         case KeyCode.A:
                             if (e.control)
-                                SelectAll();
+                                text.SelectAll();
                             break;
                         case KeyCode.X:
                             if (e.control)
-                                text.Cut(ref selectID, ref carretID);
+                                text.Cut();
                             break;
                         case KeyCode.C:
                             if (e.control)
-                                text.Copy(selectID, carretID);
+                                text.Copy();
                             break;
                         case KeyCode.V:
                             if (e.control)
-                                text.Paste(ref selectID, ref carretID);
+                                text.Paste();
                             break;
                     }
                 }
             }
 
             e.Use();
-            RefreshTagsRects();
             lastInputTime = EditorApplication.timeSinceStartup;
-            dirty = true;
         }
 
         private void ReceiveMouseEvent(Event e)
@@ -461,7 +481,7 @@ namespace Resemble.GUIEditor
                         carretID = id;
                         if (!e.shift)
                         {
-                            _selectID = id;
+                            selectID = id;
                             rects = null;
                         }
                         else
@@ -475,58 +495,6 @@ namespace Resemble.GUIEditor
                     lastClicPos = e.mousePosition;
                     e.Use();
                 }
-
-                //Right clic
-                else if (e.type == EventType.MouseDown && e.button == 1)
-                {
-                    carretID = GetCarretAt(e.mousePosition);
-                    Debug.Log(carretID);
-
-                    bool haveClipboard = !string.IsNullOrEmpty(GUIUtility.systemCopyBuffer);
-                    bool onTag = OnTag(carretID);
-
-                    GenericMenu menu = new GenericMenu();
-                    if (haveSelection)
-                    {
-                        menu.AddItem(new GUIContent("Copy"), false, CopyToClipboard);
-                        menu.AddItem(new GUIContent("Cut"), false, CutToClipboard);
-                        if (haveClipboard)
-                            menu.AddItem(new GUIContent("Paste"), false, PasteFromClipboard);
-                        else
-                            menu.AddDisabledItem(new GUIContent("Paste"), false);
-                        menu.AddSeparator("");
-                        menu.AddDisabledItem(new GUIContent("Add break"), false);
-                        menu.AddItem(new GUIContent("Add Emotion"), false, () => { ApplyTag(Emotion.Angry); RefreshTagsRects(); });
-                        menu.AddSeparator("");
-                        menu.AddDisabledItem(new GUIContent("Edit Emotion"), false);
-                        menu.AddItem(new GUIContent("Remove Emotion"), false, () => { ApplyTag(Emotion.Neutral); RefreshTagsRects(); });
-                    }
-                    else
-                    {
-                        menu.AddDisabledItem(new GUIContent("Copy"), false);
-                        menu.AddDisabledItem(new GUIContent("Cut"), false);
-                        if (haveClipboard)
-                            menu.AddItem(new GUIContent("Paste"), false, PasteFromClipboard);
-                        else
-                            menu.AddDisabledItem(new GUIContent("Paste"), false);
-                        menu.AddSeparator("");
-                        menu.AddItem(new GUIContent("Add break"), false, AddBreak);
-                        menu.AddDisabledItem(new GUIContent("Add Emotion"), false);
-                        menu.AddSeparator("");
-                        if (onTag)
-                        {
-                            menu.AddItem(new GUIContent("Edit Emotion"), false, () => { ShowEditPopupOntag(GetTag(carretID)); });
-                            menu.AddItem(new GUIContent("Remove Emotion"), false, () => { RemoveTag(GetTag(carretID)); });
-                        }
-                        else
-                        {
-                            menu.AddDisabledItem(new GUIContent("Edit Emotion"), false);
-                            menu.AddDisabledItem(new GUIContent("Remove Emotion"), false);
-                        }
-                    }
-                    menu.ShowAsContext();
-                }
-
             }
             else
             {
@@ -542,128 +510,70 @@ namespace Resemble.GUIEditor
                 }
             }
 
+            //Right clic - Open a context menu
+            if ((e.type == EventType.MouseDown && e.button == 1) || e.type == EventType.ContextClick)
+            {
+                //Set carret on clic if there is no selection or the clic is not on the selection.
+                int mouseID = GetCarretAt(e.mousePosition);
+                if (!text.haveSelection || !text.SelectionContains(mouseID))
+                    carretID = selectID = mouseID;
+
+                //Get flags
+                bool haveClipboard = !string.IsNullOrEmpty(GUIUtility.systemCopyBuffer);
+                bool onTag = !text.haveSelection && text.GetTag() != null;
+
+                //Build context menu
+                GenericMenu menu = new GenericMenu();
+                if (haveSelection)
+                {
+                    menu.AddItem(new GUIContent("Copy"), false, () => { text.Copy(); });
+                    menu.AddItem(new GUIContent("Cut"), false, () => { text.Cut(); });
+                    if (haveClipboard)
+                        menu.AddItem(new GUIContent("Paste"), false, () => { text.Paste(); });
+                    else
+                        menu.AddDisabledItem(new GUIContent("Paste"), false);
+                    menu.AddSeparator("");
+                    menu.AddDisabledItem(new GUIContent("Add break"), false);
+                    menu.AddItem(new GUIContent("Add Emotion"), false, () => { tagToEdit = text.AddTag(); });
+                    menu.AddSeparator("");
+                    menu.AddDisabledItem(new GUIContent("Edit Emotion"), false);
+                    menu.AddItem(new GUIContent("Remove Emotion"), false, () => { text.RemoveTag(); });
+                }
+                else
+                {
+                    menu.AddDisabledItem(new GUIContent("Copy"), false);
+                    menu.AddDisabledItem(new GUIContent("Cut"), false);
+                    if (haveClipboard)
+                        menu.AddItem(new GUIContent("Paste"), false, () => { text.Paste(); });
+                    else
+                        menu.AddDisabledItem(new GUIContent("Paste"), false);
+                    menu.AddSeparator("");
+                    menu.AddItem(new GUIContent("Add break"), false, () => { text.AddBreak(); });
+                    menu.AddDisabledItem(new GUIContent("Add Emotion"), false);
+                    menu.AddSeparator("");
+                    if (onTag)
+                    {
+                        menu.AddItem(new GUIContent("Edit Emotion"), false, () => { tagToEdit = text.GetTag(); });
+                        menu.AddItem(new GUIContent("Remove Emotion"), false, () => { text.RemoveTag(text.GetTag()); });
+                    }
+                    else
+                    {
+                        menu.AddDisabledItem(new GUIContent("Edit Emotion"), false);
+                        menu.AddDisabledItem(new GUIContent("Remove Emotion"), false);
+                    }
+                }
+                menu.ShowAsContext();
+                e.Use();
+            }
+
             if (drag)
                 lastInputTime = EditorApplication.timeSinceStartup;
-        }
-
-        public void SelectAll()
-        {
-            carretID = length;
-            selectID = 0;
-        }
-
-        public void CopyToClipboard()
-        {
-            int min = Mathf.Min(carretID, selectID);
-            int max = Mathf.Max(carretID, selectID);
-            GUIUtility.systemCopyBuffer = userString.Substring(min, max - min);
-        }
-
-        public void CutToClipboard()
-        {
-            int min = Mathf.Min(carretID, selectID);
-            int max = Mathf.Max(carretID, selectID);
-            OnEditText(min, max - min, false);
-            GUIUtility.systemCopyBuffer = userString.Substring(min, max - min);
-            ClearSelection();
-        }
-
-        public void PasteFromClipboard()
-        {
-            ClearSelection();
-            string pastString = GUIUtility.systemCopyBuffer.
-                Replace("\r", "").
-                Replace(System.Environment.NewLine, "");
-            OnEditText(carretID, pastString.Length, true);
-            userString = userString.Insert(carretID, pastString);
-            selectID = carretID = carretID + pastString.Length;
-        }
-
-        private void RemoveTag(Tag tag)
-        {
-            text.tags.Remove(tag);
-            RefreshTagsRects();
-        }
-
-        private Tag GetTag(int id)
-        {
-            for (int i = 0; i < text.tags.Count; i++)
-            {
-                if (text.tags[i].Contains(id))
-                    return text.tags[i];
-            }
-            return null;
-        }
-
-        private bool OnTag(int id)
-        {
-            for (int i = 0; i < text.tags.Count; i++)
-            {
-                if (text.tags[i].Contains(id))
-                    return true;
-            }
-            return false;
-        }
-
-        private Tag ApplyTag(Emotion emotion)
-        {
-            //No selection
-            if (!haveSelection)
-                return null;
-
-            //Remove tags in this area
-            int start = Mathf.Min(selectID, carretID);
-            int end = Mathf.Max(selectID, carretID);
-            int count = text.tags.Count;
-            for (int i = 0; i < count; i++)
-            {
-                Tag otherTag = null;
-                if (text.tags[i].ClearCharacters(start, end - start, out otherTag))
-                {
-                    text.tags.RemoveAt(i);
-                    i--;
-                    count--;
-                    if (otherTag != null)
-                        text.tags.Add(otherTag);
-                }
-            }
-
-            //Just remove old tags and stop process herefor neutral emotion
-            if (emotion == Emotion.Neutral)
-            {
-                RefreshTagsRects();
-                return null;
-            }
-
-            //Add the new tag
-            Tag tag = new Tag(Tag.Type.Emotion, emotion, selectID, carretID);
-            text.tags.Add(tag);
-            RefreshTagsRects();
-            dirty = true;
-            return tag;
+            RefreshSelectionRects();
         }
 
         private void ShowEditPopupOntag(Tag tag)
         {
-
-        }
-
-        private void AddBreak()
-        {
-            userString = userString.Insert(carretID, "      ");
-            OnEditText(carretID, 6, true);
-            text.tags.Add(new Tag(Tag.Type.Wait, Emotion.Neutral, carretID, carretID + 6));
-            RefreshTagsRects();
-            carretID++;
-            selectID++;
-            dirty = true;
-        }
-
-        private void ClearTags()
-        {
-            text.tags.Clear();
-            RefreshTagsRects();
-            dirty = true;
+            TagPopup.Show(GetTagPos(tag), tag, fromOneShootWindow);
         }
 
         private void ManageFocus(Event e)
@@ -673,20 +583,6 @@ namespace Resemble.GUIEditor
                 clickCount = e.clickCount;
                 focus = clipRect.Shrink(-10).Contains(e.mousePosition) || drag;
             }
-        }
-
-        private void ClearSelection()
-        {
-            if (!haveSelection)
-                return;
-
-            int min = Mathf.Min(carretID, selectID);
-            int max = Mathf.Max(carretID, selectID);
-
-            OnEditText(min, max - min, false);
-            userString = userString.Remove(min, max - min);
-            selectID = carretID = min;
-            rects = null;
         }
 
         private void ArrowMove(Event e)
@@ -701,11 +597,11 @@ namespace Resemble.GUIEditor
                 switch (e.keyCode)
                 {
                     case KeyCode.LeftArrow:
-                        _selectID = carretID = min;
+                        selectID = carretID = min;
                         rects = null;
                         return;
                     case KeyCode.RightArrow:
-                        _selectID = carretID = max;
+                        selectID = carretID = max;
                         rects = null;
                         return;
                     case KeyCode.UpArrow:
@@ -717,6 +613,8 @@ namespace Resemble.GUIEditor
                         shift = false;
                         break;
                 }
+
+                RefreshSelectionRects();
             }
 
 
@@ -801,9 +699,13 @@ namespace Resemble.GUIEditor
 
         #endregion
 
+        #region Refresh stuff
         private void RefreshSelectionRects()
         {
-            rects = GetRects(carretID, selectID, textRect.min + scroll);
+            if (text.haveSelection)
+                rects = GetRects(carretID, selectID, textRect.min + scroll);
+            else
+                rects = new Rect[0];
         }
 
         private void RefreshTagsRects()
@@ -814,7 +716,7 @@ namespace Resemble.GUIEditor
 
         class LinesPack
         {
-            string[] lines;
+            public string[] lines;
             int[] length;
             int[] startID;
 
@@ -907,5 +809,6 @@ namespace Resemble.GUIEditor
                 return linesList.ToArray();
             }
         }
+        #endregion
     }
 }

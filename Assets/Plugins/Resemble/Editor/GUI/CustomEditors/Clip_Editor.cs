@@ -25,15 +25,17 @@ namespace Resemble.GUIEditor
         private bool rename;
         private string renameLabel;
         private int renameControlID;
-        public Text_Editor drawer = new Text_Editor();
+        public Text_Editor drawer;
 
         protected override void OnHeaderGUI()
         {
             //Init resources
             Styles.Load();
             clip = target as Clip;
-            if (drawer.text == null)
-                drawer.text = clip.text;
+            if (clip.text == null)
+                clip.text = new Text();
+            if (drawer == null)
+                drawer = new Text_Editor(clip.text, SetDirty, Repaint);
 
             //Bar
             Rect rect = new Rect(0, 0, Screen.width, 46);
@@ -108,7 +110,7 @@ namespace Resemble.GUIEditor
             EditorGUI.DrawRect(rect, Color.grey * 0.2f);
 
             //Draw text layout
-            drawer.DoLayout(true, false, OnEditText);
+            drawer.DoLayout(true, false);
 
 
             GUILayout.EndVertical();

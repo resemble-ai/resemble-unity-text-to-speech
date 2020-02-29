@@ -134,9 +134,9 @@ namespace Resemble
         }
 
         /// <summary> Call this when you remove some characters of the tag area. Return true if need to be deleted. Can return a new tag to add. </summary>
-        public bool ClearCharacters(int id, int length, out Tag tag)
+        public bool ClearCharacters(int id, int length, out Tag otherTag)
         {
-            tag = null;
+            otherTag = null;
             ChangeState state = Contains(id, length);
 
             switch (state)
@@ -146,8 +146,8 @@ namespace Resemble
                 case ChangeState.After:
                     return false;
                 case ChangeState.Inside:
-                    if (end - (id + length) > 0)
-                        tag = new Tag(type, emotion, id + length, end);
+                    if ((end - (id + length)) > 0)
+                        otherTag = new Tag(type, emotion, id + length, end);
                     end = id;
                     break;
                 case ChangeState.ContainsAll:
