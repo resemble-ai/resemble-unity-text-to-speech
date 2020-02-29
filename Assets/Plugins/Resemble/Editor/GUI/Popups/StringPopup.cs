@@ -19,7 +19,7 @@ namespace Resemble.GUIEditor
             //Close window if already open
             if (window != null)
             {
-                window.Close();
+                Hide();
                 return;
             }
 
@@ -49,13 +49,16 @@ namespace Resemble.GUIEditor
 
         private void OnLostFocus()
         {
-            Close();
+            Hide();
         }
 
-        private new void Close()
+        public static void Hide()
         {
-            window = null;
-            base.Close();
+            if (window != null)
+            {
+                window.Close();
+                window = null;
+            }
         }
 
         private void DrawHeader()

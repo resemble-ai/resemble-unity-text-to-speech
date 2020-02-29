@@ -26,25 +26,25 @@ namespace Resemble.GUIEditor
 
         void OnGUI()
         {
-            GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "");
+            GUI.Box(new Rect(0, 0, Screen.width, Screen.height), "", GUI.skin.window);
 
-            for (int i = 0; i < btns.Length; i++)
+            for (int i = 1; i < btns.Length; i++)
             {
                 Emotion em = (Emotion)i;
-                if (Utils.FlatButtonLayout(new GUIContent(em.ToString()), em.Color(), ref btns[i]))
+                if (GUILayout.Button(em.ToString()))
                 {
                     tag.emotion = em;
                     tag.color = em.Color();
                     Close();
                 }
+                /*
+                if (Utils.FlatButtonLayout(new GUIContent(em.ToString()), em.Color(), ref btns[i]))
+                {
+                    tag.emotion = em;
+                    tag.color = em.Color();
+                    Close();
+                }*/
             }
-
-            GUILayout.Space(10);
-            if (GUILayout.Button("Ok"))
-            {
-                Close();
-            }
-
             Repaint();
         }
 

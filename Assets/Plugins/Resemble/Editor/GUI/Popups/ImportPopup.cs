@@ -41,9 +41,10 @@ namespace Resemble.GUIEditor
         {
             //Avoid corrupted window after a script reload
             if (assets == null)
+            {
                 Close();
-
-            //GUILayout.Space(20);
+                return;
+            }
 
             //Draw all content
             DrawHeader();
@@ -64,7 +65,7 @@ namespace Resemble.GUIEditor
             if (allCheck == AllCheckState.Partial)
             {
                 Rect rect = GUILayoutUtility.GetLastRect();
-                rect.Set(rect.x + 4, rect.y + 5, rect.height - 10, rect.height - 10);
+                rect.Set(rect.x + 4, rect.y + 4, rect.height - 7, rect.height - 7);
                 EditorGUI.DrawRect(rect, Color.black * 0.8f);
             }
 

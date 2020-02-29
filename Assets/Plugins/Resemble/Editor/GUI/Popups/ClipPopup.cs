@@ -29,7 +29,7 @@ namespace Resemble.GUIEditor
             //Close window if already open
             if (window != null)
             {
-                window.Close();
+                Hide();
                 return;
             }
 
@@ -63,13 +63,16 @@ namespace Resemble.GUIEditor
 
         private void OnLostFocus()
         {
-            Close();
+            Hide();
         }
 
-        private new void Close()
+        public static void Hide()
         {
-            window = null;
-            base.Close();
+            if (window != null)
+            {
+                window.Close();
+                window = null;
+            }
         }
 
         private void DrawHeader()
@@ -106,7 +109,7 @@ namespace Resemble.GUIEditor
             {
                 EditorGUILayout.HelpBox("There are no more clips available with this voice.", MessageType.Warning);
                 if (GUILayout.Button("Close"))
-                    Close();
+                    Hide();
                 return;
             }
 
@@ -128,7 +131,7 @@ namespace Resemble.GUIEditor
             if (GUILayout.Button(clip.title))
             {
                 callback.Invoke(clip);
-                Close();
+                Hide();
             }
         }
     }

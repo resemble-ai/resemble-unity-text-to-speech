@@ -50,8 +50,8 @@ namespace Resemble.GUIEditor
         {
             //Init components
             Styles.Load();
-            if (drawer.target == null)
-                drawer.target = text;
+            if (drawer.text == null)
+                drawer.text = text;
             windowSize = new Vector2(Screen.width, Screen.height);
 
             //Toolbar

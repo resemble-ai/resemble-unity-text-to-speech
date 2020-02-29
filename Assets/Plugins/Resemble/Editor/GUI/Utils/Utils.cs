@@ -292,6 +292,12 @@ namespace Resemble.GUIEditor
             return true;
         }
 
+        public static Color Alpha(this Color color, float alpha)
+        {
+            color.a = alpha;
+            return color;
+        }
+
         public enum ButtonState
         {
             None,

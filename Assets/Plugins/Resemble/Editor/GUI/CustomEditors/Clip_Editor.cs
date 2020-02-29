@@ -32,8 +32,8 @@ namespace Resemble.GUIEditor
             //Init resources
             Styles.Load();
             clip = target as Clip;
-            if (drawer.target == null)
-                drawer.target = clip.text;
+            if (drawer.text == null)
+                drawer.text = clip.text;
 
             //Bar
             Rect rect = new Rect(0, 0, Screen.width, 46);
@@ -48,16 +48,14 @@ namespace Resemble.GUIEditor
             rect.Set(44, 4, width, 22);
             if (GUI.Button(rect, clip.speech.name + " > ", Styles.header))
                 goBackToParent = true;
-            rect.Set(rect.x + rect.width, rect.y, Screen.width - (rect.x + rect.width + 50), rect.height);
+            EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
 
             //Clip name and rename
+            rect.Set(rect.x + rect.width, rect.y, Screen.width - (rect.x + rect.width + 50), rect.height);
+            renameRect = rect;
             if (GUI.Button(rect, clip.name, Styles.header))
-            {
-                StringPopup.Show(GUIUtility.GUIToScreenRect(rect.Offset(0, 20, 0, 0)),
-                    "Rename clip", clip.name, (string value) => {
-                    if (!string.IsNullOrEmpty(clip.name) && value != clip.name)
-                        Rename(value);});
-            }
+                Rename();
+            EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
 
             //Resemble.ai link
             rect.Set(Screen.width - 140, rect.y + 24, 135, 16);
@@ -76,10 +74,11 @@ namespace Resemble.GUIEditor
             {
                 GenericMenu menu = new GenericMenu();
                 menu.AddItem(new GUIContent("Print target path"), false, PrintTargetPath);
-                menu.AddItem(new GUIContent("Regenerate pod"), false, RegeneratePod);
-                menu.AddItem(new GUIContent("Export in wav"), false, ExportPod);
+                menu.AddItem(new GUIContent("Update from API"), false, UpdateFromAPI);
+                menu.AddItem(new GUIContent("Generate"), false, Generate);
+                menu.AddItem(new GUIContent("Download wav as..."), false, ExportClip);
                 menu.AddSeparator("");
-                menu.AddItem(new GUIContent("Reset"), false, Reset);
+                menu.AddItem(new GUIContent("Rename"), false, Rename);
                 menu.AddItem(new GUIContent("Delete"), false, Delete);
                 menu.AddSeparator("");
                 menu.AddItem(new GUIContent("Help"), false, () => { WebPage.PluginClip.Open(); });
@@ -100,8 +99,19 @@ namespace Resemble.GUIEditor
                 return;
             }
 
+            GUILayout.BeginVertical(EditorStyles.helpBox);
+
+            drawer.DrawTagsBtnsLayout(false);
+
+            Rect rect = GUILayoutUtility.GetRect(1.0f, 1.0f, GUILayout.ExpandWidth(true));
+            rect.Set(rect.x, rect.y, rect.width, 1.0f);
+            EditorGUI.DrawRect(rect, Color.grey * 0.2f);
+
             //Draw text layout
-            drawer.DoLayout(true, OnEditText, OnGenerate);
+            drawer.DoLayout(true, false, OnEditText);
+
+
+            GUILayout.EndVertical();
 
             //Show pending request button
             if (task != null && task.status != Task.Status.Completed)
@@ -117,7 +127,7 @@ namespace Resemble.GUIEditor
             {
                 if (!task.preview.done)
                 {
-                    Rect rect = GUILayoutUtility.GetRect(Screen.width, 16);
+                    rect = GUILayoutUtility.GetRect(Screen.width, 16);
                     float progress = task.preview.download.progress;
                     EditorGUI.ProgressBar(rect, progress, "Download : " + Mathf.RoundToInt(progress * 100) + "%");
                 }
@@ -127,10 +137,16 @@ namespace Resemble.GUIEditor
                 }
             }
             
-            //Update button
-            if (GUILayout.Button("Update"))
+            //Patch button
+            if (GUILayout.Button("Send patch"))
             {
-                UpdateClip();
+                PatchClip();
+            }
+
+            //Update button
+            if (GUILayout.Button("Update from API"))
+            {
+                GetClipStatus();
             }
 
 
@@ -228,7 +244,7 @@ namespace Resemble.GUIEditor
             value += ApplicationUpdate;
             info.SetValue(null, value);
             Clip clip = target as Clip;
-            if (clip != null && clip.text != null && drawer != null && drawer.target != null)
+            if (clip != null && clip.text != null && drawer != null && drawer.text != null)
                 drawer.Refresh();
         }
 
@@ -331,19 +347,28 @@ namespace Resemble.GUIEditor
             Debug.Log(clip.GetSavePath());
         }
 
-        public void RegeneratePod()
+        public void Generate()
         {
 
         }
 
-        public void ExportPod()
+        public void UpdateFromAPI()
         {
 
         }
 
-        public void Reset()
+        public void ExportClip()
         {
 
+        }
+
+        public void Rename()
+        {
+            StringPopup.Show(GUIUtility.GUIToScreenRect(renameRect.Offset(0, 20, 0, 0)),
+            "Rename clip", clip.name, (string value) => {
+                if (!string.IsNullOrEmpty(clip.name) && value != clip.name)
+                    Rename(value);
+            });
         }
 
         public void Delete()
@@ -388,7 +413,7 @@ namespace Resemble.GUIEditor
             }
         }
 
-        public void UpdateClip()
+        public void PatchClip()
         {
             if (string.IsNullOrEmpty(clip.uuid))
             {
@@ -403,6 +428,17 @@ namespace Resemble.GUIEditor
                     error.Log();
                 else
                     Debug.Log(content);
+            });
+        }
+
+        public void GetClipStatus()
+        {
+            APIBridge.GetClip(clip.uuid, (ResembleClip clip, Error error) =>
+            {
+                if (error)
+                    error.Log();
+                else
+                    Debug.Log(clip.title + "  " + clip.body);
             });
         }
 

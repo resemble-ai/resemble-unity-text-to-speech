@@ -22,31 +22,12 @@ namespace Resemble
         private static List<Task> executionLoop = new List<Task>();
         private static bool receiveUpdates;
 
-        //Generic functions exposed to the user.
-        #region Generics
-        public static void SendGetRequest(string uri, Callback.Simple callback)
-        {
-            EnqueueGet(uri, (string content, Error error) =>
-            {
-                callback.Invoke(content, error);
-            });
-        }
-
-        public static void SendPostRequest(string uri, string data, Callback.Simple callback)
-        {
-            EnqueuePost(uri, data, (string content, Error error) =>
-            {
-                callback.Invoke(content, error);
-            });
-        }
-        #endregion
-
         //Functions used by the plugin.
         #region Basics Methodes
         public static void GetProjects(Callback.GetProject callback)
         {
             string uri = apiUri + "/projects/";
-            EnqueueGet(uri, (string content, Error error) =>
+            EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
             {
                 Project[] projects = error ? null : Project.FromJson(content);
                 callback.Method.Invoke(callback.Target, new object[] { projects, error });
@@ -56,7 +37,7 @@ namespace Resemble
         public static void GetProject(string uuid)
         {
             string uri = apiUri + "/projects/" + uuid;
-            EnqueueGet(uri, (string content, Error error) =>
+            EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
             {
                 Debug.Log(content);
             });
@@ -65,13 +46,13 @@ namespace Resemble
         public static void DeleteProject(Project project)
         {
             string uri = apiUri + "/projects/" + project.uuid;
-            EnqueueDelete(uri, (string content, Error error) => {});
+            EnqueueTask(uri, Task.Type.Delete, (string content, Error error) => {});
         }
 
         public static void DeleteClip(string uuid)
         {
             string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + uuid;
-            EnqueueDelete(uri, (string content, Error error) => { });
+            EnqueueTask(uri, Task.Type.Delete, (string content, Error error) => { });
         }
 
         public static void CreateProject(Project project, Callback.CreateProject callback)
@@ -79,7 +60,7 @@ namespace Resemble
             string uri = apiUri + "/projects/";
             string data = "{\"data\":" + JsonUtility.ToJson(project) + "}";
 
-            EnqueuePost(uri, data, (string content, Error error) =>
+            EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
             {
                 ProjectStatus status = error ? null : JsonUtility.FromJson<ProjectStatus>(content);
                 callback.Method.Invoke(callback.Target, new object[] { status, error });
@@ -91,7 +72,7 @@ namespace Resemble
             string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/sync";
             string data = new CreateClipRequest(podData, "x-high", false).Json();
 
-            return EnqueuePost(uri, data, (string content, Error error) =>
+            return EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
             {
                 if (error)
                 {
@@ -111,7 +92,7 @@ namespace Resemble
             Debug.Log(uri);
             Debug.Log(data);
 
-            EnqueuePost(uri, data, (string content, Error error) =>
+            EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
             {
                 if (error)
                 {
@@ -127,17 +108,10 @@ namespace Resemble
         public static void GetClip(string uuid, Callback.GetClip callback)
         {
             string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + uuid;
-
-            EnqueueGet(uri, (string content, Error error) =>
+            EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
             {
-                if (error)
-                {
-                    callback.Method.Invoke(callback.Target, new object[] { null, error });
-                }
-                else
-                {
-                    Debug.Log(content);
-                }
+                callback.Method.Invoke(callback.Target, error ? new object[] { null, error } :
+                    new object[] { JsonUtility.FromJson<ResembleClip>(content), Error.None });
             });
         }
 
@@ -145,7 +119,7 @@ namespace Resemble
         {
             string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/";
 
-            EnqueueGet(uri, (string content, Error error) =>
+            EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
             {
                 if (error)
                     callback.Method.Invoke(callback.Target, new object[] { null, error });
@@ -161,7 +135,7 @@ namespace Resemble
 
         public static void GetVoices(Callback.GetVoices callback)
         {
-            EnqueueGet(apiUri + "/voices/", (string content, Error error) => {
+            EnqueueTask(apiUri + "/voices/", Task.Type.Get, (string content, Error error) => {
                 callback.Method.Invoke(callback.Target, error ?
                 new object[] { null, error } : 
                 new object[] { Voice.FromJson(content), Error.None });});
@@ -173,7 +147,7 @@ namespace Resemble
             string data = patch.ToJson();
             Debug.Log(uri);
             Debug.Log(data);
-            EnqueuePatch(uri, data, (string content, Error error) =>
+            EnqueueTask(uri, data, Task.Type.Patch, (string content, Error error) =>
             {
                 if (error)
                     callback.Method.Invoke(callback.Target, new object[] { null, error });
@@ -195,7 +169,7 @@ namespace Resemble
                 progress += ((int)executionLoop[i].status) / 2.0f;
             progress /= executionLoop.Count;
             string barText = "Remaining clips : " + taskCount;
-            EditorProgressBar.Display(barText, progress);
+            //EditorProgressBar.Display(barText, progress);
 
             //Remove completed tasks from execution loop
             int exeCount = executionLoop.Count;
@@ -225,7 +199,7 @@ namespace Resemble
             {
                 EditorApplication.update -= Update;
                 receiveUpdates = false;
-                EditorProgressBar.Clear();
+                //EditorProgressBar.Clear();
                 return;
             }
 
@@ -243,31 +217,29 @@ namespace Resemble
                 Task task = executionLoop[i];
                 if (task.status == Task.Status.WaitToBeExecuted)
                 {
-                    switch (task.type)
-                    {
-                        case Task.Type.Get:
-                            SendGetRequest(task);
-                            break;
-                        case Task.Type.Post:
-                            SendPostRequest(task);
-                            break;
-                        case Task.Type.Patch:
-                            SendPatchRequest(task);
-                            break;
-                        case Task.Type.Delete:
-                            SendDeleteRequest(task);
-                            break;
-                    }
+                    SendRequest(task);
                     task.status = Task.Status.WaitApiResponse;
                     task.time = EditorApplication.timeSinceStartup;
                 }
             }
         }
 
-        /// <summary> Enqueue a Get web request to the task list. This task will be executed as soon as possible. </summary>
-        public static Task EnqueueGet(string uri, Callback.Simple resultProcessor)
+        /// <summary> Enqueue a web request to the task list. This task will be executed as soon as possible. </summary>
+        public static Task EnqueueTask(string uri, Task.Type type, Callback.Simple resultProcessor)
         {
-            Task task = new Task(uri, null, resultProcessor, Task.Type.Get);
+            return EnqueueTask(uri, "", type, resultProcessor);
+        }
+
+        /// <summary> Enqueue a web request to the task list. This task will be executed as soon as possible. </summary>
+        public static Task EnqueueTask(string uri, string data, Task.Type type, Callback.Simple resultProcessor)
+        {
+            if (type == Task.Type.Download)
+            {
+                Debug.LogError("Download tasks start automatically, there is no need to put them in the queue.");
+                return null;
+            }
+
+            Task task = new Task(uri, data, resultProcessor, type);
             tasks.Enqueue(task);
             if (!receiveUpdates)
             {
@@ -277,78 +249,29 @@ namespace Resemble
             return task;
         }
 
-        /// <summary> Enqueue a Post web request to the task list. This task will be executed as soon as possible. </summary>
-        public static Task EnqueuePost(string uri, string data, Callback.Simple resultProcessor)
+        /// <summary> Send a web request now. Call the callback with the response processed by the resultProcessor. </summary>
+        public static void SendRequest(Task task)
         {
-            Task task = new Task(uri, data, resultProcessor, Task.Type.Post);
-            tasks.Enqueue(task);
-            if (!receiveUpdates)
+            UnityWebRequest request;
+            switch (task.type)              //https://forum.unity.com/threads/posting-raw-json-into-unitywebrequest.397871/
             {
-                EditorApplication.update += Update;
-                receiveUpdates = true;
+                default:
+                case Task.Type.Get:
+                    request = UnityWebRequest.Get(task.uri);
+                    break;
+                case Task.Type.Post:
+                    request = UnityWebRequest.Put(task.uri, task.data);
+                    request.method = "POST";
+                    break;
+                case Task.Type.Delete:
+                    request = UnityWebRequest.Delete(task.uri);
+                    break;
+                case Task.Type.Patch:
+                    request = UnityWebRequest.Put(task.uri, task.data);
+                    request.method = "PATCH";
+                    break;
             }
-            return task;
-        }
 
-        /// <summary> Enqueue a Patch web request to the task list. This task will be executed as soon as possible. </summary>
-        public static Task EnqueuePatch(string uri, string data, Callback.Simple resultProcessor)
-        {
-            Task task = new Task(uri, data, resultProcessor, Task.Type.Patch);
-            tasks.Enqueue(task);
-            if (!receiveUpdates)
-            {
-                EditorApplication.update += Update;
-                receiveUpdates = true;
-            }
-            return task;
-        }
-
-        /// <summary> Enqueue a Delete web request to the task list. This task will be executed as soon as possible. </summary>
-        public static void EnqueueDelete(string uri, Callback.Simple resultProcessor)
-        {
-            tasks.Enqueue(new Task(uri, null, resultProcessor, Task.Type.Delete));
-            if (!receiveUpdates)
-            {
-                EditorApplication.update += Update;
-                receiveUpdates = true;
-            }
-        }
-
-        /// <summary> Send a Get web request now. Call the callback with the response processed by the resultProcessor. </summary>
-        private static void SendGetRequest(Task task)
-        {
-            UnityWebRequest request = UnityWebRequest.Get(task.uri);
-            request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
-            request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
-            request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };
-        }
-
-        /// <summary> Send a Post web request now. Call the callback with the response processed by the resultProcessor. </summary>
-        private static void SendPostRequest(Task task)
-        {
-            //https://forum.unity.com/threads/posting-raw-json-into-unitywebrequest.397871/
-            UnityWebRequest request = UnityWebRequest.Put(task.uri, task.data);
-            request.method = "POST";
-            request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
-            request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
-            request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };
-        }
-
-        /// <summary> Send a Delete web request now. Call the callback with the response processed by the resultProcessor. </summary>
-        private static void SendDeleteRequest(Task task)
-        {
-            UnityWebRequest request = UnityWebRequest.Delete(task.uri);
-            request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
-            request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
-            request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };
-        }
-
-        /// <summary> Send a Patch web request now. Call the callback with the response processed by the resultProcessor. </summary>
-        private static void SendPatchRequest(Task task)
-        {
-            //https://forum.unity.com/threads/posting-raw-json-into-unitywebrequest.397871/
-            UnityWebRequest request = UnityWebRequest.Put(task.uri, task.data);
-            request.method = "PATCH";
             request.SetRequestHeader("Authorization", string.Format("Token token=\"{0}\"", Settings.token));
             request.SetRequestHeader("content-type", "application/json; charset=UTF-8");
             request.SendWebRequest().completed += (asyncOp) => { CompleteAsyncOperation(asyncOp, request, task); };

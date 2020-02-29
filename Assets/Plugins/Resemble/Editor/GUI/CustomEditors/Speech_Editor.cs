@@ -106,6 +106,7 @@ namespace Resemble.GUIEditor
             //Import existing clip button
             if (GUILayout.Button("Import existing clip"))
             {
+                StringPopup.Hide();
                 ClipPopup.Show(importClipRect.Offset(-200, 18, 200, 120),
                     speech, (ResembleClip clip) =>
                     {
@@ -121,6 +122,7 @@ namespace Resemble.GUIEditor
             //Create new clip button
             if (GUILayout.Button("Create new clip"))
             {
+                ClipPopup.Hide();
                 StringPopup.Show(createClipRect.Offset(-200, 18, 200, 51),
                     "New clip name", (string value) =>
                 {

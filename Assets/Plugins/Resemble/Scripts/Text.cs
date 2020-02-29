@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Resemble
@@ -8,8 +8,11 @@ namespace Resemble
     {
         /// <summary> Contains the text typed in by the user. </summary>
         public string userString = "";
+
         /// <summary> Contains the tags applied to the text. </summary>
         public List<Tag> tags = new List<Tag>();
+
+        public int 
 
         /// <summary> Return a plain text string with SSML tags supported by the Resemble API. </summary>
         public string BuildResembleString()

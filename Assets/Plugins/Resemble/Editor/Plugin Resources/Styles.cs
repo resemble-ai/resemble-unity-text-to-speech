@@ -50,12 +50,14 @@ namespace Resemble
             //Styles
             bodyStyle = new GUIStyle(EditorStyles.label);
             bodyStyle.wordWrap = false;
+            bodyStyle.padding = new RectOffset(0, 0, 0, 0);
 
             settingsBody = new GUIStyle(EditorStyles.label);
             settingsBody.richText = true;
             settingsBody.wordWrap = true;
             settingsBody.fontSize = 12;
             settingsCode = new GUIStyle(settingsBody);
+            settingsCode.alignment = TextAnchor.UpperLeft;
             settingsBody.margin = new RectOffset(30, 10, 0, 0);
 
             settingsLink = new GUIStyle(settingsBody);
@@ -69,7 +71,7 @@ namespace Resemble
             settingsButton.margin = new RectOffset(30, 10, 0, 0);
 
             linkStyle = new GUIStyle(bodyStyle);
-            linkStyle.padding = new RectOffset(-5, 0, 2, 0);
+            linkStyle.padding = new RectOffset(-5, 0, 0, 0);
             linkStyle.normal.textColor = new Color(0x00 / 255f, 0x78 / 255f, 0xDA / 255f, 1f);
 
             linkStyleSmall = new GUIStyle(linkStyle);

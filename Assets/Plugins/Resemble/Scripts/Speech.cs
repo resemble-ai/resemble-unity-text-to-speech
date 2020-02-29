@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Resemble
 {
-    [CreateAssetMenu(fileName = "New Speech", menuName = "Ressemble Speech", order = 220), System.Serializable]
+    [CreateAssetMenu(fileName = "New Speech", menuName = "Resemble Speech", order = 220), System.Serializable]
     public class Speech : ScriptableObject
     {
         public string voiceName;

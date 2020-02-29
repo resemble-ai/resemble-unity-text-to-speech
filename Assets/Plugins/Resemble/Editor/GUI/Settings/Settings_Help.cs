@@ -15,8 +15,8 @@ namespace Resemble.GUIEditor
             //Table of contents
             DrawLink("0. Begin with Resemble", titleHeights[0]);
             DrawLink("1. Setup the project", titleHeights[1]);
-            DrawLink("2. Create a CharacterSet", titleHeights[2]);
-            DrawLink("3. Use a CharacterSet in your scripts", titleHeights[3]);
+            DrawLink("2. Create a Speech", titleHeights[2]);
+            DrawLink("3. Use a Speech in your scripts", titleHeights[3]);
             DrawLink("4. Generate one shot clips", titleHeights[4]);
             DrawLink("5. Use the plugin functions in your code", titleHeights[5]);
             titleID = 0;
@@ -41,18 +41,18 @@ namespace Resemble.GUIEditor
             GUILayout.Space(25);
 
             //Create a CharacterSet
-            GUILayout.Label("2. Create a CharacterSet", Styles.header);
+            GUILayout.Label("2. Create a Speech", Styles.header);
             SetTitleHeight();
-            GUILayout.Label("To create a new CharacterSet, you can select \n<Color=grey>Assets > Create > Resemble CharacterSet</Color>\nor right-click " +
-                "on a folder in your Project window and select\n<Color=grey>Create > Resemble CharacterSet</Color>", Styles.settingsBody);
+            GUILayout.Label("To create a new Speech, you can select \n<Color=grey>Assets > Create > Resemble Speech</Color>\nor right-click " +
+                "on a folder in your Project window and select\n<Color=grey>Create > Resemble Speech</Color>", Styles.settingsBody);
             GUILayout.Label(Resources.instance.docImages[1], Styles.settingsBody);
             GUILayout.Label("WIP...", Styles.settingsBody);
             GUILayout.Space(25);
 
             //Use a CharacterSet in your scripts
-            GUILayout.Label("3. Use a CharacterSet in your scripts", Styles.header);
+            GUILayout.Label("3. Use a Speech in your scripts", Styles.header);
             SetTitleHeight();
-            GUILayout.Label("You can use CharacterSet in your script. This can be handy to quickly get all the clips on the same voice.", Styles.settingsBody);
+            GUILayout.Label("You can use Speech in your script. This can be handy to quickly get all the clips on the same voice.", Styles.settingsBody);
             Color c = GUI.color;
             GUI.color = new Color(0.25f, 0.25f, 0.25f, 1.0f);
             GUILayout.BeginVertical(Styles.codeBox);
@@ -66,11 +66,11 @@ namespace Resemble.GUIEditor
                 "\n" +
                 "{1}public class {3}{2}Orator{3} : {2}MonoBehaviour{3}\n{4}" +
                 "\n\n" +
-                "{1}{6}public{3} {2}CharacterSet{3} myCharacterSet;\n" +
+                "{1}{6}public{3} {2}Speech{3} mySpeech;\n" +
                 "\n" +
                 "{1}{6}void{3} Start()\n{6}{4}\n\n{6}{5}\n\n{1}{6}void{3} Update()\n{6}{4}\n\n{6}{5}" +
                 "\n\n{5}{3}", 
-                "<Color=#ffffff>", "<Color=#6084f0>", "<Color=#57bda7>", "</Color>", "{", "}", "      "), Styles.settingsCode, GUILayout.Height(300));
+                "<Color=#ffffff>", "<Color=#6084f0>", "<Color=#57bda7>", "</Color>", "{", "}", "      "), Styles.settingsCode, GUILayout.Height(350));
             GUILayout.EndVertical();
             GUI.color = c;
             GUILayout.Label("WIP...", Styles.settingsBody);
@@ -79,7 +79,7 @@ namespace Resemble.GUIEditor
             //Generate one shot clips
             GUILayout.Label("4. Generate one shot clips", Styles.header);
             SetTitleHeight();
-            GUILayout.Label("You can also use Resemble to quickly create AudioClips without using a characterSet.", Styles.settingsBody);
+            GUILayout.Label("You can also use Resemble to quickly create AudioClips without using a Speech.", Styles.settingsBody);
             GUILayout.Space(16);
             if (GUILayout.Button("Open Resemble window", Styles.settingsButton, GUILayout.ExpandWidth(false)))
                 Resemble_Window.Open();

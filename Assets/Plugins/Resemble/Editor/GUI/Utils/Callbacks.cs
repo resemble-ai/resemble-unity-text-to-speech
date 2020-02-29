@@ -7,8 +7,8 @@ namespace Resemble
     {
         //Callbacks for each functions type
         public delegate void GetProject(Project[] projects, Structs.Error error);
-        public delegate void GetClip(AudioPreview preview, Structs.Error error);
-        public delegate void GetClips(ResembleClip[] preview, Structs.Error error);
+        public delegate void GetClip(ResembleClip clip, Structs.Error error);
+        public delegate void GetClips(ResembleClip[] clips, Structs.Error error);
         public delegate void GetVoices(Voice[] voices, Structs.Error error);
         public delegate void CreateProject(ProjectStatus status, Structs.Error error);
         public delegate void CreateClip(ClipStatus status, Structs.Error error);
