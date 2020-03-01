@@ -50,6 +50,123 @@ namespace Resemble
             return "<speak><p>" + s + "</p></speak>";
         }
 
+        /// <summary> Override values by data from a string with SSML tags. </summary>
+        public void ParseResembleString(string rawString)
+        {
+            //Check the entry and exit tags
+            if (!rawString.StartsWith("<speak><p>") || !rawString.EndsWith("</p></speak>"))
+            {
+                UnityEngine.Debug.LogError("The string is not in the correct format to be parsed.");
+                return;
+            }
+
+            List<TagParser> tagKeys = new List<TagParser>();
+            string[] splited = rawString.Split('<');
+            string withoutTags = "";
+            for (int i = 0; i < splited.Length; i++)
+            {
+                tagKeys.Add(new TagParser(withoutTags.Length, splited[i]));
+
+                //Add char for solo (like break tags)
+                if (tagKeys[i].solo)
+                    withoutTags += " ";
+                withoutTags += tagKeys[i].next;
+            }
+
+            //TEMP - Debug
+            /*
+            for (int i = 0; i < tags.Count; i++)
+            {
+                UnityEngine.Debug.Log(tags[i]);
+            }*/
+
+            List<Tag> newTags = new List<Tag>();
+            int count = tagKeys.Count;
+            for (int i = 0; i < count; i++)
+            {
+                if (tagKeys[i].solo)
+                {
+                    //Build real tag
+                    switch (tagKeys[i].type)
+                    {
+                        case "break":
+                            newTags.Add(Tag.ParseBreak(tagKeys[i].data, tagKeys[i].id));
+                            break;
+                    }
+
+                    //Remove tagParser
+                    tagKeys.RemoveAt(i);
+                    i--;
+                    count--;
+                    continue;
+                }
+
+                //Read list in reverse to find the opening tag
+                if (i > 0)
+                {
+                    for (int j = i - 1; j >= 0; j--)
+                    {
+                        if (tagKeys[j].type == tagKeys[i].type)
+                        {
+                            switch (tagKeys[j].type)
+                            {
+                                case "style":
+                                    newTags.Add(Tag.ParseEmotion(tagKeys[j].data, tagKeys[j].id, tagKeys[i].id));
+                                    break;
+                            }
+
+                            //Remove two tag parser
+                            tagKeys.RemoveAt(i);
+                            tagKeys.RemoveAt(j);
+                            i -= 2;
+                            count -= 2;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            userString = withoutTags;
+            this.tags = newTags;
+        }
+
+        private struct TagParser
+        {
+            public TagParser(int id, string value)
+            {
+                this.id = id;
+                next = "";
+                if (value.Contains('>'))
+                {
+                    string[] s = value.Split('>');
+                    value = s[0];
+                    next = s[1];
+                }
+                string[] split = value.Split('=');
+                open = !split[0].StartsWith("/");
+                type = (open ? split[0] : split[0].Remove(0, 1)).Split(' ')[0];
+                length = value.Length + 2;
+                solo = split.Length > 1 && split[1].EndsWith("/");
+                data = split.Length > 1 ? (solo ? split[1].Remove(split[1].Length -1) : split[1]) : "";
+                closeId = -1;
+            }
+
+            public override string ToString()
+            {
+                return string.Format("|{1}|  |{0}|  Id : {2}  Length : {3}  Data : {4}", type, open ? '[' : ']', id, length, data);
+            }
+
+            public int id;
+            public int length;
+            public string type;
+            public string data;
+            public string next;
+            public bool open;
+            public bool solo;
+
+            public int closeId;
+        }
+
         /// <summary> Little struct used to merge the userStrings and tags easily. See BuildResembleString() methode. </summary>
         private struct TagKey
         {

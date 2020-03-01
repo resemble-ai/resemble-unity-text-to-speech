@@ -15,13 +15,60 @@ namespace Resemble
         public Color color;
         public float duration = 0.5f;
 
-        public Tag(Type type, Emotion emotion, int idA, int idB)
+        public Tag(Emotion emotion, int idA, int idB)
         {
-            this.type = type;
+            this.type = Type.Emotion;
             this.emotion = emotion;
-            this.color = type == Type.Emotion ? emotion.Color() : type.Color();
+            this.color = emotion.Color();
             start = Mathf.Min(idA, idB);
             end = Mathf.Max(idA, idB);
+        }
+
+        public Tag(float breakTime, int id)
+        {
+            this.type = Type.Wait;
+            this.emotion = Emotion.Neutral;
+            this.color = type.Color();
+            start = id;
+            end = id + 1;
+            duration = breakTime;
+        }
+
+        public Tag(Tag tag, int idA, int idB)
+        {
+            this.type = tag.type;
+            this.emotion = tag.emotion;
+            this.color = tag.color;
+            this.duration = tag.duration;
+            start = Mathf.Min(idA, idB);
+            end = Mathf.Max(idA, idB);
+        }
+
+        public static Tag ParseBreak(string data, int id)
+        {
+            data = data.Replace("\"", "").ToLower();
+            if (data.EndsWith("s"))
+                data = data.Remove(data.Length - 1);
+            return new Tag(float.Parse(data, System.Globalization.CultureInfo.InvariantCulture), id);
+        }
+
+        public static Tag ParseEmotion(string data, int start, int end)
+        {
+            data = data.Replace("\"", "").ToLower();
+            Emotion emotion = (Emotion) System.Enum.Parse(typeof(Emotion), data, true);
+            return new Tag(emotion, start, end);
+        }
+
+        public override string ToString()
+        {
+            switch (type)
+            {
+                case Type.Wait:
+                    return string.Format("Break : {0}s Id : {1}", duration, start);
+                case Type.Emotion:
+                    return string.Format("Emotion : {0}  start : {1}  end : {2}", emotion, start, end);
+            }
+            return base.ToString();
         }
 
         public enum Type
@@ -150,7 +197,7 @@ namespace Resemble
                     return false;
                 case ChangeState.Inside:
                     if ((end - (id + length)) > 0)
-                        otherTag = new Tag(type, emotion, id + length, end);
+                        otherTag = new Tag(this, id + length, end);
                     end = id;
                     break;
                 case ChangeState.ContainsAll:

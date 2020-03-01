@@ -2,6 +2,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 using System.Linq;
+using System.Reflection;
 using UnityEditor.IMGUI.Controls;
 using Resemble;
 using Resemble.Structs;
@@ -12,6 +13,7 @@ namespace Resemble.GUIEditor
     {
 
         //Misc GUI stuff
+        private EditorWindow prefWindow;
         private Vector2[] scroll = new Vector2[3];
         private int selected = -1;
         private VisualElement visualElement;
@@ -30,12 +32,6 @@ namespace Resemble.GUIEditor
         public override void OnActivate(string searchContext, VisualElement rootElement)
         {
             visualElement = rootElement;
-            if (visualElement != null && visualElement.focusController != null && 
-                visualElement.focusController.focusedElement != null)
-            {
-                EditorWindow win = EditorWindow.focusedWindow;
-                win.minSize = new Vector2(550, 510);
-            }
 
             //Refresh projects
             if (Settings.haveProject && Settings.project == null && !Settings.tryToConnect)
@@ -46,6 +42,15 @@ namespace Resemble.GUIEditor
         {
             //Init styles
             Styles.Load();
+
+            //Set a min size on pref window
+            if (prefWindow == null)
+            {
+                Assembly assem = typeof(EditorWindow).Assembly;
+                System.Type t = assem.GetType("UnityEditor.PreferenceSettingsWindow");
+                prefWindow = EditorWindow.GetWindow(t, false, "Preferences", false);
+                prefWindow.minSize = new Vector2(550, 500);
+            }
 
             //Draw (project | paths | help) toolbar
             DrawToolbar();

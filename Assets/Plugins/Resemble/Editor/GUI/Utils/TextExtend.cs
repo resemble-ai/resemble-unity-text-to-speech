@@ -176,7 +176,7 @@ namespace Resemble.GUIEditor
 
             //Add new tag
             int a, b, l; text.GetIDs(out a, out b, out l);
-            Tag tag = new Tag(Tag.Type.Emotion, Emotion.Neutral, a, b);
+            Tag tag = new Tag(Emotion.Neutral, a, b);
             text.tags.Add(tag);
 
             //Adapt selection
@@ -198,7 +198,7 @@ namespace Resemble.GUIEditor
             AddChars(text, a, space);
 
             //Add tag
-            Tag tag = new Tag(Tag.Type.Wait, Emotion.Neutral, a, a + space.Length);
+            Tag tag = new Tag(0.5f, a);
             text.tags.Add(tag);
 
             //Change ids and notify the edit

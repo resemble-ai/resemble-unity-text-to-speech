@@ -62,6 +62,10 @@ namespace Resemble.GUIEditor
             mat.SetColor("_BackColor", backColor);
             mat.SetColor("_HeaderColor", headerColor);
             mat.SetVector("_Sizes", new Vector4(rect.width, rect.height, cornerSize, headerHeight));
+
+
+            //mat.SetVector("_Clip", new Vector4(rect.width, rect.height, cornerSize, headerHeight));
+
             EditorGUI.DrawPreviewTexture(rect, Texture2D.whiteTexture, mat);
         }
 

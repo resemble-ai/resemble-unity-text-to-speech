@@ -148,7 +148,7 @@ namespace Resemble.GUIEditor
             //Update button
             if (GUILayout.Button("Update from API"))
             {
-                GetClipStatus();
+                UpdateFromAPI();
             }
 
 
@@ -356,7 +356,22 @@ namespace Resemble.GUIEditor
 
         public void UpdateFromAPI()
         {
+            if (!EditorUtility.DisplayDialog("Update from API", "This operation will overwrite existing " +
+                "information with information from the Resemble.ai website.", "Ok", "Cancel"))
+                return;
 
+            APIBridge.GetClip(clip.uuid, (ResembleClip clip, Error error) =>
+            {
+                if (error)
+                    error.Log();
+                else
+                {
+                    this.clip.text.ParseResembleString(clip.body);
+                    this.clip.name = clip.title;
+                    drawer.Refresh();
+                    Repaint();
+                }
+            });
         }
 
         public void ExportClip()
@@ -430,17 +445,6 @@ namespace Resemble.GUIEditor
                     error.Log();
                 else
                     Debug.Log(content);
-            });
-        }
-
-        public void GetClipStatus()
-        {
-            APIBridge.GetClip(clip.uuid, (ResembleClip clip, Error error) =>
-            {
-                if (error)
-                    error.Log();
-                else
-                    Debug.Log(clip.title + "  " + clip.body);
             });
         }
 

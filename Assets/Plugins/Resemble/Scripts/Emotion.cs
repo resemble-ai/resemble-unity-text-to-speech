@@ -32,7 +32,7 @@ namespace Resemble
 
         public static string OpenTag(this Emotion emotion)
         {
-            return string.Format("<style emotions=\"{0}\">", emotion.ToString().ToLower());
+            return string.Format("<style emotions={0}{1}{0}>", '\'', emotion.ToString().ToLower());
         }
 
         public static string CloseTag(this Emotion emotion)
