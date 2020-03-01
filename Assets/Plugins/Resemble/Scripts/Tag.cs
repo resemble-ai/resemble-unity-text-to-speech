@@ -13,6 +13,7 @@ namespace Resemble
         public int end;
         public Rect[] rects;
         public Color color;
+        public float duration = 0.5f;
 
         public Tag(Type type, Emotion emotion, int idA, int idB)
         {
@@ -35,7 +36,7 @@ namespace Resemble
             switch (type)
             {
                 case Type.Wait:
-                    return "<break time=\"1S\"/>";
+                    return "<break time=\"" + duration.ToString("0.00") + "S\"/>";
                 case Type.Emotion:
                     return emotion.OpenTag();
                 default:
@@ -78,7 +79,7 @@ namespace Resemble
             }
             else
             {
-                if (id > end)
+                if (id > end - 1)
                     return ChangeState.After;
                 else if (n > end + 1)
                     return ChangeState.ContainsEnd;
@@ -108,6 +109,8 @@ namespace Resemble
         public bool RemoveCharacters(int id, int length)
         {
             ChangeState state = Contains(id, length);
+            if (end - start == length && id == start)
+                return true;
 
             switch (state)
             {

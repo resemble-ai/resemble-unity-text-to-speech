@@ -123,6 +123,16 @@ namespace Resemble.GUIEditor
                     return text.tags[i];
             }
 
+            //If there is no emotion fit found, test break tags
+            for (int i = 0; i < text.tags.Count; i++)
+            {
+                if (text.tags[i].type != Tag.Type.Wait)
+                    continue;
+
+                if (text.tags[i].start == text.carretID || text.tags[i].end == text.carretID)
+                    return text.tags[i];
+            }
+
             //No tag find
             return null;
         }
@@ -181,17 +191,21 @@ namespace Resemble.GUIEditor
         /// <summary> Create a break tag at carret.</summary>
         public static Tag AddBreak(this Text text)
         {
-            Debug.LogError("Breaks are not implemented yet.");
-            return null;
+            string space = " ";
+            int a, b, l; text.GetIDs(out a, out b, out l);
 
-            /* Old stuff
-             userString = userString.Insert(carretID, "      ");
-            OnEditText(carretID, 6, true);
-            text.tags.Add(new Tag(Tag.Type.Wait, Emotion.Neutral, carretID, carretID + 6));
-            RefreshTagsRects();
-            carretID++;
-            selectID++;
-            dirty = true;*/
+            //Add char to string
+            AddChars(text, a, space);
+
+            //Add tag
+            Tag tag = new Tag(Tag.Type.Wait, Emotion.Neutral, a, a + space.Length);
+            text.tags.Add(tag);
+
+            //Change ids and notify the edit
+            text.SetIDs(a + space.Length);
+            text.CallOnEdit();
+
+            return tag;
         }
 
         /// <summary> Remove tag in selection. Can delete or split tag if needed. </summary>
@@ -204,7 +218,13 @@ namespace Resemble.GUIEditor
                 Tag otherTag = null;
                 if (text.tags[i].ClearCharacters(a, l, out otherTag))
                 {
-                    text.tags.RemoveAt(i);
+                    if (text.tags[i].type == Tag.Type.Wait)
+                    {
+                        RemoveChars(text, text.tags[i].start, 1);
+                        l--;
+                    }
+                    else
+                        text.tags.RemoveAt(i);
                     i--;
                     count--;
                 }
@@ -214,6 +234,7 @@ namespace Resemble.GUIEditor
                 }
             }
 
+            text.onChangeSelect();
             text.CallOnEdit();
         }
 
@@ -221,6 +242,8 @@ namespace Resemble.GUIEditor
         public static void RemoveTag(this Text text, Tag tag)
         {
             text.tags.Remove(tag);
+            if (tag.type == Tag.Type.Wait)
+                RemoveChars(text, tag.start, 1);
             text.CallOnEdit();
         }
 

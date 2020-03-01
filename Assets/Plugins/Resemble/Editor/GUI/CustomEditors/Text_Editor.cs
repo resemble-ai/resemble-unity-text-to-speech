@@ -85,10 +85,13 @@ namespace Resemble.GUIEditor
 
         Utils.ButtonState breakBtn;
         Utils.ButtonState emotionBtn;
+        Utils.ButtonState editBtn;
+        Utils.ButtonState removeBtn;
 
         //Repaint stuff
         public delegate void Callback();
         private bool needTagRefresh;
+        private bool containsTag;
         private Tag tagToEdit;
         Callback requestRepaint;
 
@@ -97,15 +100,24 @@ namespace Resemble.GUIEditor
         {
             this.text = text;
             text.onEdit += () => { needTagRefresh = true; repaintCallback.Invoke(); };
-            text.onChangeSelect += () => { RefreshLines(); RefreshSelectionRects(); repaintCallback.Invoke(); };
+            text.onChangeSelect += () => { CheckContains(); RefreshLines(); RefreshSelectionRects(); repaintCallback.Invoke(); };
             requestRepaint += repaintCallback;
         }
+
 
         #region Draw functions
 
         private void RefreshLines()
         {
             lines = LinesPack.FromText(userString, textRect, Styles.textStyle);
+        }
+
+        private void CheckContains()
+        {
+            if (text.haveSelection)
+                containsTag = text.GetTags().Count > 0;
+            else
+                containsTag = text.GetTag() != null;
         }
 
         public void Refresh()
@@ -129,16 +141,36 @@ namespace Resemble.GUIEditor
             //Update disable state of buttons based on selection
             breakBtn = DisableIf(haveSelection, breakBtn);
             emotionBtn = DisableIf(!haveSelection, emotionBtn);
+            editBtn = DisableIf(haveSelection || !containsTag, editBtn);
+            removeBtn = DisableIf(!containsTag, removeBtn);
 
             //Break button
             btnRect.width = 60;
-            Utils.FlatButton(btnRect, new GUIContent(Resources.instance.breakIco), new Color(0.956f, 0.361f, 0.259f), ref breakBtn);
+            if (Utils.FlatButton(btnRect, new GUIContent(Resources.instance.breakIco), new Color(0.956f, 0.361f, 0.259f), ref breakBtn))
+            {
+                tagToEdit = text.AddBreak();
+            }
 
             //Emotion button
             btnRect.Set(btnRect.x + btnRect.width + 5, btnRect.y, 130, btnRect.height);
             if (Utils.FlatButton(btnRect, new GUIContent("Add Emotion"), new Color(0.259f, 0.6f, 0.956f), ref emotionBtn))
             {
                 tagToEdit = text.AddTag();
+            }
+
+            btnRect.Set(btnRect.x + btnRect.width + 5, btnRect.y, 70, btnRect.height);
+            if (Utils.FlatButton(btnRect, new GUIContent("Edit"), new Color(0.259f, 0.6f, 0.956f), ref editBtn))
+            {
+                tagToEdit = text.GetTag();
+            }
+
+            btnRect.Set(btnRect.x + btnRect.width + 5, btnRect.y, 100, btnRect.height);
+            if (Utils.FlatButton(btnRect, new GUIContent("Remove"), new Color(1.0f, 0.6f, 0.1f), ref removeBtn))
+            {
+                if (text.haveSelection)
+                    text.RemoveTag();
+                else
+                    text.RemoveTag(text.GetTag());
             }
         }
 
@@ -463,6 +495,10 @@ namespace Resemble.GUIEditor
 
         private void ReceiveMouseEvent(Event e)
         {
+            //Remove drag flag after lose it in out of screen
+            if (drag && e.type == EventType.MouseDown && e.button == 0)
+                drag = false;
+
             if (!drag)
             {
                 if (e.type == EventType.MouseDown && e.button == 0)
@@ -536,8 +572,8 @@ namespace Resemble.GUIEditor
                     menu.AddDisabledItem(new GUIContent("Add break"), false);
                     menu.AddItem(new GUIContent("Add Emotion"), false, () => { tagToEdit = text.AddTag(); });
                     menu.AddSeparator("");
-                    menu.AddDisabledItem(new GUIContent("Edit Emotion"), false);
-                    menu.AddItem(new GUIContent("Remove Emotion"), false, () => { text.RemoveTag(); });
+                    menu.AddDisabledItem(new GUIContent("Edit"), false);
+                    menu.AddItem(new GUIContent("Remove"), false, () => { text.RemoveTag(); });
                 }
                 else
                 {
@@ -548,13 +584,13 @@ namespace Resemble.GUIEditor
                     else
                         menu.AddDisabledItem(new GUIContent("Paste"), false);
                     menu.AddSeparator("");
-                    menu.AddItem(new GUIContent("Add break"), false, () => { text.AddBreak(); });
+                    menu.AddItem(new GUIContent("Add break"), false, () => { tagToEdit = text.AddBreak(); });
                     menu.AddDisabledItem(new GUIContent("Add Emotion"), false);
                     menu.AddSeparator("");
                     if (onTag)
                     {
-                        menu.AddItem(new GUIContent("Edit Emotion"), false, () => { tagToEdit = text.GetTag(); });
-                        menu.AddItem(new GUIContent("Remove Emotion"), false, () => { text.RemoveTag(text.GetTag()); });
+                        menu.AddItem(new GUIContent("Edit"), false, () => { tagToEdit = text.GetTag(); });
+                        menu.AddItem(new GUIContent("Remove"), false, () => { text.RemoveTag(text.GetTag()); });
                     }
                     else
                     {
@@ -569,6 +605,7 @@ namespace Resemble.GUIEditor
             if (drag)
                 lastInputTime = EditorApplication.timeSinceStartup;
             RefreshSelectionRects();
+            CheckContains();
         }
 
         private void ShowEditPopupOntag(Tag tag)
