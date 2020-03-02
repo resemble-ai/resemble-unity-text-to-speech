@@ -1,24 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-4066947877866822425
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: Welcome
-  m_EditorClassIdentifier: 
-  speech: {fileID: 11400000}
-  clip: {fileID: 0}
-  clipCopy: {fileID: 0}
-  text:
-    userString: Welcome in this World ! Kratos speeking
-    tags: []
-  uuid: 4f271dcc
 --- !u!114 &-3158254525378658753
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -35,8 +16,34 @@ MonoBehaviour:
   clip: {fileID: 0}
   clipCopy: {fileID: 0}
   text:
-    userString: 
-    tags: []
+    userString: Who is the good boy ?
+    tags:
+    - type: 1
+      emotion: 3
+      start: 11
+      end: 21
+      rects:
+      - serializedVersion: 2
+        x: 90
+        y: 7
+        width: 80
+        height: 17
+      color: {r: 1, g: 0.737, b: 0.427, a: 1}
+      duration: 0.5
+    - type: 1
+      emotion: 5
+      start: 0
+      end: 11
+      rects:
+      - serializedVersion: 2
+        x: 6
+        y: 7
+        width: 84
+        height: 17
+      color: {r: 0.667, g: 0.729, b: 0.239, a: 1}
+      duration: 0.5
+    selectID: 21
+    carretID: 21
   uuid: 007c1b33
 --- !u!114 &11400000
 MonoBehaviour:
@@ -54,4 +61,98 @@ MonoBehaviour:
   voiceUUID: 5b81e34a
   clips:
   - {fileID: -3158254525378658753}
-  - {fileID: -4066947877866822425}
+  - {fileID: 4998320910325853155}
+--- !u!114 &4998320910325853155
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
+  m_Name: Welcome
+  m_EditorClassIdentifier: 
+  speech: {fileID: 11400000}
+  clip: {fileID: 8300000, guid: 8283f5b9a3c0cec4e81cda8075b8f00e, type: 3}
+  clipCopy: {fileID: 0}
+  text:
+    userString: "Hello again,\u2003 friend of a friend,\u2003 I knew you when.\r\nOur
+      common goal was waiting for the world to end."
+    tags:
+    - type: 1
+      emotion: 5
+      start: 6
+      end: 11
+      rects:
+      - serializedVersion: 2
+        x: 46
+        y: 7
+        width: 37
+        height: 17
+      color: {r: 0.667, g: 0.729, b: 0.239, a: 1}
+      duration: 0.5
+    - type: 0
+      emotion: 0
+      start: 12
+      end: 13
+      rects:
+      - serializedVersion: 2
+        x: 88
+        y: 7
+        width: 14
+        height: 17
+      color: {r: 0.8, g: 0.1, b: 0.1, a: 1}
+      duration: 0.5
+    - type: 0
+      emotion: 0
+      start: 33
+      end: 34
+      rects:
+      - serializedVersion: 2
+        x: 229
+        y: 7
+        width: 14
+        height: 17
+      color: {r: 0.8, g: 0.1, b: 0.1, a: 1}
+      duration: 0.3
+    - type: 1
+      emotion: 1
+      start: 34
+      end: 51
+      rects:
+      - serializedVersion: 2
+        x: 243
+        y: 7
+        width: 129
+        height: 17
+      color: {r: 0.741, g: 0.25, b: 0.278, a: 1}
+      duration: 0.5
+    - type: 1
+      emotion: 5
+      start: 53
+      end: 68
+      rects:
+      - serializedVersion: 2
+        x: 6
+        y: 24
+        width: 127
+        height: 17
+      color: {r: 0.667, g: 0.729, b: 0.239, a: 1}
+      duration: 0.5
+    - type: 1
+      emotion: 1
+      start: 89
+      end: 102
+      rects:
+      - serializedVersion: 2
+        x: 277
+        y: 24
+        width: 94
+        height: 17
+      color: {r: 0.741, g: 0.25, b: 0.278, a: 1}
+      duration: 0.5
+    selectID: 71
+    carretID: 71
+  uuid: 4f271dcc

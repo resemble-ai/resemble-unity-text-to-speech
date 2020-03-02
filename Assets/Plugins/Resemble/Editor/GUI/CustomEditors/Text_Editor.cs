@@ -104,7 +104,6 @@ namespace Resemble.GUIEditor
             requestRepaint += repaintCallback;
         }
 
-
         #region Draw functions
 
         private void RefreshLines()
@@ -122,8 +121,20 @@ namespace Resemble.GUIEditor
 
         public void Refresh()
         {
-            RefreshTagsRects();
-            RefreshSelectionRects();
+            //Postpone the next refresh to the next event.
+            if (Event.current == null)
+            {
+                needTagRefresh = true;
+                SceneView.RepaintAll();
+            }
+
+            //Refresh now
+            else
+            {
+                RefreshTagsRects();
+                RefreshSelectionRects();
+                requestRepaint.Invoke();
+            }
         }
 
         public void DoLayout(bool enable, bool fromOneShootWindow)
@@ -192,17 +203,21 @@ namespace Resemble.GUIEditor
             Event e = Event.current;
 
             //Refresh stuff
-            if (needTagRefresh || tagToEdit != null)
+            if (e.type == EventType.Repaint)
             {
-                needTagRefresh = false;
-                RefreshLines();
-                RefreshTagsRects();
-                requestRepaint.Invoke();
-            }
-            if (tagToEdit != null)
-            {
-                ShowEditPopupOntag(tagToEdit);
-                tagToEdit = null;
+                if (needTagRefresh || tagToEdit != null)
+                {
+                    textRect = new Rect(5, 5 - scroll.y, rect.width - 26, rect.height);
+                    needTagRefresh = false;
+                    RefreshLines();
+                    RefreshTagsRects();
+                    requestRepaint.Invoke();
+                }
+                if (tagToEdit != null)
+                {
+                    ShowEditPopupOntag(tagToEdit);
+                    tagToEdit = null;
+                }
             }
 
             //Draw background and set clip area
@@ -221,8 +236,7 @@ namespace Resemble.GUIEditor
 
             //Draw text
             float contentHeight = Styles.textStyle.CalcHeight(userStringGUIContent, rectBox.width - 30);
-            if (e.type == EventType.Repaint)
-                textRect = new Rect(5, 5 - scroll.y, rectBox.width - 26, contentHeight);
+            textRect.height = contentHeight;
             GUI.Label(textRect, userString, Styles.textStyle);
 
             //Draw carret
@@ -558,47 +572,55 @@ namespace Resemble.GUIEditor
                 bool haveClipboard = !string.IsNullOrEmpty(GUIUtility.systemCopyBuffer);
                 bool onTag = !text.haveSelection && text.GetTag() != null;
 
-                //Build context menu
-                GenericMenu menu = new GenericMenu();
-                if (haveSelection)
+                //If shift and on tag - Open directly the tag editor
+                if (e.shift && onTag)
                 {
-                    menu.AddItem(new GUIContent("Copy"), false, () => { text.Copy(); });
-                    menu.AddItem(new GUIContent("Cut"), false, () => { text.Cut(); });
-                    if (haveClipboard)
-                        menu.AddItem(new GUIContent("Paste"), false, () => { text.Paste(); });
-                    else
-                        menu.AddDisabledItem(new GUIContent("Paste"), false);
-                    menu.AddSeparator("");
-                    menu.AddDisabledItem(new GUIContent("Add break"), false);
-                    menu.AddItem(new GUIContent("Add Emotion"), false, () => { tagToEdit = text.AddTag(); });
-                    menu.AddSeparator("");
-                    menu.AddDisabledItem(new GUIContent("Edit"), false);
-                    menu.AddItem(new GUIContent("Remove"), false, () => { text.RemoveTag(); });
+                    tagToEdit = text.GetTag();
                 }
+                //Build context menu
                 else
                 {
-                    menu.AddDisabledItem(new GUIContent("Copy"), false);
-                    menu.AddDisabledItem(new GUIContent("Cut"), false);
-                    if (haveClipboard)
-                        menu.AddItem(new GUIContent("Paste"), false, () => { text.Paste(); });
-                    else
-                        menu.AddDisabledItem(new GUIContent("Paste"), false);
-                    menu.AddSeparator("");
-                    menu.AddItem(new GUIContent("Add break"), false, () => { tagToEdit = text.AddBreak(); });
-                    menu.AddDisabledItem(new GUIContent("Add Emotion"), false);
-                    menu.AddSeparator("");
-                    if (onTag)
+                    GenericMenu menu = new GenericMenu();
+                    if (haveSelection)
                     {
-                        menu.AddItem(new GUIContent("Edit"), false, () => { tagToEdit = text.GetTag(); });
-                        menu.AddItem(new GUIContent("Remove"), false, () => { text.RemoveTag(text.GetTag()); });
+                        menu.AddItem(new GUIContent("Copy"), false, () => { text.Copy(); });
+                        menu.AddItem(new GUIContent("Cut"), false, () => { text.Cut(); });
+                        if (haveClipboard)
+                            menu.AddItem(new GUIContent("Paste"), false, () => { text.Paste(); });
+                        else
+                            menu.AddDisabledItem(new GUIContent("Paste"), false);
+                        menu.AddSeparator("");
+                        menu.AddDisabledItem(new GUIContent("Add break"), false);
+                        menu.AddItem(new GUIContent("Add Emotion"), false, () => { tagToEdit = text.AddTag(); });
+                        menu.AddSeparator("");
+                        menu.AddDisabledItem(new GUIContent("Edit"), false);
+                        menu.AddItem(new GUIContent("Remove"), false, () => { text.RemoveTag(); });
                     }
                     else
                     {
-                        menu.AddDisabledItem(new GUIContent("Edit Emotion"), false);
-                        menu.AddDisabledItem(new GUIContent("Remove Emotion"), false);
+                        menu.AddDisabledItem(new GUIContent("Copy"), false);
+                        menu.AddDisabledItem(new GUIContent("Cut"), false);
+                        if (haveClipboard)
+                            menu.AddItem(new GUIContent("Paste"), false, () => { text.Paste(); });
+                        else
+                            menu.AddDisabledItem(new GUIContent("Paste"), false);
+                        menu.AddSeparator("");
+                        menu.AddItem(new GUIContent("Add break"), false, () => { tagToEdit = text.AddBreak(); });
+                        menu.AddDisabledItem(new GUIContent("Add Emotion"), false);
+                        menu.AddSeparator("");
+                        if (onTag)
+                        {
+                            menu.AddItem(new GUIContent("Edit"), false, () => { tagToEdit = text.GetTag(); });
+                            menu.AddItem(new GUIContent("Remove"), false, () => { text.RemoveTag(text.GetTag()); });
+                        }
+                        else
+                        {
+                            menu.AddDisabledItem(new GUIContent("Edit Emotion"), false);
+                            menu.AddDisabledItem(new GUIContent("Remove Emotion"), false);
+                        }
                     }
+                    menu.ShowAsContext();
                 }
-                menu.ShowAsContext();
                 e.Use();
             }
 

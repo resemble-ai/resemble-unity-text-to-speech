@@ -53,34 +53,51 @@ namespace Resemble
             onDowloaded.Invoke();
         }
 
-        public void OnGUI()
-        {
-            if (clip != null)
-            {
-                if (GUILayout.Button("Play clip"))
-                {
-                    PlayClip(clip);
-                }
-            }
-        }
-
         public static void PlayClip(AudioClip clip)
         {
+            InvokeMethode("PlayClip", clip, 0, false);
+        }
+
+        public static void PlayClip(AudioClip clip, int sample)
+        {
+            InvokeMethode("PlayClip", clip, sample, false);
+        }
+
+        public static void SetClipSamplePosition(AudioClip clip, int sample)
+        {
+            InvokeMethode("SetClipSamplePosition", clip, sample);
+        }
+
+        public static int GetClipSamplePosition(AudioClip clip)
+        {
+            return (int) InvokeMethode("GetClipSamplePosition", clip);
+        }
+
+        public static void StopClip(AudioClip clip)
+        {
+            InvokeMethode("StopClip", clip);
+        }
+
+        public static bool IsClipPlaying(AudioClip clip)
+        {
+            return (bool) InvokeMethode("IsClipPlaying", clip);
+        }
+
+        public static object InvokeMethode(string methodeName, params object[] arguments)
+        {
+            System.Type[] types = new System.Type[arguments.Length];
+            for (int i = 0; i < arguments.Length; i++)
+                types[i] = arguments[i].GetType();
+
             Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
             System.Type audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
             MethodInfo method = audioUtilClass.GetMethod(
-                "PlayClip",
+                methodeName,
                 BindingFlags.Static | BindingFlags.Public,
-                null,
-                new System.Type[] {
-                typeof(AudioClip),
-                typeof(int),
-                typeof(bool)
-                },
-                null
+                null, types, null
             );
-
-            method.Invoke(null, new object[] { clip, 0, false });
+            return method.Invoke(null, arguments);
         }
+
     }
 }

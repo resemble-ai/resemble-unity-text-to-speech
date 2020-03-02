@@ -34,7 +34,7 @@ namespace Resemble.GUIEditor
         public static void Open()   
         {
             window = (Resemble_Window)EditorWindow.GetWindow(typeof(Resemble_Window));
-            window.minSize = new Vector2(300, 400);
+            window.minSize = new Vector2(390, 480);
             window.titleContent = new GUIContent("Resemble");
             window.Show();
         }
@@ -50,8 +50,8 @@ namespace Resemble.GUIEditor
         {
             //Init components
             Styles.Load();
-            if (drawer.text == null)
-                drawer.text = text;
+            if (drawer == null)
+                drawer = new Text_Editor(text, OnEditCallback, OnRepaintCallback);
             windowSize = new Vector2(Screen.width, Screen.height);
 
             //Toolbar
@@ -68,6 +68,16 @@ namespace Resemble.GUIEditor
                     DrawPoolGUI();
                     break;
             }
+            Repaint();
+        }
+
+        public void OnEditCallback()
+        {
+            EditorUtility.SetDirty(Resources.instance);
+        }
+
+        public void OnRepaintCallback()
+        {
             Repaint();
         }
 

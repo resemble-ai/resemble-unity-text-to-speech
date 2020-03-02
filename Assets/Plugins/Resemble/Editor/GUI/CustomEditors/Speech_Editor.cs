@@ -166,10 +166,10 @@ namespace Resemble.GUIEditor
         public void ImportClip(ResembleClip source)
         {
             Clip clip = CreateInstance<Clip>();
-            clip.name = source.title;
             clip.text = new Text();
-            clip.text.userString = source.body;
             clip.uuid = source.uuid;
+            clip.name = source.title;
+            clip.text.ParseResembleString(source.body);
             AddClipToAsset(clip);
         }
 
@@ -215,7 +215,7 @@ namespace Resemble.GUIEditor
             GUI.Label(titleRect, speech.clips[index].name, EditorStyles.largeLabel);
             titleRect.Set(rect.x, rect.y + rect.height - 1, rect.width, 1.0f);
             EditorGUI.DrawRect(titleRect, Color.grey * 0.3f);
-            bool haveClip = speech.clips[index].clipCopy != null;
+            bool haveClip = speech.clips[index].clip != null;
 
             float width = rect.width;
             rect.Set(width - 90, rect.y + 2, 50, rect.height - 4);
@@ -224,7 +224,7 @@ namespace Resemble.GUIEditor
             rect.Set(width - 35, rect.y, 50, rect.height);
             Utils.DragArea(rect, speech.clips[index].clip);
             if (Utils.FlatButton(rect, "Clip", Styles.clipOrangeColor, 1.0f, haveClip ? (rect.Contains(mp) ? 0.5f : 0.2f) : 1.0f) && haveClip)
-                EditorGUIUtility.PingObject(speech.clips[index].clipCopy);
+                Selection.activeObject = speech.clips[index].clip;
         }
 
         private void List_DrawHeader(Rect rect)

@@ -23,6 +23,8 @@ namespace Resemble.GUIEditor
         private bool goBackToParent;
         private bool dirtySettings;
         private bool rename;
+        private bool clipPlaying;
+        private bool requestDownload;
         private string renameLabel;
         private int renameControlID;
         public Text_Editor drawer;
@@ -30,12 +32,7 @@ namespace Resemble.GUIEditor
         protected override void OnHeaderGUI()
         {
             //Init resources
-            Styles.Load();
-            clip = target as Clip;
-            if (clip.text == null)
-                clip.text = new Text();
-            if (drawer == null)
-                drawer = new Text_Editor(clip.text, SetDirty, Repaint);
+            InitComponents();
 
             //Bar
             Rect rect = new Rect(0, 0, Screen.width, 46);
@@ -111,83 +108,82 @@ namespace Resemble.GUIEditor
 
             //Draw text layout
             drawer.DoLayout(true, false);
-
-
             GUILayout.EndVertical();
 
             //Show pending request button
+            /*
             if (task != null && task.status != Task.Status.Completed)
             {
                 if (GUILayout.Button("Show pending request"))
                     Resemble_Window.Open(Resemble_Window.Tab.Pool);
-            }
+            }*/
 
+            //Error box
             if (error)
                 error.DrawErrorBox();
 
-            if (task != null && task.preview != null && task.status == Task.Status.Downloading)
+            //Draw bottom text buttons
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Send patch"))
+                PatchClip();
+            if (GUILayout.Button("Download wav file"))
+                DownloadClip();
+            GUILayout.EndHorizontal();
+
+
+            //Separator
+            GUILayout.Space(10);
+            Utils.DrawSeparator();
+
+
+            //Draw Download progress bar
+            if (requestDownload || task != null)
             {
-                if (!task.preview.done)
+                GUILayout.Space(10);
+                rect = GUILayoutUtility.GetRect(Screen.width, 30);
+                if (task == null)
                 {
-                    rect = GUILayoutUtility.GetRect(Screen.width, 16);
+                    EditorGUI.ProgressBar(rect, 0, "Sending request...");
+                }
+                else if (task.preview == null)
+                {
+                    EditorGUI.ProgressBar(rect, 0, "Generate audio file...");
+                }
+                else if (task.status == Task.Status.Downloading && !task.preview.done)
+                {
                     float progress = task.preview.download.progress;
                     EditorGUI.ProgressBar(rect, progress, "Download : " + Mathf.RoundToInt(progress * 100) + "%");
                 }
-                else
-                {
-
-                }
-            }
-            
-            //Patch button
-            if (GUILayout.Button("Send patch"))
-            {
-                PatchClip();
             }
 
-            //Update button
-            if (GUILayout.Button("Update from API"))
+            //Draw Audio preview
+            else if (clip.clip != null)
             {
-                UpdateFromAPI();
-            }
-
-
-            if (clip.clip != null)
-            {
-                //Audio preview
-                GUILayout.Space(10);
-                Utils.DrawSeparator();
-                GUILayout.Space(10);
-                GUILayout.Label("Preview", EditorStyles.largeLabel);
-
                 DrawAudioPlayer();
-
-                //Import settings
                 GUILayout.Space(10);
-                Utils.DrawSeparator();
-                GUILayout.Label("Import settings", EditorStyles.largeLabel);
-                EditorGUI.indentLevel++;
-                EditorGUI.BeginChangeCheck();
-                importer.loadInBackground = EditorGUILayout.Toggle(new GUIContent("Load In Background",
-                    "When the flag is set, the loading of the clip will happen delayed without blocking the main thread."),
-                    importer.loadInBackground);
-                dirtySettings |= EditorGUI.EndChangeCheck();
-
-                //Apply button
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
-                EditorGUI.BeginDisabledGroup(!dirtySettings);
-                if (GUILayout.Button("Apply"))
+                if (GUILayout.Button("Open file"))
                 {
-                    dirtySettings = false;
-                    importer.SaveAndReimport();
+                    EditorGUIUtility.PingObject(clip.clip);
+                    Selection.activeObject = clip.clip;
                 }
-                EditorGUI.EndDisabledGroup();
                 GUILayout.EndHorizontal();
-                EditorGUI.indentLevel--;
             }
 
             Utils.ConnectionRequireMessage();
+        }
+
+        private void InitComponents()
+        {
+            Styles.Load();
+            clip = target as Clip;
+            if (clip.text == null)
+                clip.text = new Text();
+            if (drawer == null)
+                drawer = new Text_Editor(clip.text, SetDirty, Repaint);
         }
 
         private void OnEditText()
@@ -237,6 +233,7 @@ namespace Resemble.GUIEditor
 
             //Import asset
             AssetDatabase.ImportAsset(savePath, ImportAssetOptions.ForceUpdate);
+            clip.clip = AssetDatabase.LoadAssetAtPath<AudioClip>(savePath);
         }
 
         public void OnEnable()
@@ -245,9 +242,9 @@ namespace Resemble.GUIEditor
             EditorApplication.CallbackFunction value = (EditorApplication.CallbackFunction)info.GetValue(null);
             value += ApplicationUpdate;
             info.SetValue(null, value);
-            Clip clip = target as Clip;
-            if (clip != null && clip.text != null && drawer != null && drawer.text != null)
-                drawer.Refresh();
+            InitComponents();
+            drawer.Refresh();
+            Repaint();
         }
 
         public void OnDisable()
@@ -333,15 +330,57 @@ namespace Resemble.GUIEditor
 
 
             //Preview toolbar
+            GUILayout.Space(10);
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-            if (GUILayout.Button("Play", EditorStyles.toolbarButton))
-            { AudioPreview.PlayClip(clip.clip); }
+            if (!clipPlaying)
+            {
+                if (GUILayout.Button("Play", EditorStyles.toolbarButton))
+                {
+                    AudioPreview.PlayClip(clip.clip);
+                    clipPlaying = true;
+                }
+            }
+            else
+            {
+                if (GUILayout.Button("Stop", EditorStyles.toolbarButton))
+                {
+                    AudioPreview.StopClip(clip.clip);
+                    clipPlaying = false;
+                }
+            }
+
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
 
+            //Draw preview
             Rect rect = GUILayoutUtility.GetRect(Screen.width, 100);
+            
+            //Allows you to launch the clip at a given timming.
+            if (GUI.Button(rect, "", GUIStyle.none))
+            {
+                float time = Rect.PointToNormalized(rect, Event.current.mousePosition).x;
+                int sample = Mathf.RoundToInt(time * clip.clip.samples);
+                if (clipPlaying)
+                    AudioPreview.StopClip(clip.clip);
+                AudioPreview.PlayClip(clip.clip, sample);
+                AudioPreview.SetClipSamplePosition(clip.clip, sample);
+                clipPlaying = true;
+            }
+
+            //Draw clip spectrum
             clipEditor.OnPreviewGUI(rect, GUI.skin.box);
+
+            //Draw progress bar
+            if (clipPlaying)
+            {
+                clipPlaying = AudioPreview.IsClipPlaying(clip.clip);
+                int sample = AudioPreview.GetClipSamplePosition(clip.clip);
+                float time = sample / (float)clip.clip.samples;
+                rect.Set(rect.x + rect.width * time, rect.y, 2, rect.height);
+                EditorGUI.DrawRect(rect, Color.white);
+                Repaint();
+            }
         }
 
         public void PrintTargetPath()
@@ -445,6 +484,20 @@ namespace Resemble.GUIEditor
                     error.Log();
                 else
                     Debug.Log(content);
+            });
+        }
+
+        public void DownloadClip()
+        {
+            requestDownload = true;
+            APIBridge.GetClip(clip.uuid, (ResembleClip result, Error error) =>
+            {
+                requestDownload = false;
+                if (error)
+                    error.Log();
+                else
+                    task = APIBridge.DownloadClip(result.link, OnDownloaded);
+                Repaint();
             });
         }
 
