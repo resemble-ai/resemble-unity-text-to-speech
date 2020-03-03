@@ -7,9 +7,9 @@ namespace Resemble.Structs
     {
         public Data data;
 
-        public ClipPatch(string title, string body)
+        public ClipPatch(string title, string body, string voice)
         {
-            data = new Data() {title = title,  body = body };
+            data = new Data() {title = title,  body = body, voice = voice, finished = false };
         }
 
         [System.Serializable]
@@ -17,6 +17,8 @@ namespace Resemble.Structs
         {
             public string title;
             public string body;
+            public string voice;
+            public bool finished;
         }
 
         public override string ToString()

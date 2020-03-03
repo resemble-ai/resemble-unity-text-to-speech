@@ -75,7 +75,7 @@ namespace Resemble.GUIEditor
                 GenericMenu menu = new GenericMenu();
                 menu.AddItem(new GUIContent("Print target path"), false, PrintTargetPath);
                 menu.AddItem(new GUIContent("Update from API"), false, UpdateFromAPI);
-                menu.AddItem(new GUIContent("Generate"), false, Generate);
+                menu.AddItem(new GUIContent("Generate Audio"), false, PatchClip);
                 menu.AddItem(new GUIContent("Download wav as..."), false, ExportClip);
                 menu.AddSeparator("");
                 menu.AddItem(new GUIContent("Rename"), false, Rename);
@@ -91,7 +91,7 @@ namespace Resemble.GUIEditor
 
         public override void OnInspectorGUI()
         {
-            checkClipFinished();
+            //CheckClipFinished();
             //Go back to parent
             if (goBackToParent && Event.current.type == EventType.Repaint)
             {
@@ -131,7 +131,7 @@ namespace Resemble.GUIEditor
             if (GUILayout.Button("Generate Audio"))
                 PatchClip();
             if (!clipFinished && (GUILayout.Button("Refresh")))
-                checkClipFinished();
+                CheckClipFinished();
             if (clipFinished && (GUILayout.Button("Download File")))
                 DownloadClip();
             GUILayout.EndHorizontal();
@@ -195,6 +195,7 @@ namespace Resemble.GUIEditor
             EditorUtility.SetDirty(clip);
         }
 
+        [System.Obsolete("Generate clip by sync methode. This is deprecated, use async patch methodes instead.")]
         private void OnGenerate()
         {
             //Get and create directory
@@ -238,6 +239,9 @@ namespace Resemble.GUIEditor
             //Import asset
             AssetDatabase.ImportAsset(savePath, ImportAssetOptions.ForceUpdate);
             clip.clip = AssetDatabase.LoadAssetAtPath<AudioClip>(savePath);
+
+            task = null;
+            Repaint();
         }
 
         public void OnEnable()
@@ -392,11 +396,6 @@ namespace Resemble.GUIEditor
             Debug.Log(clip.GetSavePath());
         }
 
-        public void Generate()
-        {
-
-        }
-
         public void UpdateFromAPI()
         {
             if (!EditorUtility.DisplayDialog("Update from API", "This operation will overwrite existing " +
@@ -481,7 +480,7 @@ namespace Resemble.GUIEditor
                 return;
             }
 
-            ClipPatch patch = new ClipPatch(clip.name, clip.text.BuildResembleString());
+            ClipPatch patch = new ClipPatch(clip.name, clip.text.BuildResembleString(), clip.speech.voiceUUID);
             APIBridge.UpdateClip(clip.uuid, patch, (string content, Error error) =>
             {
                 if (error) {
@@ -521,12 +520,11 @@ namespace Resemble.GUIEditor
                 {
                     task = APIBridge.DownloadClip(result.link, OnDownloaded);
                 }
-                
                 Repaint();
             });
         }
 
-        public void checkClipFinished()
+        public void CheckClipFinished()
         {
             APIBridge.GetClip(clip.uuid, (ResembleClip clip, Error error) =>
             {
@@ -534,7 +532,9 @@ namespace Resemble.GUIEditor
                     error.Log();
                 else
                 {
-                    if (clip.finished) {
+                    Debug.Log("Finished : " + clip.finished);
+                    if (clip.finished)
+                    {
                         this.clipFinished = true;
                         Repaint();
                     }

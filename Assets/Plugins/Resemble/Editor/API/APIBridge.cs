@@ -145,8 +145,6 @@ namespace Resemble
         {
             string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + clipUUID;
             string data = patch.ToJson();
-            Debug.Log(uri);
-            Debug.Log(data);
             EnqueueTask(uri, data, Task.Type.Patch, (string content, Error error) =>
             {
                 if (error)

@@ -13,37 +13,14 @@ MonoBehaviour:
   m_Name: Good boy
   m_EditorClassIdentifier: 
   speech: {fileID: 11400000}
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: a7bb6c05825d76f408fd0cf80aabe5ae, type: 3}
   clipCopy: {fileID: 0}
   text:
-    userString: Who is the good boy ?
-    tags:
-    - type: 1
-      emotion: 3
-      start: 11
-      end: 21
-      rects:
-      - serializedVersion: 2
-        x: 90
-        y: 7
-        width: 80
-        height: 17
-      color: {r: 1, g: 0.737, b: 0.427, a: 1}
-      duration: 0.5
-    - type: 1
-      emotion: 5
-      start: 0
-      end: 11
-      rects:
-      - serializedVersion: 2
-        x: 6
-        y: 7
-        width: 84
-        height: 17
-      color: {r: 0.667, g: 0.729, b: 0.239, a: 1}
-      duration: 0.5
-    selectID: 21
-    carretID: 21
+    userString: Hey Julie, look what they're doing to me. Trying to trip me up, trying
+      to wear me down.
+    tags: []
+    selectID: 87
+    carretID: 87
   uuid: 007c1b33
 --- !u!114 &11400000
 MonoBehaviour:
@@ -57,8 +34,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da67f1a901af494288cbafce6a4e541, type: 3}
   m_Name: Kratos
   m_EditorClassIdentifier: 
-  voiceName: Kratos
-  voiceUUID: 5b81e34a
+  voiceName: Sherlock
+  voiceUUID: bbe98616
   clips:
   - {fileID: -3158254525378658753}
   - {fileID: 4998320910325853155}
@@ -72,87 +49,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: Welcome
+  m_Name: Cannoli
   m_EditorClassIdentifier: 
   speech: {fileID: 11400000}
-  clip: {fileID: 8300000, guid: 8283f5b9a3c0cec4e81cda8075b8f00e, type: 3}
+  clip: {fileID: 8300000, guid: ac3670c2b02b37549b68764d4a4b45e9, type: 3}
   clipCopy: {fileID: 0}
   text:
-    userString: "Hello again,\u2003 friend of a friend,\u2003 I knew you when.\r\nOur
-      common goal was waiting for the world to end."
-    tags:
-    - type: 1
-      emotion: 5
-      start: 6
-      end: 11
-      rects:
-      - serializedVersion: 2
-        x: 46
-        y: 7
-        width: 37
-        height: 17
-      color: {r: 0.667, g: 0.729, b: 0.239, a: 1}
-      duration: 0.5
-    - type: 0
-      emotion: 0
-      start: 12
-      end: 13
-      rects:
-      - serializedVersion: 2
-        x: 88
-        y: 7
-        width: 14
-        height: 17
-      color: {r: 0.8, g: 0.1, b: 0.1, a: 1}
-      duration: 0.5
-    - type: 0
-      emotion: 0
-      start: 33
-      end: 34
-      rects:
-      - serializedVersion: 2
-        x: 229
-        y: 7
-        width: 14
-        height: 17
-      color: {r: 0.8, g: 0.1, b: 0.1, a: 1}
-      duration: 0.3
-    - type: 1
-      emotion: 1
-      start: 34
-      end: 51
-      rects:
-      - serializedVersion: 2
-        x: 243
-        y: 7
-        width: 129
-        height: 17
-      color: {r: 0.741, g: 0.25, b: 0.278, a: 1}
-      duration: 0.5
-    - type: 1
-      emotion: 5
-      start: 53
-      end: 68
-      rects:
-      - serializedVersion: 2
-        x: 6
-        y: 24
-        width: 127
-        height: 17
-      color: {r: 0.667, g: 0.729, b: 0.239, a: 1}
-      duration: 0.5
-    - type: 1
-      emotion: 1
-      start: 89
-      end: 102
-      rects:
-      - serializedVersion: 2
-        x: 277
-        y: 24
-        width: 94
-        height: 17
-      color: {r: 0.741, g: 0.25, b: 0.278, a: 1}
-      duration: 0.5
-    selectID: 71
-    carretID: 71
+    userString: "The girl in the pastry shop with the net in her hair is making a
+      cannoli for you. to take on your hiking trip in the woods with your bros that
+      you\u2019ve known since second grade."
+    tags: []
+    selectID: 175
+    carretID: 175
   uuid: 4f271dcc
