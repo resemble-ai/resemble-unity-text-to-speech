@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-8708949766087922541
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
+  m_Name: In the first age
+  m_EditorClassIdentifier: 
+  speech: {fileID: 11400000}
+  clip: {fileID: 8300000, guid: 4f293fa47e4e8154da41fe7d1a08f4e1, type: 3}
+  clipCopy: {fileID: 0}
+  text:
+    userString: 'In the first age, in the first battle, when the shadows first lengthened,
+      one stood.
+
+      He chose the path of perpetual torment.
+
+      In his ravenous
+      hatred he found no peace.
+
+      And with boiling blood he scoured the Umbral
+      Plains seeking vengeance against the dark lords who had wronged him.
+
+      And
+      those that tasted the bite of his sword named him.
+
+      The Doom Slayer.'
+    tags: []
+    selectID: 352
+    carretID: 352
+  uuid: b4faa141
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0da67f1a901af494288cbafce6a4e541, type: 3}
+  m_Name: Kratos
+  m_EditorClassIdentifier: 
+  voiceName: Kratos
+  voiceUUID: 5b81e34a
+  clips:
+  - {fileID: -8708949766087922541}

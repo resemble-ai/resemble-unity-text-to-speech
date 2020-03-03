@@ -116,8 +116,6 @@ namespace Resemble.GUIEditor
             rect.Set(rect.x, rect.y - 10, rect.width, rect.height + 10);
             drawer.DrawCharCountBar(rect);
 
-            GUILayout.EndVertical();
-
 
             //Show pending request button
             /*
@@ -126,10 +124,6 @@ namespace Resemble.GUIEditor
                 if (GUILayout.Button("Show pending request"))
                     Resemble_Window.Open(Resemble_Window.Tab.Pool);
             }*/
-
-            //Error box
-            if (error)
-                error.DrawErrorBox();
 
             //Draw bottom text buttons
             GUILayout.Space(10);
@@ -142,13 +136,19 @@ namespace Resemble.GUIEditor
             if (clipFinished && (GUILayout.Button("Download File")))
                 DownloadClip();
             GUILayout.EndHorizontal();
+            GUILayout.EndVertical();
 
+            //Error box
+            if (error)
+                error.DrawErrorBox();
 
             //Separator
+            /*
             GUILayout.Space(10);
             Utils.DrawSeparator();
+            */
 
-
+            GUILayout.BeginVertical(EditorStyles.helpBox);
             //Draw Download progress bar
             if (requestDownload || task != null)
             {
@@ -183,6 +183,7 @@ namespace Resemble.GUIEditor
                 }
                 GUILayout.EndHorizontal();
             }
+            GUILayout.EndVertical();
 
             Utils.ConnectionRequireMessage();
         }
@@ -236,6 +237,8 @@ namespace Resemble.GUIEditor
 
         private void OnDownloaded(byte[] data, Error error)
         {
+            //NotificationsPopup.Add("Download complete", clip);
+
             if (error)
                 return;
 
@@ -344,8 +347,17 @@ namespace Resemble.GUIEditor
             }
 
 
+            //Get playing clip data
+            int sample = 0;
+            float time = 0.0f;
+            if (clipPlaying)
+            {
+                clipPlaying = AudioPreview.IsClipPlaying(clip.clip);
+                sample = AudioPreview.GetClipSamplePosition(clip.clip);
+                time = sample / (float)clip.clip.samples;
+            }
+
             //Preview toolbar
-            GUILayout.Space(10);
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
             if (!clipPlaying)
@@ -366,7 +378,13 @@ namespace Resemble.GUIEditor
             }
 
             GUILayout.FlexibleSpace();
+
+            //Draw clip length label
+            float clipLength = clip.clip.length;
+            GUILayout.Label((time * clipLength).ToString("0:00") + "/" + clipLength.ToString("0:00"));
+
             GUILayout.EndHorizontal();
+            GUILayout.Space(10);
 
             //Draw preview
             Rect rect = GUILayoutUtility.GetRect(Screen.width, 100);
@@ -374,8 +392,8 @@ namespace Resemble.GUIEditor
             //Allows you to launch the clip at a given timming.
             if (GUI.Button(rect, "", GUIStyle.none))
             {
-                float time = Rect.PointToNormalized(rect, Event.current.mousePosition).x;
-                int sample = Mathf.RoundToInt(time * clip.clip.samples);
+                time = Rect.PointToNormalized(rect, Event.current.mousePosition).x;
+                sample = Mathf.RoundToInt(time * clip.clip.samples);
                 if (clipPlaying)
                     AudioPreview.StopClip(clip.clip);
                 AudioPreview.PlayClip(clip.clip, sample);
@@ -389,9 +407,6 @@ namespace Resemble.GUIEditor
             //Draw progress bar
             if (clipPlaying)
             {
-                clipPlaying = AudioPreview.IsClipPlaying(clip.clip);
-                int sample = AudioPreview.GetClipSamplePosition(clip.clip);
-                float time = sample / (float)clip.clip.samples;
                 rect.Set(rect.x + rect.width * time, rect.y, 2, rect.height);
                 EditorGUI.DrawRect(rect, Color.white);
                 Repaint();

@@ -32,6 +32,8 @@ namespace Resemble.GUIEditor
                     DrawProjectList(rect);
                     EditorGUILayout.EndVertical();
 
+                    if (selected >= Settings.projects.Length)
+                        selected = -1;
                     DrawProjectArea(selected == -1 ? null : Settings.projects[selected]);
                 }
                 else
