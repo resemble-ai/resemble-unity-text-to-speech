@@ -110,7 +110,14 @@ namespace Resemble.GUIEditor
 
             //Draw text layout
             drawer.DoLayout(true, false);
+
+            //Draw character count bar
+            rect = GUILayoutUtility.GetRect(Screen.width, 25).Shrink(10);
+            rect.Set(rect.x, rect.y - 10, rect.width, rect.height + 10);
+            drawer.DrawCharCountBar(rect);
+
             GUILayout.EndVertical();
+
 
             //Show pending request button
             /*

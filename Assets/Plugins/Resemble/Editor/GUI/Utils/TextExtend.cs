@@ -270,6 +270,9 @@ namespace Resemble.GUIEditor
                 text.tags[i].AddCharacters(id, length);
 
             text.CallOnEdit();
+
+
+
         }
 
         /// <summary> Remove characters from text. Handle the tag offset. </summary>
