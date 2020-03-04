@@ -255,7 +255,11 @@ namespace Resemble.GUIEditor
 
             //Get scroll by mouse scrollwheel
             if (e.type == EventType.ScrollWheel && interactable)
+            {
                 scroll.y += e.delta.y * 5;
+                needTagRefresh = true;
+                Refresh();
+            }
 
             //Clamp scroll to content area
             float dif = Mathf.Max(0.0f, contentHeight - rectBox.height + 64);

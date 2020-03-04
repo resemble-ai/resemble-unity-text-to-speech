@@ -176,6 +176,10 @@ namespace Resemble.GUIEditor
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
+                if (GUILayout.Button("Pop a notification"))
+                {
+                    NotificationsPopup.Add("Pop a notification", MessageType.Info, clip);
+                }
                 if (GUILayout.Button("Open file"))
                 {
                     EditorGUIUtility.PingObject(clip.clip);
@@ -237,10 +241,15 @@ namespace Resemble.GUIEditor
 
         private void OnDownloaded(byte[] data, Error error)
         {
-            //NotificationsPopup.Add("Download complete", clip);
-
             if (error)
+            {
+                NotificationsPopup.Add("Error on clip " + clip.name + "\n" + error.message, MessageType.Error, clip);
                 return;
+            }
+            else
+            {
+                NotificationsPopup.Add("Download complete\n" + clip.name, MessageType.Info, clip);
+            }
 
             //Write file
             string savePath = clip.GetSavePath();
@@ -359,6 +368,7 @@ namespace Resemble.GUIEditor
 
             //Preview toolbar
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.Space(-4);
 
             if (!clipPlaying)
             {

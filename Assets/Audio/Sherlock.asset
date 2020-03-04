@@ -20,8 +20,8 @@ MonoBehaviour:
       cannoli for you. to take on your hiking trip in the woods with your bros that
       you\u2019ve known since second grade."
     tags: []
-    selectID: 0
-    carretID: 0
+    selectID: 175
+    carretID: 175
   uuid: 4f271dcc
 --- !u!114 &-8389668169749766225
 MonoBehaviour:
@@ -45,6 +45,27 @@ MonoBehaviour:
     selectID: 0
     carretID: 0
   uuid: 007c1b33
+--- !u!114 &-6162754375663902764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
+  m_Name: Empty clip
+  m_EditorClassIdentifier: 
+  speech: {fileID: 11400000}
+  clip: {fileID: 0}
+  clipCopy: {fileID: 0}
+  text:
+    userString: a
+    tags: []
+    selectID: 1
+    carretID: 1
+  uuid: 49b4869a
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -61,4 +82,5 @@ MonoBehaviour:
   voiceUUID: bbe98616
   clips:
   - {fileID: -8418650068143614283}
+  - {fileID: -6162754375663902764}
   - {fileID: -8389668169749766225}

@@ -27,6 +27,9 @@ namespace Resemble
             }
         }
 
+        /// <summary> Max length of this text. </summary>
+        public const int maxLength = 1000;
+
         /// <summary> Return a plain text string with SSML tags supported by the Resemble API. </summary>
         public string BuildResembleString()
         {

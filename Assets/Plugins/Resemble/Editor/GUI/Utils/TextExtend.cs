@@ -37,17 +37,11 @@ namespace Resemble.GUIEditor
 
             if (count > 0)
             {
-                if (text.carretID < 0)
-                    Debug.LogError("Index is out of bounds.");
-                else if (text.carretID + count > text.userString.Length)
-                    Debug.LogError("Index is out of bounds.");
+                text.carretID = id = Mathf.Clamp(text.carretID, 0, text.userString.Length - count);
             }
             else
             {
-                if (text.carretID + count < 0)
-                    Debug.LogError("Index is out of bounds.");
-                else if (text.carretID > text.userString.Length)
-                    Debug.LogError("Index is out of bounds.");
+                text.carretID = id = Mathf.Clamp(text.carretID, count, text.userString.Length);
                 id += count;
             }
             RemoveChars(text, id, length);
@@ -261,6 +255,10 @@ namespace Resemble.GUIEditor
         /// <summary> Add characters to the text. Handle the tag offset. </summary>
         private static void AddChars(Text text, int id, string value)
         {
+            int userStringLength = text.userString.Length;
+            if (id > userStringLength)
+                return;
+
             //Modify string
             text.userString = text.userString.Insert(id, value);
 
@@ -271,8 +269,13 @@ namespace Resemble.GUIEditor
 
             text.CallOnEdit();
 
-
-
+            //Check length - Remove characters if too many
+            userStringLength = text.userString.Length;
+            if (userStringLength > Text.maxLength)
+            {
+                RemoveChars(text, Text.maxLength, userStringLength - Text.maxLength);
+                text.SetIDs(Text.maxLength);
+            }
         }
 
         /// <summary> Remove characters from text. Handle the tag offset. </summary>
