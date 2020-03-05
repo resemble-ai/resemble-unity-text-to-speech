@@ -11,18 +11,23 @@ namespace Resemble.GUIEditor
     [CustomEditor(typeof(Speech))]
     public class Speech_Editor : Editor
     {
+        //Data
         private Speech speech;
         private ReorderableList list;
-        public AudioClip clip;
-        private Vector2 mp;
+
+        //GUI
+        private Vector2 mousePosition;
         private Rect voiceRect;
-        private Rect createClipRect;
-        private Rect importClipRect;
+        private PopupButton deleteButton = new PopupButton("Delete", "Delete the clip selected in the list.", new Vector2(300, 51));
+        private PopupButton importButton = new PopupButton("Import", "Import a clip that already exists in the project with this voice.", new Vector2(200, 120));
+        private PopupButton CreateButton = new PopupButton("Create", "Create a new clip with this voice.", new Vector2(200, 51));
 
         protected override bool ShouldHideOpenButton()
         {
             return true;
         }
+
+
 
         protected override void OnHeaderGUI()
         {
@@ -74,84 +79,105 @@ namespace Resemble.GUIEditor
 
         public override void OnInspectorGUI()
         {
-            //Header
+            //Init vars
+            Event e = Event.current;
+            mousePosition = e.mousePosition;
+
+            //Speech properties
             GUILayout.Space(10);
-            DrawContentHeader();
+            DrawSpeechProperties();
             GUILayout.Space(10);
 
+
+            //Select a voice box
             bool noVoice = string.IsNullOrEmpty(speech.voiceUUID);
             if (noVoice)
-            {
                 EditorGUILayout.HelpBox("Please select a voice.", MessageType.Info);
-            }
+
+
+            //Disable ui if there is no voice selecteds
             EditorGUI.BeginDisabledGroup(noVoice);
 
-            //Rebuild list
-            if (list == null)
-            {
-                list = new ReorderableList(speech.clips, typeof(Clip), false, true, false, false);
-                list.onSelectCallback += List_OnSelect;
-                list.elementHeight = 28;
-                list.drawElementCallback = List_DrawElement;
-                list.drawHeaderCallback = List_DrawHeader;
-            }
-            mp = Event.current.mousePosition;
-            list.DoLayoutList();
-            Repaint();
 
-            //Add clip btn
+            //Rebuild list if needed and draw it
+            if (list == null)
+                RebuildClipList();
+            list.DoLayoutList();
+
+
+            //Draw commands buttons
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-
-            //Import existing clip button
-            if (GUILayout.Button("Import existing clip"))
-            {
-                StringPopup.Hide();
-                ClipPopup.Show(importClipRect.Offset(-200, 18, 200, 120),
-                    speech, (ResembleClip clip) =>
-                    {
-                        if (clip != null)
-                            ImportClip(clip);
-                    });
-            }
-
-            //Get btn rect
-            if (Event.current.type == EventType.Repaint)
-                importClipRect = GUIUtility.GUIToScreenRect(GUILayoutUtility.GetLastRect());
-
-            //Create new clip button
-            if (GUILayout.Button("Create new clip"))
-            {
-                ClipPopup.Hide();
-                StringPopup.Show(createClipRect.Offset(-200, 18, 200, 51),
-                    "New clip name", (string value) =>
-                {
-                    if (!string.IsNullOrEmpty(value))
-                    {
-                        APIBridge.CreateClip(new CreateClipData(value, "", speech.voiceUUID), (ClipStatus status, Error error) =>
-                        {
-                            if (error)
-                                error.Log();
-                            else
-                            {
-                                if (status.status == "OK")
-                                    AddClip(value, status.id);
-                                else
-                                    Debug.LogError("Cannot create the clip, please try again later.");
-                            }
-                        });
-                    }
-                });
-            }
-            //Get btn rect
-            if (Event.current.type == EventType.Repaint)
-                createClipRect = GUIUtility.GUIToScreenRect(GUILayoutUtility.GetLastRect());
-
+            EditorGUI.BeginDisabledGroup(list.index < 0);
+            deleteButton.DoLayout((Rect r) => { HidePopups(); DeletePopup.Show(r, DeleteClip); });
+            EditorGUI.EndDisabledGroup();
+            importButton.DoLayout((Rect r) => { HidePopups(); ClipPopup.Show(r, speech, ImportClip); });
+            CreateButton.DoLayout((Rect r) => { HidePopups(); StringPopup.Show(r, "New clip name", CreateClip); });
             GUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
 
+
             //Draw connected error
             Utils.ConnectionRequireMessage();
+
+
+            //Keep a constant refresh
+            Repaint();
+        }
+
+        /// <summary> Ensures that all popup windows that the editor can open are closed. </summary>
+        private void HidePopups()
+        {
+            DeletePopup.Hide();
+            ClipPopup.Hide();
+            StringPopup.Hide();
+        }
+
+        /// <summary> Delete the clip selected in the list from speech. </summary>
+        private void DeleteClip(bool deleteOnAPI, bool deleteAudioClip)
+        {
+            if (list.index < 0)
+                return;
+            DeleteClip(speech.clips[list.index], deleteOnAPI, deleteAudioClip);
+        }
+
+        /// <summary> Delete a clip from speech. </summary>
+        public void DeleteClip(Clip clip, bool deleteOnAPI, bool deleteAudioClip)
+        {
+            int choice = EditorUtility.DisplayDialogComplex("Delete clip", "Delete " + clip.name + " ?\nYou cannot undo this action.",
+                "Delete", "Cancel", "Delete only in unity project");
+            Debug.Log(choice);
+            AssetDatabase.RemoveObjectFromAsset(clip);
+            speech.clips.Remove(clip);
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetOrScenePath(speech), ImportAssetOptions.ForceSynchronousImport);
+        }
+
+        public void CreateClip(string name)
+        {
+            if (!string.IsNullOrEmpty(name))
+            {
+                APIBridge.CreateClip(new CreateClipData(name, "", speech.voiceUUID), (ClipStatus status, Error error) =>
+                {
+                    if (error)
+                        error.Log();
+                    else
+                    {
+                        if (status.status == "OK")
+                            AddClip(name, status.id);
+                        else
+                            Debug.LogError("Cannot create the clip, please try again later.");
+                    }
+                });
+            }
+        }
+
+        private void RebuildClipList()
+        {
+            list = new ReorderableList(speech.clips, typeof(Clip), false, true, false, false);
+            list.onSelectCallback += List_OnSelect;
+            list.elementHeight = 28;
+            list.drawElementCallback = List_DrawElement;
+            list.drawHeaderCallback = List_DrawHeader;
         }
 
         public void AddClip(string name, string uuid)
@@ -219,11 +245,11 @@ namespace Resemble.GUIEditor
 
             float width = rect.width;
             rect.Set(width - 90, rect.y + 2, 50, rect.height - 4);
-            if (Utils.FlatButton(rect, "Edit", Styles.clipGreenColor, 1.0f, rect.Contains(mp) ? 0.5f : 0.2f))
+            if (Utils.FlatButton(rect, "Edit", Styles.clipGreenColor, 1.0f, rect.Contains(mousePosition) ? 0.5f : 0.2f))
                 Selection.activeObject = speech.clips[index];
             rect.Set(width - 35, rect.y, 50, rect.height);
             Utils.DragArea(rect, speech.clips[index].clip);
-            if (Utils.FlatButton(rect, "Clip", Styles.clipOrangeColor, 1.0f, haveClip ? (rect.Contains(mp) ? 0.5f : 0.2f) : 1.0f) && haveClip)
+            if (Utils.FlatButton(rect, "Clip", Styles.clipOrangeColor, 1.0f, haveClip ? (rect.Contains(mousePosition) ? 0.5f : 0.2f) : 1.0f) && haveClip)
                 Selection.activeObject = speech.clips[index].clip;
         }
 
@@ -232,7 +258,7 @@ namespace Resemble.GUIEditor
             GUI.Label(rect, "Clips");
         }
 
-        private void DrawContentHeader()
+        private void DrawSpeechProperties()
         {
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Voice", GUILayout.Width(EditorGUIUtility.labelWidth));

@@ -10,6 +10,7 @@ namespace Resemble
         public Texture2D icon;
         public Texture2D externalLink;
         public Texture2D breakIco;
+        public Texture2D loadingTex;
         public Texture2D[] docImages;
         public Texture2D[] pathImages;
 
@@ -31,11 +32,22 @@ namespace Resemble
                 return _boxMat;
             }
         }
+        public Material loadingMat
+        {
+            get
+            {
+                if (_loadingMat == null)
+                    _loadingMat = new Material(loadingShader);
+                return _loadingMat;
+            }
+        }
         private Material _textMat;
         private Material _boxMat;
+        private Material _loadingMat;
 
         public Shader textShader;
         public Shader boxShader;
+        public Shader loadingShader;
 
         public Font font;
         public Text text = new Text();

@@ -13,7 +13,10 @@ namespace Resemble.Structs
 
         public override string ToString()
         {
-            return string.Format("Error : {0} : {1}", code, message);
+            if (code >= 0)
+                return string.Format("Error : {0} : {1}", code, message);
+            else
+                return string.Format("Error : {0}", message);
         }
 
         public void Log()

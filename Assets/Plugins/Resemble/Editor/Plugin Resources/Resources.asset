@@ -15,9 +15,12 @@ MonoBehaviour:
   icon: {fileID: 2800000, guid: 95588b7c499ae544589ae4b2d9576341, type: 3}
   externalLink: {fileID: 2800000, guid: 0955e96553cadfb48b293dd1f99aff1a, type: 3}
   breakIco: {fileID: 2800000, guid: 93cc70252f68a75468a611368c24d614, type: 3}
+  loadingTex: {fileID: 2800000, guid: 50f4a889468b9db4cad1d994bb14d853, type: 3}
   docImages:
   - {fileID: 2800000, guid: 3e8804ab0c0af1441ad0f5dc024a4980, type: 3}
   - {fileID: 2800000, guid: 372b16e26b2bb604186948f60de81900, type: 3}
+  - {fileID: 2800000, guid: 9e0b59766d2c8f940845708e5b78e808, type: 3}
+  - {fileID: 2800000, guid: 3140d0dbe0ae936468aa239720778255, type: 3}
   pathImages:
   - {fileID: 2800000, guid: 237953bde200936429fe5d0d0fde09c7, type: 3}
   - {fileID: 2800000, guid: 9c3d1032e1d1a0e41bd86b20f852f9a4, type: 3}
@@ -27,8 +30,11 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 9665fcaa158bfa14fa392325833e5faa, type: 3}
   textShader: {fileID: 4800000, guid: 9baa43913a7fbab4ebcfa075b0183455, type: 3}
   boxShader: {fileID: 4800000, guid: 141736c3605ea5f409d75ef3bca5121f, type: 3}
+  loadingShader: {fileID: 4800000, guid: 78bca071a80ca914c94dee0727d7fe32, type: 3}
   font: {fileID: 12800000, guid: be60bfb435fff2b4ab8d2cf748a1b25c, type: 3}
   text:
-    userString: 
+    userString: hnghng
     tags: []
+    selectID: 6
+    carretID: 6
   processClip: {fileID: 102900000, guid: 5bc78681a20100349a602d423bb35862, type: 3}

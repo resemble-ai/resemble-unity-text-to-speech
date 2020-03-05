@@ -50,6 +50,7 @@ namespace Resemble.GUIEditor
             {
                 ClipPopup.clips = clips.Where(x => x.voice == voiceUUID && !existingClips.Contains(x.uuid)).ToArray();
                 ClipPopup.error = error;
+                window.Repaint();
             });
         }
 
@@ -92,10 +93,9 @@ namespace Resemble.GUIEditor
 
         private void DrawContent()
         {
+            //Draw error if any
             if (error)
-            {
                 error.DrawErrorBox();
-            }
 
             //Loading message - Wait API response
             if (clips == null)

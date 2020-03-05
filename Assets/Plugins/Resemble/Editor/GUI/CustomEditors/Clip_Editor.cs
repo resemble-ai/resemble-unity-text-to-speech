@@ -13,22 +13,21 @@ namespace Resemble.GUIEditor
     {
         //Data
         private Clip clip;
-        private Error error = Error.None;
-        private Editor clipEditor;
         private Task task;
-        private AudioImporter importer;
+        private Editor clipEditor;
         private bool clipFinished;
+        private Error error = Error.None;
+
 
         //GUI
         private Rect renameRect;
-        private bool goBackToParent;
-        private bool dirtySettings;
-        private bool rename;
         private bool clipPlaying;
         private bool requestDownload;
-        private string renameLabel;
-        private int renameControlID;
+        private bool haveUserData;
         public Text_Editor drawer;
+        private GUIContent userData = new GUIContent("UserData", "This area is available to make your life easier. Put whatever you want in it. You can retrieve it in game via YourClip.userData;");
+
+        
 
         protected override void OnHeaderGUI()
         {
@@ -47,7 +46,7 @@ namespace Resemble.GUIEditor
             float width = Styles.header.CalcSize(new GUIContent(clip.speech.name + " > ")).x;
             rect.Set(44, 4, width, 22);
             if (GUI.Button(rect, clip.speech.name + " > ", Styles.header))
-                goBackToParent = true;
+                Selection.activeObject = clip.speech;
             EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
 
             //Clip name and rename
@@ -91,39 +90,51 @@ namespace Resemble.GUIEditor
 
         public override void OnInspectorGUI()
         {
-            //CheckClipFinished();
-            //Go back to parent
-            if (goBackToParent && Event.current.type == EventType.Repaint)
-            {
-                goBackToParent = false;
-                Selection.activeObject = clip.speech;
-                return;
-            }
-
+            //Draw text area
             GUILayout.BeginVertical(EditorStyles.helpBox);
+            DrawTextArea();
+            GUILayout.EndVertical();
 
+            //Error box
+            if (error)
+                error.DrawErrorBox();
+
+            //Draw audio area
+            GUILayout.Space(10);
+            GUILayout.BeginVertical(EditorStyles.helpBox);
+            DrawAudioArea();
+            GUILayout.EndVertical();
+
+            //Draw userdata area
+            GUILayout.Space(10);
+            GUILayout.BeginVertical(EditorStyles.helpBox);
+            DrawUserDataArea();
+            GUILayout.EndVertical();
+
+            //Drax connection message
+            Utils.ConnectionRequireMessage();
+
+            //TEMP (still necessary?) Keep refreshing this window 
+            Repaint();
+        }
+
+        private void DrawTextArea()
+        {
+            //Tags buttons
             drawer.DrawTagsBtnsLayout(false);
 
+            //Separator
             Rect rect = GUILayoutUtility.GetRect(1.0f, 1.0f, GUILayout.ExpandWidth(true));
             rect.Set(rect.x, rect.y, rect.width, 1.0f);
             EditorGUI.DrawRect(rect, Color.grey * 0.2f);
 
-            //Draw text layout
+            //Draw text field
             drawer.DoLayout(true, false);
 
             //Draw character count bar
             rect = GUILayoutUtility.GetRect(Screen.width, 25).Shrink(10);
             rect.Set(rect.x, rect.y - 10, rect.width, rect.height + 10);
             drawer.DrawCharCountBar(rect);
-
-
-            //Show pending request button
-            /*
-            if (task != null && task.status != Task.Status.Completed)
-            {
-                if (GUILayout.Button("Show pending request"))
-                    Resemble_Window.Open(Resemble_Window.Tab.Pool);
-            }*/
 
             //Draw bottom text buttons
             GUILayout.Space(10);
@@ -136,31 +147,23 @@ namespace Resemble.GUIEditor
             if (clipFinished && (GUILayout.Button("Download File")))
                 DownloadClip();
             GUILayout.EndHorizontal();
-            GUILayout.EndVertical();
+        }
 
-            //Error box
-            if (error)
-                error.DrawErrorBox();
-
-            //Separator
-            /*
-            GUILayout.Space(10);
-            Utils.DrawSeparator();
-            */
-
-            GUILayout.BeginVertical(EditorStyles.helpBox);
-            //Draw Download progress bar
+        private void DrawAudioArea()
+        {
             if (requestDownload || task != null)
             {
                 GUILayout.Space(10);
-                rect = GUILayoutUtility.GetRect(Screen.width, 30);
+                Rect rect = GUILayoutUtility.GetRect(Screen.width, 30);
                 if (task == null)
                 {
-                    EditorGUI.ProgressBar(rect, 0, "Sending request...");
+                    //EditorGUI.ProgressBar(rect, 0, "Sending request...");
+                    DrawPendingLabel();
                 }
                 else if (task.preview == null)
                 {
-                    EditorGUI.ProgressBar(rect, 0, "Generate audio file...");
+                    //EditorGUI.ProgressBar(rect, 0, "Generate audio file...");
+                    DrawPendingLabel();
                 }
                 else if (task.status == Task.Status.Downloading && !task.preview.done)
                 {
@@ -176,10 +179,6 @@ namespace Resemble.GUIEditor
                 GUILayout.Space(10);
                 GUILayout.BeginHorizontal();
                 GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Pop a notification"))
-                {
-                    NotificationsPopup.Add("Pop a notification", MessageType.Info, clip);
-                }
                 if (GUILayout.Button("Open file"))
                 {
                     EditorGUIUtility.PingObject(clip.clip);
@@ -187,9 +186,91 @@ namespace Resemble.GUIEditor
                 }
                 GUILayout.EndHorizontal();
             }
-            GUILayout.EndVertical();
+        }
 
-            Utils.ConnectionRequireMessage();
+        private void DrawUserDataArea()
+        {
+            //Toolbar
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.Space(-4);
+            GUILayout.Label(userData, EditorStyles.toolbarButton);
+            GUILayout.FlexibleSpace();
+            if (haveUserData && GUILayout.Button("Remove text", EditorStyles.toolbarButton))
+            {
+                haveUserData = false;
+                clip.userdata = "";
+                EditorUtility.SetDirty(clip);
+            }
+            if (!haveUserData && GUILayout.Button("Add text", EditorStyles.toolbarButton))
+                haveUserData = true;
+            int id = 0;
+            if (GUILayout.Button("Add Label", EditorStyles.toolbarButton))
+            {
+                string name = "New label";
+                while (clip.ContainsLabel(name))
+                {
+                    id++;
+                    name = "New Label " + id;
+                }
+                ArrayUtility.Add(ref clip.labels, new Label(name, 0));
+                EditorUtility.SetDirty(clip);
+            }
+            GUILayout.Space(-4);
+            GUILayout.EndHorizontal();
+
+
+            //User data string
+            if (haveUserData)
+            {
+                GUILayout.Space(10);
+                clip.userdata = GUILayout.TextArea(clip.userdata, GUILayout.MinHeight(50));
+            }
+
+            //Draw labels
+            if (clip.labels != null && clip.labels.Length > 0)
+            {
+                GUILayout.Space(10);
+                int count = clip.labels.Length;
+                for (int i = 0; i < count; i++)
+                {
+                    EditorGUI.BeginChangeCheck();
+                    GUILayout.BeginHorizontal();
+                    string labelText = GUILayout.TextField(clip.labels[i].text);
+                    int labelValue = EditorGUILayout.IntField(clip.labels[i].value, GUILayout.Width(50));
+                    bool delete = GUILayout.Button("X", GUILayout.Width(20));
+                    GUILayout.EndHorizontal();
+
+                    if (EditorGUI.EndChangeCheck())
+                    {
+                        if (delete)
+                        {
+                            ArrayUtility.RemoveAt(ref clip.labels, i);
+                            count--;
+                            i--;
+                        }
+                        else
+                        {
+                            clip.labels[i] = new Label(labelText, labelValue);
+                            EditorUtility.SetDirty(clip);
+                        }
+                    }
+                }
+                GUILayout.Space(10);
+            }
+        }
+
+        private void DrawPendingLabel()
+        {
+            GUILayout.BeginHorizontal(GUILayout.Height(25));
+            GUILayout.FlexibleSpace();
+            GUILayout.Label("Pending...", Styles.centredLabel);
+            Rect rect = GUILayoutUtility.GetRect(25, 25);
+            Material mat = Resources.instance.loadingMat;
+            mat.SetFloat("_Progress", (float)(EditorApplication.timeSinceStartup % 1.0f));
+            mat.SetColor("_Color", new Color(0.0f, 0.0f, 0.0f, 1.0f));
+            EditorGUI.DrawPreviewTexture(rect, Resources.instance.loadingTex, mat);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
         }
 
         private void InitComponents()
@@ -270,6 +351,7 @@ namespace Resemble.GUIEditor
             value += ApplicationUpdate;
             info.SetValue(null, value);
             InitComponents();
+            haveUserData = !string.IsNullOrEmpty(clip.userdata);
             drawer.Refresh();
             Repaint();
         }
@@ -349,12 +431,6 @@ namespace Resemble.GUIEditor
             {
                 clipEditor = Editor.CreateEditor(clip.clip);
             }
-
-            if (importer == null)
-            {
-                importer = AudioImporter.GetAtPath(AssetDatabase.GetAssetPath(clip.clip)) as AudioImporter;
-            }
-
 
             //Get playing clip data
             int sample = 0;
@@ -515,13 +591,14 @@ namespace Resemble.GUIEditor
             ClipPatch patch = new ClipPatch(clip.name, clip.text.BuildResembleString(), clip.speech.voiceUUID);
             APIBridge.UpdateClip(clip.uuid, patch, (string content, Error error) =>
             {
-                if (error) {
-                    error.Log();
+                if (error)
+                {
+                    NotificationsPopup.Add(error.message, MessageType.Error, clip);
                 }
                 else
                 {
-                    Debug.Log(content);
-                    this.goBackToParent = true;
+                    //Debug.Log(content);
+                    //this.goBackToParent = true;
                 }
 
             });
@@ -545,8 +622,9 @@ namespace Resemble.GUIEditor
             APIBridge.GetClip(clip.uuid, (ResembleClip result, Error error) =>
             {
                 requestDownload = false;
-                if (error) {
-                    error.Log();
+                if (error)
+                {
+                    NotificationsPopup.Add(error.message, MessageType.Error, clip);
                 }
                 else
                 {

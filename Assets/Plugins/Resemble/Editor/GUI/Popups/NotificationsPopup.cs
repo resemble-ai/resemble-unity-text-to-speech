@@ -6,9 +6,15 @@ namespace Resemble.GUIEditor
 {
     public class NotificationsPopup : EditorWindow
     {
+        //GUI stuff
         private static NotificationsPopup window;
         private static List<Notification> notifs = new List<Notification>();
         private static bool registerToUpdates;
+
+        //Notifications properties
+        const int notifHeight = 38;
+        const int notifWidth = 320;
+        const float notifTime = 5.0f;
 
         [System.Serializable]
         class Notification
@@ -52,6 +58,7 @@ namespace Resemble.GUIEditor
             }
         }
 
+        /// <summary> Pop a notification on screen when the editor is not playing. Clicking on the notification selects the linked object. </summary>
         public static void Add(string message, MessageType type, Object linkedObject)
         {
             if (notifs.Count == 0 && !registerToUpdates)
@@ -62,21 +69,16 @@ namespace Resemble.GUIEditor
             notifs.Add(new Notification(message, type, linkedObject));
         }
 
+        /// <summary> Check if notifications can be shown. </summary>
         private static void CheckDisponibility()
         {
             if (Application.isPlaying)
-            {
                 return;
-            }
 
             EditorApplication.update -= CheckDisponibility;
             registerToUpdates = false;
             Show();
         }
-
-        const int notifHeight = 38;
-        const int notifWidth = 220;
-        const float notifTime = 5.0f;
 
         private static Rect GetPosition(float height)
         {
@@ -84,7 +86,7 @@ namespace Resemble.GUIEditor
             return new Rect(res.width - notifWidth - 10, res.height - height - 73, notifWidth, height);
         }
 
-        public new static void Show()
+        private new static void Show()
         {
             window = CreateInstance<NotificationsPopup>();
             window.titleContent = new GUIContent("Notifications");

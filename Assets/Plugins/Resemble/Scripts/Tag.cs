@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace Resemble
@@ -64,7 +63,7 @@ namespace Resemble
             switch (type)
             {
                 case Type.Wait:
-                    return string.Format("Break : {0}s Id : {1}", duration, start);
+                    return string.Format("Break : {0}s Id : {1}", duration.ToString(CultureInfo.InvariantCulture), start);
                 case Type.Emotion:
                     return string.Format("Emotion : {0}  start : {1}  end : {2}", emotion, start, end);
             }
@@ -83,7 +82,7 @@ namespace Resemble
             switch (type)
             {
                 case Type.Wait:
-                    return "<break time=\"" + duration.ToString("0.00") + "S\"/>";
+                    return "<break time=\"" + duration.ToString("0.00", CultureInfo.InvariantCulture) + "S\"/>";
                 case Type.Emotion:
                     return emotion.OpenTag();
                 default:
