@@ -9,11 +9,11 @@ namespace Resemble
         public AudioClip clip;
         public Text text;
         public string uuid;
+        public string clipName;
 
         //User custom data
         public string userdata;
         public Label[] labels;
-
 
         #region Label stuff
 

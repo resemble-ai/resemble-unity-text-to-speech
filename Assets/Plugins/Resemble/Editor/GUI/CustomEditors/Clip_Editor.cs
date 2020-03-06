@@ -15,18 +15,16 @@ namespace Resemble.GUIEditor
         private Clip clip;
         private Task task;
         private Editor clipEditor;
-        private bool clipFinished;
         private Error error = Error.None;
-
+        private const float checkCooldown = 1.5f;  //Time in seconds between 2 checks
 
         //GUI
         private Rect renameRect;
         private bool clipPlaying;
-        private bool requestDownload;
         private bool haveUserData;
         public Text_Editor drawer;
         private GUIContent userData = new GUIContent("UserData", "This area is available to make your life easier. Put whatever you want in it. You can retrieve it in game via YourClip.userData;");
-
+        private double lastCheckTime;
         
 
         protected override void OnHeaderGUI()
@@ -52,7 +50,7 @@ namespace Resemble.GUIEditor
             //Clip name and rename
             rect.Set(rect.x + rect.width, rect.y, Screen.width - (rect.x + rect.width + 50), rect.height);
             renameRect = rect;
-            if (GUI.Button(rect, clip.name, Styles.header))
+            if (GUI.Button(rect, clip.clipName, Styles.header))
                 Rename();
             EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
 
@@ -140,33 +138,37 @@ namespace Resemble.GUIEditor
             GUILayout.Space(10);
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Generate Audio"))
-                PatchClip();
-            if (!clipFinished && (GUILayout.Button("Refresh")))
-                CheckClipFinished();
-            if (clipFinished && (GUILayout.Button("Download File")))
-                DownloadClip();
+            if (task == null)
+            {
+                if (GUILayout.Button("Generate Audio"))
+                    PatchClip();
+            }
+            else
+            {
+                if (GUILayout.Button("Select parent"))
+                    Selection.activeObject = clip.speech;
+            }
+
             GUILayout.EndHorizontal();
         }
 
         private void DrawAudioArea()
         {
-            if (requestDownload || task != null)
+            //Draw pending message or dowload progress bar
+            if (task != null && task.status != Task.Status.Completed)
             {
-                GUILayout.Space(10);
-                Rect rect = GUILayoutUtility.GetRect(Screen.width, 30);
-                if (task == null)
+                if (task.status == Task.Status.Processing || task.status == Task.Status.InQueue)
                 {
-                    //EditorGUI.ProgressBar(rect, 0, "Sending request...");
-                    DrawPendingLabel();
+                    GUILayout.Space(4);
+                    DrawPendingLabel(task.status == Task.Status.InQueue ? "Waiting..." : "Pending...");
+                    GUILayout.Space(-10);
+                    Utils.DrawSeparator();
+                    GUILayout.Space(-5);
                 }
-                else if (task.preview == null)
+                else if (!task.preview.done)
                 {
-                    //EditorGUI.ProgressBar(rect, 0, "Generate audio file...");
-                    DrawPendingLabel();
-                }
-                else if (task.status == Task.Status.Downloading && !task.preview.done)
-                {
+                    GUILayout.Space(10);
+                    Rect rect = GUILayoutUtility.GetRect(Screen.width, 30);
                     float progress = task.preview.download.progress;
                     EditorGUI.ProgressBar(rect, progress, "Download : " + Mathf.RoundToInt(progress * 100) + "%");
                 }
@@ -176,16 +178,33 @@ namespace Resemble.GUIEditor
             else if (clip.clip != null)
             {
                 DrawAudioPlayer();
-                GUILayout.Space(10);
-                GUILayout.BeginHorizontal();
-                GUILayout.FlexibleSpace();
-                if (GUILayout.Button("Open file"))
+            }
+
+            //Draw commands
+            GUILayout.Space(10);
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (task != null)
+            {
+                if (GUILayout.Button("Show pending list"))
+                {
+                    Resemble_Window.Open(Resemble_Window.Tab.Pool);
+                }
+                if (clip.clip != null && GUILayout.Button("Select placeholder"))
                 {
                     EditorGUIUtility.PingObject(clip.clip);
                     Selection.activeObject = clip.clip;
                 }
-                GUILayout.EndHorizontal();
             }
+            else if (clip.clip != null)
+            {
+                if (GUILayout.Button("Select file"))
+                {
+                    EditorGUIUtility.PingObject(clip.clip);
+                    Selection.activeObject = clip.clip;
+                }
+            }
+            GUILayout.EndHorizontal();
         }
 
         private void DrawUserDataArea()
@@ -259,11 +278,11 @@ namespace Resemble.GUIEditor
             }
         }
 
-        private void DrawPendingLabel()
+        private void DrawPendingLabel(string label)
         {
             GUILayout.BeginHorizontal(GUILayout.Height(25));
             GUILayout.FlexibleSpace();
-            GUILayout.Label("Pending...", Styles.centredLabel);
+            GUILayout.Label(label, Styles.centredLabel);
             Rect rect = GUILayoutUtility.GetRect(25, 25);
             Material mat = Resources.instance.loadingMat;
             mat.SetFloat("_Progress", (float)(EditorApplication.timeSinceStartup % 1.0f));
@@ -288,48 +307,23 @@ namespace Resemble.GUIEditor
             EditorUtility.SetDirty(clip);
         }
 
-        [System.Obsolete("Generate clip by sync methode. This is deprecated, use async patch methodes instead.")]
-        private void OnGenerate()
-        {
-            //Get and create directory
-            string folderPath = clip.GetSaveFolder();
-            string savePath = folderPath + clip.name + ".wav";
-            Directory.CreateDirectory(folderPath);
-
-            //Generate a place-holder to the save path (Will be replaced by the clip generated by Resemble)
-            byte[] file = File.ReadAllBytes(AssetDatabase.GetAssetPath(Resources.instance.processClip));
-            File.WriteAllBytes(savePath, file);
-
-            //Import placeholder
-            AssetDatabase.ImportAsset(savePath, ImportAssetOptions.ForceUpdate);
-
-            //Send request to the API
-            CreateClipData pod = new CreateClipData(clip.name, clip.text.BuildResembleString(), clip.speech.voiceUUID);    //"9816e4ee"
-            task = APIBridge.CreateClipSync(pod, (string audioUri, Error error) => 
-            {
-                if (!error)
-                {
-                    this.error = Error.None;
-                    task.DownloadResult(audioUri, OnDownloaded);
-                }
-                else
-                {
-                    this.error = error;
-                }
-            });
-            Pool.AddTask(task);
-        }
-
         private void OnDownloaded(byte[] data, Error error)
         {
+            task = null;
+
+            //Handle error
             if (error)
             {
-                NotificationsPopup.Add("Error on clip " + clip.name + "\n" + error.message, MessageType.Error, clip);
+                this.error = error;
+                NotificationsPopup.Add("Error on clip " + clip.clipName + "\n" + error.message, MessageType.Error, clip);
                 return;
             }
+
+            //Download completed
             else
             {
-                NotificationsPopup.Add("Download complete\n" + clip.name, MessageType.Info, clip);
+                this.error = Error.None;
+                NotificationsPopup.Add("Download completed\n" + clip.speech.name + " : " + clip.clipName, MessageType.Info, clip);
             }
 
             //Write file
@@ -340,7 +334,6 @@ namespace Resemble.GUIEditor
             AssetDatabase.ImportAsset(savePath, ImportAssetOptions.ForceUpdate);
             clip.clip = AssetDatabase.LoadAssetAtPath<AudioClip>(savePath);
 
-            task = null;
             Repaint();
         }
 
@@ -348,9 +341,10 @@ namespace Resemble.GUIEditor
         {
             System.Reflection.FieldInfo info = typeof(EditorApplication).GetField("globalEventHandler", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
             EditorApplication.CallbackFunction value = (EditorApplication.CallbackFunction)info.GetValue(null);
-            value += ApplicationUpdate;
+            value += HandleDeleteEvent;
             info.SetValue(null, value);
             InitComponents();
+            task = Pool.GetPendingTask(clip);
             haveUserData = !string.IsNullOrEmpty(clip.userdata);
             drawer.Refresh();
             Repaint();
@@ -360,11 +354,11 @@ namespace Resemble.GUIEditor
         {
             System.Reflection.FieldInfo info = typeof(EditorApplication).GetField("globalEventHandler", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic);
             EditorApplication.CallbackFunction value = (EditorApplication.CallbackFunction)info.GetValue(null);
-            value -= ApplicationUpdate;
+            value -= HandleDeleteEvent;
             info.SetValue(null, value);
         }
 
-        private void ApplicationUpdate()
+        private void HandleDeleteEvent()
         {
             Event e = Event.current;
             if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Delete)
@@ -517,7 +511,8 @@ namespace Resemble.GUIEditor
                 else
                 {
                     this.clip.text.ParseResembleString(clip.body);
-                    this.clip.name = clip.title;
+                    this.clip.clipName = clip.title;
+                    this.clip.name = clip.uuid + "-" + clip.title;
                     drawer.Refresh();
                     Repaint();
                 }
@@ -532,8 +527,8 @@ namespace Resemble.GUIEditor
         public void Rename()
         {
             StringPopup.Show(GUIUtility.GUIToScreenRect(renameRect.Offset(0, 20, 0, 0)),
-            "Rename clip", clip.name, (string value) => {
-                if (!string.IsNullOrEmpty(clip.name) && value != clip.name)
+            "Rename clip", clip.clipName, (string value) => {
+                if (!string.IsNullOrEmpty(clip.clipName) && value != clip.clipName)
                     Rename(value);
             });
         }
@@ -582,14 +577,16 @@ namespace Resemble.GUIEditor
 
         public void PatchClip()
         {
+            GeneratePlaceHolder();
+
             if (string.IsNullOrEmpty(clip.uuid))
             {
-                Debug.LogError("This clip have no UUID");
+                error = new Error(-1, "This clip have no UUID");
                 return;
             }
 
-            ClipPatch patch = new ClipPatch(clip.name, clip.text.BuildResembleString(), clip.speech.voiceUUID);
-            APIBridge.UpdateClip(clip.uuid, patch, (string content, Error error) =>
+            ClipPatch patch = new ClipPatch(clip.clipName, clip.text.BuildResembleString(), clip.speech.voiceUUID);
+            task = APIBridge.UpdateClip(clip.uuid, patch, (string content, Error error) =>
             {
                 if (error)
                 {
@@ -597,56 +594,81 @@ namespace Resemble.GUIEditor
                 }
                 else
                 {
-                    //Debug.Log(content);
-                    //this.goBackToParent = true;
+                    lastCheckTime = EditorApplication.timeSinceStartup;
+                    EditorApplication.update += CheckClipFinished;
+                    task = Task.WaitTask();
+                    task.link = clip;
+                    Pool.AddTask(task);
                 }
-
             });
+            task.link = clip;
+            Pool.AddTask(task);
         }
 
-        public void DownloadClip()
+        public void GeneratePlaceHolder()
         {
             //Get and create directory
             string folderPath = clip.GetSaveFolder();
-            string savePath = folderPath + clip.name + ".wav";
+            string savePath = folderPath + clip.clipName + ".wav";
             Directory.CreateDirectory(folderPath);
 
-            //Generate a place-holder to the save path (Will be replaced by the clip generated by Resemble)
+            //Copy placeholder file
             byte[] file = File.ReadAllBytes(AssetDatabase.GetAssetPath(Resources.instance.processClip));
             File.WriteAllBytes(savePath, file);
 
             //Import placeholder
             AssetDatabase.ImportAsset(savePath, ImportAssetOptions.ForceUpdate);
+            clip.clip = AssetDatabase.LoadAssetAtPath<AudioClip>(savePath);
+        }
 
-            requestDownload = true;
-            APIBridge.GetClip(clip.uuid, (ResembleClip result, Error error) =>
-            {
-                requestDownload = false;
-                if (error)
-                {
-                    NotificationsPopup.Add(error.message, MessageType.Error, clip);
-                }
-                else
-                {
-                    task = APIBridge.DownloadClip(result.link, OnDownloaded);
-                }
-                Repaint();
-            });
+        public void DownloadClip(string url)
+        {
+            //Start task
+            task = APIBridge.DownloadClip(url, OnDownloaded);
+            task.link = clip;
+
+            //Add task to pool
+            Pool.AddTask(task);
         }
 
         public void CheckClipFinished()
         {
+            //Force a delay in requests to avoid flooding the api
+            double time = EditorApplication.timeSinceStartup;
+            if (time - lastCheckTime > checkCooldown)
+                lastCheckTime = time;
+            else
+                return;
+
+            //Remove update callback (Will be restored if API returns a negative response.)
+            EditorApplication.update -= CheckClipFinished;
+
+            //Send GetClip request
             APIBridge.GetClip(clip.uuid, (ResembleClip clip, Error error) =>
             {
+                //Error
                 if (error)
-                    error.Log();
+                {
+                    task.error = error;
+                    task.status = Task.Status.Completed;
+                    NotificationsPopup.Add(error.ToString(), MessageType.Error, this.clip);
+                }
+
+                //Receive an response
                 else
                 {
-                    Debug.Log("Finished : " + clip.finished);
+                    //Clip is ready - Start downloading
                     if (clip.finished)
                     {
-                        this.clipFinished = true;
+                        task.status = Task.Status.Completed;
+                        DownloadClip(clip.link);
                         Repaint();
+                    }
+
+                    //Clip is not ready - Restore the update callback
+                    else
+                    {
+                        EditorApplication.update += CheckClipFinished;
                     }
                 }
             });
@@ -654,7 +676,8 @@ namespace Resemble.GUIEditor
 
         public void Rename(string value)
         {
-            clip.name = value;
+            clip.clipName = value;
+            clip.name = clip.uuid + "-" + value;
             SetDirty();
             ReImport();
         }

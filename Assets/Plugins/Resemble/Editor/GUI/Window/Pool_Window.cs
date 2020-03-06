@@ -9,6 +9,7 @@ namespace Resemble.GUIEditor
     {
         private static Vector2 scroll;
         private static int requestCount;
+        private static Color orange = new Color(1.0f, 0.6f, 0.2f, 1.0f);
 
         /// <summary> Draw list of all task. </summary>
         public static void DrawPoolGUI()
@@ -21,8 +22,8 @@ namespace Resemble.GUIEditor
             {
                 Task task = Pool.tasks[i];
 
-                //Remove old completed task
-                if (task.status == Task.Status.Completed && time > task.time + 2.0f)
+                //Remove null or old completed task
+                if (task == null || task.status == Task.Status.Completed) // && time > task.time + 2.0f
                 {
                     Pool.tasks.RemoveAt(i);
                     i--;
@@ -57,16 +58,64 @@ namespace Resemble.GUIEditor
         /// <summary> Draw gui status of one task. </summary>
         private static void DrawTaskGUI(Task task)
         {
-            Rect rect = GUILayoutUtility.GetRect(Screen.width - 20, 50);
-            GUI.Box(rect, "");
-            GUI.Label(rect, task.status.ToString());
+            //Init vars
+            bool error = task.error;
+            bool linked = task.link != null;
+            Rect rect = GUILayoutUtility.GetRect(Screen.width - 20, 40);
+            
 
-            if (task.status == Task.Status.Downloading)
+            //Draw box
+            if (error)
             {
-                rect.Set(rect.x + 5, rect.y + 40, rect.width - 10, 8);
-                EditorGUI.ProgressBar(rect, task.preview.progress, "");
+                EditorGUI.HelpBox(rect, error.ToString(), MessageType.Error);
+            }
+            else
+            {
+                EditorGUI.HelpBox(rect, "", MessageType.None);
             }
 
+
+            //Select button
+            if (linked)
+            {
+                Rect linkRect = new Rect(rect.x + rect.width - 70, rect.y + rect.height - 20, 68, 18);
+                if (GUI.Button(linkRect, "Select"))
+                {
+                    Selection.activeObject = task.link;
+                    EditorGUIUtility.PingObject(task.link);
+                }
+            }
+
+
+            if (error)
+                return;
+
+            //Label rect
+            Rect labelRect = rect.Shrink(4); labelRect.height -= 10;
+            string label = (linked ? task.link.name : "Unknown") + " : ";
+
+            //Draw bar
+            Rect barRect = new Rect(rect.x + 5, rect.y + rect.height - 8, rect.width - 80, 4);
+            EditorGUI.ProgressBar(barRect, 0, "");
+            switch (task.status)
+            {
+                case Task.Status.InQueue:
+                    GUI.Label(labelRect, label + "In queue...");
+                    EditorGUI.DrawRect(barRect.Shrink(1), Color.grey);
+                    break;
+                case Task.Status.Processing:
+                    GUI.Label(labelRect, label + "Processing...");
+                    EditorGUI.DrawRect(barRect.Shrink(1), orange);
+                    break;
+                case Task.Status.Downloading:
+                    GUI.Label(labelRect, label + "Downloading...");
+                    EditorGUI.ProgressBar(barRect, task.preview.progress, "");
+                    break;
+                case Task.Status.Completed:
+                    GUI.Label(labelRect, label + "Completed");
+                    EditorGUI.DrawRect(barRect.Shrink(1), Color.green);
+                    break;
+            }
         }
 
     }

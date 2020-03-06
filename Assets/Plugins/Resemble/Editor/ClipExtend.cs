@@ -10,7 +10,7 @@ namespace Resemble
 
         public static string GetSavePath(this Clip clip)
         {
-            return GetSaveFolder(clip) + clip.name + ".wav";
+            return GetSaveFolder(clip) + clip.clipName + ".wav";
         }
 
         public static string GetSaveFolder(this Clip clip)

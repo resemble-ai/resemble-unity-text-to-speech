@@ -11,7 +11,7 @@ namespace Resemble.GUIEditor
         //Others
         private static string[] choices = new string[] { "Delete the asset only.", "Delete completely the clip from the project." };
         private static int selected;
-        private static bool deleteAudioClips;
+        private static bool deleteAudioClip;
         private static ValidateCallback callback;
         public delegate void ValidateCallback(bool deleteOnAPI, bool deletedAudioClips);
 
@@ -27,8 +27,8 @@ namespace Resemble.GUIEditor
             //Open window
             DeletePopup.callback = callback;
             window = CreateInstance<DeletePopup>();
-            window.minSize = new Vector2(100, 90);
             window.ShowPopup();
+            window.minSize = new Vector2(100, 90);
             window.titleContent = new GUIContent("ChoicePopup");
             window.position = rect;
         }
@@ -67,7 +67,7 @@ namespace Resemble.GUIEditor
         private void DrawContent()
         {
             selected = EditorGUILayout.Popup(selected, choices);
-            deleteAudioClips = EditorGUILayout.Toggle("Delete generated audioclips", deleteAudioClips);
+            deleteAudioClip = EditorGUILayout.Toggle("Delete generated file", deleteAudioClip);
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if (GUILayout.Button("Cancel"))
@@ -76,7 +76,7 @@ namespace Resemble.GUIEditor
             }
             if (GUILayout.Button("Confirm"))
             {
-                callback.Invoke(selected == 0, deleteAudioClips);
+                callback.Invoke(selected == 0, deleteAudioClip);
                 Close();
             }
             GUILayout.EndHorizontal();     

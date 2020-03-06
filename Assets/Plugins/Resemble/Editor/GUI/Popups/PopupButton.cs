@@ -21,19 +21,13 @@ namespace Resemble.GUIEditor
             if (GUILayout.Button(content))
                 onValidate.Invoke(rect);
             if (Event.current.type == EventType.Repaint)
-                SetRect(GUIUtility.GUIToScreenRect(GUILayoutUtility.GetLastRect()));
-        }
-
-        public void Draw(Rect rect, OnValidate onClic)
-        {
-            SetRect(rect);
-            if (GUI.Button(rect, content))
-                onClic.Invoke(GUIUtility.ScreenToGUIRect(rect));
+                SetRect(GUILayoutUtility.GetLastRect());
         }
 
         private void SetRect(Rect rect)
         {
-            this.rect = rect.Offset(Mathf.Min(rect.x, rect.x + rect.width - size.x) , rect.height - 2, size.x, size.y);
+            this.rect = GUIUtility.GUIToScreenRect(rect).Offset(-size.x + rect.width, 18, 0, 0);
+            this.rect.size = size;
         }
     }
 }

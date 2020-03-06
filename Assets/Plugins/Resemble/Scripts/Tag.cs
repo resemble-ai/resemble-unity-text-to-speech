@@ -48,12 +48,12 @@ namespace Resemble
             data = data.Replace("\"", "").ToLower();
             if (data.EndsWith("s"))
                 data = data.Remove(data.Length - 1);
-            return new Tag(float.Parse(data, System.Globalization.CultureInfo.InvariantCulture), id);
+            return new Tag(float.Parse(data, CultureInfo.InvariantCulture), id);
         }
 
         public static Tag ParseEmotion(string data, int start, int end)
         {
-            data = data.Replace("\"", "").ToLower();
+            data = data.Replace("\"", "").Replace("\'", "").ToLower();
             Emotion emotion = (Emotion) System.Enum.Parse(typeof(Emotion), data, true);
             return new Tag(emotion, start, end);
         }

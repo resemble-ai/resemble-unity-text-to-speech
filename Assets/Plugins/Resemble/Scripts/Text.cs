@@ -56,13 +56,6 @@ namespace Resemble
         /// <summary> Override values by data from a string with SSML tags. </summary>
         public void ParseResembleString(string rawString)
         {
-            //Check the entry and exit tags
-            if (!rawString.StartsWith("<speak><p>") || !rawString.EndsWith("</p></speak>"))
-            {
-                UnityEngine.Debug.LogError("The string is not in the correct format to be parsed.");
-                return;
-            }
-
             List<TagParser> tagKeys = new List<TagParser>();
             string[] splited = rawString.Split('<');
             string withoutTags = "";
@@ -75,7 +68,6 @@ namespace Resemble
                     withoutTags += " ";
                 withoutTags += tagKeys[i].next;
             }
-
             //TEMP - Debug
             /*
             for (int i = 0; i < tags.Count; i++)

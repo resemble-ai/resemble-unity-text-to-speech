@@ -1,21 +1,26 @@
+using UnityEngine;
 using UnityEditor;
 using Resemble.Structs;
 
 namespace Resemble
 {
     /// <summary> Request format in a queue. Also contains the status of the request. </summary>
+    [System.Serializable]
     public class Task
     {
+        //API data
         public string uri;
         public string data;
         public string result;
-        public double time;
-        public int poolID;
-        public Error error;
+        public AudioPreview preview;
+        public Callback.Simple resultProcessor;
+
+        //Status data
         public Type type;
         public Status status;
-        public Callback.Simple resultProcessor;
-        public AudioPreview preview;
+        public double time;
+        public Error error;
+        public Object link;
 
         public Task(string uri, string data, Callback.Simple resultProcessor, Type type)
         {
@@ -26,10 +31,10 @@ namespace Resemble
             time = EditorApplication.timeSinceStartup;
             result = "";
             error = Error.None;
-            status = Status.WaitToBeExecuted;
+            status = Status.InQueue;
         }
 
-        public static Task DowloadTask(string uri, Callback.Download callback)
+        public static Task DownloadTask(string uri, Callback.Download callback)
         {
             Task task = new Task(uri, "", null, Type.Download);
             task.preview = new AudioPreview(uri);
@@ -39,23 +44,18 @@ namespace Resemble
                 task.time = EditorApplication.timeSinceStartup;
                 callback.Invoke(task.preview.data, Error.None);
             };
+            task.error = Error.None;
             task.status = Status.Downloading;
             return task;
         }
 
-        public void DownloadResult(string uri, Callback.Download callback)
+        public static Task WaitTask()
         {
-            type = Type.Download;
-            this.uri = uri;
-            preview = new AudioPreview(uri);
-            time = EditorApplication.timeSinceStartup;
-            preview.onDowloaded += () =>
-            {
-                status = Status.Completed;
-                time = EditorApplication.timeSinceStartup;
-                callback.Invoke(preview.data, Error.None);
-            };
-            status = Status.Downloading;
+            Task task = new Task("", "", null, Type.Get);
+            task.time = EditorApplication.timeSinceStartup;
+            task.error = Error.None;
+            task.status = Status.Processing;
+            return task;
         }
 
         public enum Type
@@ -69,8 +69,8 @@ namespace Resemble
 
         public enum Status
         {
-            WaitToBeExecuted,
-            WaitApiResponse,
+            InQueue,
+            Processing,
             Downloading,
             Completed,
         }

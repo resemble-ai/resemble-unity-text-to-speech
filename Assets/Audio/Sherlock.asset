@@ -1,90 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8418650068143614283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: Cannoli
-  m_EditorClassIdentifier: 
-  speech: {fileID: 11400000}
-  clip: {fileID: 8300000, guid: 9b1dba5bbec3e1d4c9104fc51ef33a3b, type: 3}
-  text:
-    userString: "The girl in the pastry shop with the net in her hair is making a
-      cannoli for you. to take on your hiking trip in the woods with your bros that
-      you\u2019ve known since second grade."
-    tags: []
-    selectID: 175
-    carretID: 175
-  uuid: 4f271dcc
-  userdata: 
-  labels: []
---- !u!114 &-8389668169749766225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: Hey Julie
-  m_EditorClassIdentifier: 
-  speech: {fileID: 11400000}
-  clip: {fileID: 8300000, guid: dd1cc696c58e9504b882ac99f1254bd0, type: 3}
-  text:
-    userString: "Morning old man,\u2003 do you know where I could find a potion shop?"
-    tags:
-    - type: 1
-      emotion: 5
-      start: 0
-      end: 15
-      rects:
-      - serializedVersion: 2
-        x: 6
-        y: 7
-        width: 119
-        height: 17
-      color: {r: 0.667, g: 0.729, b: 0.239, a: 1}
-      duration: 0.5
-    - type: 1
-      emotion: 3
-      start: 18
-      end: 63
-      rects:
-      - serializedVersion: 2
-        x: 149
-        y: 7
-        width: 332
-        height: 17
-      color: {r: 1, g: 0.737, b: 0.427, a: 1}
-      duration: 0.5
-    - type: 0
-      emotion: 0
-      start: 16
-      end: 17
-      rects:
-      - serializedVersion: 2
-        x: 130
-        y: 7
-        width: 14
-        height: 17
-      color: {r: 0.8, g: 0.1, b: 0.1, a: 1}
-      duration: 0.05
-    selectID: 63
-    carretID: 63
-  uuid: 007c1b33
-  userdata: Asking for the potion shop
-  labels:
-  - hash: 122067876
-    text: Dialogue
-    value: 3
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,5 +15,93 @@ MonoBehaviour:
   voiceName: Sherlock
   voiceUUID: bbe98616
   clips:
-  - {fileID: -8418650068143614283}
-  - {fileID: -8389668169749766225}
+  - {fileID: 4490794972164478366}
+  - {fileID: 3365534817460670275}
+--- !u!114 &3365534817460670275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
+  m_Name: 007c1b33-PotionShop
+  m_EditorClassIdentifier: 
+  speech: {fileID: 11400000}
+  clip: {fileID: 0}
+  text:
+    userString: "Morning old man,\u2003\u2003 do you know where I could find a potion
+      shop?"
+    tags:
+    - type: 1
+      emotion: 5
+      start: 0
+      end: 15
+      rects:
+      - serializedVersion: 2
+        x: 6
+        y: 7
+        width: 119
+        height: 17
+      color: {r: 0.667, g: 0.729, b: 0.239, a: 1}
+      duration: 0.5
+    - type: 0
+      emotion: 0
+      start: 16
+      end: 17
+      rects:
+      - serializedVersion: 2
+        x: 130
+        y: 7
+        width: 14
+        height: 17
+      color: {r: 0.8, g: 0.1, b: 0.1, a: 1}
+      duration: 0.05
+    - type: 1
+      emotion: 3
+      start: 19
+      end: 64
+      rects:
+      - serializedVersion: 2
+        x: 163
+        y: 7
+        width: 289
+        height: 17
+      - serializedVersion: 2
+        x: 6
+        y: 24
+        width: 45
+        height: 17
+      color: {r: 1, g: 0.737, b: 0.427, a: 1}
+      duration: 0.5
+    selectID: 64
+    carretID: 64
+  uuid: 007c1b33
+  clipName: PotionShop
+  userdata: 
+  labels: []
+--- !u!114 &4490794972164478366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
+  m_Name: 4f271dcc-Cannoli
+  m_EditorClassIdentifier: 
+  speech: {fileID: 11400000}
+  clip: {fileID: 0}
+  text:
+    userString: The girl in the pastry shop.
+    tags: []
+    selectID: 0
+    carretID: 0
+  uuid: 4f271dcc
+  clipName: Cannoli
+  userdata: 
+  labels: []

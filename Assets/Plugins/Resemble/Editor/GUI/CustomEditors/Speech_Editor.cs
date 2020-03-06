@@ -144,11 +144,18 @@ namespace Resemble.GUIEditor
         /// <summary> Delete a clip from speech. </summary>
         public void DeleteClip(Clip clip, bool deleteOnAPI, bool deleteAudioClip)
         {
-            int choice = EditorUtility.DisplayDialogComplex("Delete clip", "Delete " + clip.name + " ?\nYou cannot undo this action.",
-                "Delete", "Cancel", "Delete only in unity project");
-            Debug.Log(choice);
+            //Delete audioclip if needed
+            if (deleteAudioClip && clip.clip != null)
+                AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(clip.clip));
+
+            //Delete on APIif needed
+            APIBridge.DeleteClip(clip.uuid);
+
+            //Delete clip from speech
             AssetDatabase.RemoveObjectFromAsset(clip);
             speech.clips.Remove(clip);
+
+            //Refresh speech
             AssetDatabase.ImportAsset(AssetDatabase.GetAssetOrScenePath(speech), ImportAssetOptions.ForceSynchronousImport);
         }
 
@@ -183,8 +190,9 @@ namespace Resemble.GUIEditor
         public void AddClip(string name, string uuid)
         {
             Clip clip = CreateInstance<Clip>();
-            clip.name = name;
+            clip.name = uuid + "-" + name;
             clip.uuid = uuid;
+            clip.clipName = name;
             clip.text = new Text();
             AddClipToAsset(clip);
         }
@@ -194,7 +202,8 @@ namespace Resemble.GUIEditor
             Clip clip = CreateInstance<Clip>();
             clip.text = new Text();
             clip.uuid = source.uuid;
-            clip.name = source.title;
+            clip.name = source.uuid + "-" + source.title;
+            clip.clipName = source.title;
             clip.text.ParseResembleString(source.body);
             AddClipToAsset(clip);
         }
@@ -204,12 +213,12 @@ namespace Resemble.GUIEditor
             //Add clip to list
             clip.speech = speech;
             speech.clips.Add(clip);
-            speech.clips = speech.clips.OrderBy(x => x.name).ToList();
+            speech.clips = speech.clips.OrderBy(x => x.clipName).ToList();
 
             //Add clip to assets
             AssetDatabase.AddObjectToAsset(clip, speech);
             EditorUtility.SetDirty(speech);
-            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(speech), ImportAssetOptions.ForceUpdate);
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(clip));
 
             //Focus clip
             Selection.activeObject = clip;
@@ -238,7 +247,7 @@ namespace Resemble.GUIEditor
         private void List_DrawElement(Rect rect, int index, bool isActive, bool isFocused)
         {
             Rect titleRect = new Rect(rect.x + 20, rect.y + 2, rect.width - 100, rect.height);
-            GUI.Label(titleRect, speech.clips[index].name, EditorStyles.largeLabel);
+            GUI.Label(titleRect, speech.clips[index].clipName, EditorStyles.largeLabel);
             titleRect.Set(rect.x, rect.y + rect.height - 1, rect.width, 1.0f);
             EditorGUI.DrawRect(titleRect, Color.grey * 0.3f);
             bool haveClip = speech.clips[index].clip != null;

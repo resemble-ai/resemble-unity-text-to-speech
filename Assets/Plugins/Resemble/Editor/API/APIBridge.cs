@@ -24,43 +24,43 @@ namespace Resemble
 
         //Functions used by the plugin.
         #region Basics Methodes
-        public static void GetProjects(Callback.GetProject callback)
+        public static Task GetProjects(Callback.GetProject callback)
         {
             string uri = apiUri + "/projects/";
-            EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
+            return EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
             {
                 Project[] projects = error ? null : Project.FromJson(content);
                 callback.Method.Invoke(callback.Target, new object[] { projects, error });
             });
         }
 
-        public static void GetProject(string uuid)
+        public static Task GetProject(string uuid)
         {
             string uri = apiUri + "/projects/" + uuid;
-            EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
+            return EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
             {
                 Debug.Log(content);
             });
         }
 
-        public static void DeleteProject(Project project)
+        public static Task DeleteProject(Project project)
         {
             string uri = apiUri + "/projects/" + project.uuid;
-            EnqueueTask(uri, Task.Type.Delete, (string content, Error error) => {});
+            return EnqueueTask(uri, Task.Type.Delete, (string content, Error error) => {});
         }
 
-        public static void DeleteClip(string uuid)
+        public static Task DeleteClip(string uuid)
         {
-            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + uuid;
-            EnqueueTask(uri, Task.Type.Delete, (string content, Error error) => { });
+            string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips/" + uuid;
+            return EnqueueTask(uri, Task.Type.Delete, (string content, Error error) => { });
         }
 
-        public static void CreateProject(Project project, Callback.CreateProject callback)
+        public static Task CreateProject(Project project, Callback.CreateProject callback)
         {
             string uri = apiUri + "/projects/";
             string data = "{\"data\":" + JsonUtility.ToJson(project) + "}";
 
-            EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
+            return EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
             {
                 ProjectStatus status = error ? null : JsonUtility.FromJson<ProjectStatus>(content);
                 callback.Method.Invoke(callback.Target, new object[] { status, error });
@@ -69,7 +69,7 @@ namespace Resemble
 
         public static Task CreateClipSync(CreateClipData podData, Callback.Simple callback)
         {
-            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/sync";
+            string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips/sync";
             string data = new CreateClipRequest(podData, "x-high", false).Json();
 
             return EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
@@ -85,14 +85,12 @@ namespace Resemble
             });
         }
 
-        public static void CreateClip(CreateClipData podData, Callback.CreateClip callback)
+        public static Task CreateClip(CreateClipData podData, Callback.CreateClip callback)
         {
-            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips";
+            string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips";
             string data = new CreateClipRequest(podData, "high", false).Json();
-            Debug.Log(uri);
-            Debug.Log(data);
 
-            EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
+            return EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
             {
                 if (error)
                 {
@@ -105,21 +103,21 @@ namespace Resemble
             });
         }
 
-        public static void GetClip(string uuid, Callback.GetClip callback)
+        public static Task GetClip(string uuid, Callback.GetClip callback)
         {
-            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + uuid;
-            EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
+            string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips/" + uuid;
+            return EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
             {
                 callback.Method.Invoke(callback.Target, error ? new object[] { null, error } :
                     new object[] { JsonUtility.FromJson<ResembleClip>(content), Error.None });
             });
         }
 
-        public static void GetClips(Callback.GetClips callback)
+        public static Task GetClips(Callback.GetClips callback)
         {
-            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/";
+            string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips/";
 
-            EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
+            return EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
             {
                 if (error)
                     callback.Method.Invoke(callback.Target, new object[] { null, error });
@@ -130,22 +128,22 @@ namespace Resemble
 
         public static Task DownloadClip(string uri, Callback.Download callback)
         {
-            return Task.DowloadTask(uri, callback);
+            return Task.DownloadTask(uri, callback);
         }
 
-        public static void GetVoices(Callback.GetVoices callback)
+        public static Task GetVoices(Callback.GetVoices callback)
         {
-            EnqueueTask(apiUri + "/voices/", Task.Type.Get, (string content, Error error) => {
+            return EnqueueTask(apiUri + "/voices/", Task.Type.Get, (string content, Error error) => {
                 callback.Method.Invoke(callback.Target, error ?
                 new object[] { null, error } : 
                 new object[] { Voice.FromJson(content), Error.None });});
         }
 
-        public static void UpdateClip(string clipUUID, ClipPatch patch, Callback.Simple callback)
+        public static Task UpdateClip(string clipUUID, ClipPatch patch, Callback.Simple callback)
         {
-            string uri = apiUri + "/projects/" + Settings.project.uuid + "/clips/" + clipUUID;
+            string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips/" + clipUUID;
             string data = patch.ToJson();
-            EnqueueTask(uri, data, Task.Type.Patch, (string content, Error error) =>
+            return EnqueueTask(uri, data, Task.Type.Patch, (string content, Error error) =>
             {
                 if (error)
                     callback.Method.Invoke(callback.Target, new object[] { null, error });
@@ -160,15 +158,6 @@ namespace Resemble
         /// <summary> Called at each editor frame when a task is waiting to be executed. </summary>
         public static void Update()
         {
-            //Update progress bar
-            int taskCount = tasks.Count + executionLoop.Count;
-            float progress = 0;
-            for (int i = 0; i < executionLoop.Count; i++)
-                progress += ((int)executionLoop[i].status) / 2.0f;
-            progress /= executionLoop.Count;
-            string barText = "Remaining clips : " + taskCount;
-            //EditorProgressBar.Display(barText, progress);
-
             //Remove completed tasks from execution loop
             int exeCount = executionLoop.Count;
             double time = EditorApplication.timeSinceStartup;
@@ -180,6 +169,7 @@ namespace Resemble
                 if (time - task.time > timout)
                 {
                     task.error = Error.Timeout;
+                    task.time = time;
                     task.status = Task.Status.Completed;
                 }
 
@@ -197,7 +187,6 @@ namespace Resemble
             {
                 EditorApplication.update -= Update;
                 receiveUpdates = false;
-                //EditorProgressBar.Clear();
                 return;
             }
 
@@ -213,10 +202,10 @@ namespace Resemble
             for (int i = 0; i < executionLoop.Count; i++)
             {
                 Task task = executionLoop[i];
-                if (task.status == Task.Status.WaitToBeExecuted)
+                if (task.status == Task.Status.InQueue)
                 {
                     SendRequest(task);
-                    task.status = Task.Status.WaitApiResponse;
+                    task.status = Task.Status.Processing;
                     task.time = EditorApplication.timeSinceStartup;
                 }
             }

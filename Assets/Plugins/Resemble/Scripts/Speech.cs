@@ -11,13 +11,12 @@ namespace Resemble
         public string voiceUUID;
         public List<Clip> clips = new List<Clip>();
 
-
         /// <summary> Returns the clip with the given name. </summary>
         public Clip GetClip(string name)
         {
             for (int i = 0; i < clips.Count; i++)
             {
-                if (clips[i].name == name)
+                if (clips[i].clipName == name)
                     return clips[i];
             }
             throw new System.NullReferenceException(string.Format("Clip {0} can't be find int Speech {1}.", name, this.name));
@@ -67,7 +66,6 @@ namespace Resemble
             List<Clip> result = new List<Clip>();
             for (int i = 0; i < clips.Count; i++)
             {
-                int v;
                 if (clips[i].ContainsLabel(label))
                     result.Add(clips[i]);
             }

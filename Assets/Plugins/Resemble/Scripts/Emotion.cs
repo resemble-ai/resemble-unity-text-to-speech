@@ -39,22 +39,6 @@ namespace Resemble
         {
             return "</style>";
         }
-
-        public static Emotion GetEmotion(string value)
-        {
-            switch (value)
-            {
-                case "Angry":
-                    return Emotion.Angry;
-                case "Happy":
-                    return Emotion.Annoyed;
-                case "Sad":
-                    return Emotion.Question;
-                case "Confuse":
-                    return Emotion.Confuse;
-                default:
-                    return Emotion.Neutral;
-            }
-        }
     }
 }
+ 

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-8708949766087922541
+--- !u!114 &-7539945440498361726
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,54 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: In the first age
+  m_Name: 369a4c10-Kratos
   m_EditorClassIdentifier: 
   speech: {fileID: 11400000}
-  clip: {fileID: 8300000, guid: 4f293fa47e4e8154da41fe7d1a08f4e1, type: 3}
+  clip: {fileID: 0}
   text:
-    userString: 'In the first age, in the first battle, when the shadows first lengthened,
-      one stood.
-
-      He chose the path of perpetual torment.
-
-      In his ravenous
-      hatred he found no peace.
-
-      And with boiling blood he scoured the Umbral
-      Plains seeking vengeance against the dark lords who had wronged him.
-
-      And
-      those that tasted the bite of his sword named him.
-
-      The Doom Slayer.'
+    userString: 
     tags: []
-    selectID: 181
-    carretID: 181
-  uuid: b4faa141
-  userdata: 
-  labels: []
---- !u!114 &-1252042072849482727
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: Cannoli
-  m_EditorClassIdentifier: 
-  speech: {fileID: 11400000}
-  clip: {fileID: 8300000, guid: 8bf431227aacf5849a668d3b2f3a7057, type: 3}
-  text:
-    userString: "The girl in the pastry shop with the net in her hair is making a
-      cannoli for you. to take on your hiking trip in the woods with your bros that
-      you\u2019ve known since second grade."
-    tags: []
-    selectID: 175
-    carretID: 175
-  uuid: 4f271dcc
+    selectID: 0
+    carretID: 0
+  uuid: 369a4c10
+  clipName: Kratos
   userdata: 
   labels: []
 --- !u!114 &11400000
@@ -75,5 +38,42 @@ MonoBehaviour:
   voiceName: Kratos
   voiceUUID: 5b81e34a
   clips:
-  - {fileID: -1252042072849482727}
-  - {fileID: -8708949766087922541}
+  - {fileID: 3552388956198535345}
+  - {fileID: -7539945440498361726}
+--- !u!114 &3552388956198535345
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
+  m_Name: b4faa141-In the first age
+  m_EditorClassIdentifier: 
+  speech: {fileID: 11400000}
+  clip: {fileID: 0}
+  text:
+    userString: 'In the first age, in the first battle, when the shadows first lengthened,
+      one stood.
+
+      He chose the path of perpetual torment.
+
+      In his ravenous
+      hatred he found no peace.
+
+      And with boiling blood he scoured the Umbral
+      Plains seeking vengeance against the dark lords who had wronged him.
+
+      And
+      those that tasted the bite of his sword named him.
+
+      The Doom Slayer.'
+    tags: []
+    selectID: 0
+    carretID: 0
+  uuid: b4faa141
+  clipName: In the first age
+  userdata: 
+  labels: []

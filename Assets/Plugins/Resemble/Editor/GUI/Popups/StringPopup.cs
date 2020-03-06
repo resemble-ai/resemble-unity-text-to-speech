@@ -28,8 +28,8 @@ namespace Resemble.GUIEditor
             StringPopup.fieldTitle = title;
             StringPopup.callback = callback;
             window = CreateInstance<StringPopup>();
-            window.minSize = new Vector2(100, 70);
             window.ShowPopup();
+            window.minSize = new Vector2(100, 70);
             window.titleContent = new GUIContent("StringFieldPopup");
             window.position = rect;
         }
