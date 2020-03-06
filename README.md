@@ -9,7 +9,7 @@
 Unity plugin to interface our API
 	
 ## Setup
-You can add Assets and Projects settings folders to your project or directly download the [latest build here](Output/ResemblePlugin_04-03-20.unitypackage).
+You can add Assets and Projects settings folders to your project or directly download the [latest build here](Output/ResemblePlugin.unitypackage).
   
   
   
