@@ -55,6 +55,12 @@ namespace Resemble
             return EnqueueTask(uri, Task.Type.Delete, (string content, Error error) => { });
         }
 
+        public static Task DeleteClip(string uuid, Callback.Simple callback)
+        {
+            string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips/" + uuid;
+            return EnqueueTask(uri, Task.Type.Delete, callback);
+        }
+
         public static Task CreateProject(Project project, Callback.CreateProject callback)
         {
             string uri = apiUri + "/projects/";
@@ -85,10 +91,10 @@ namespace Resemble
             });
         }
 
-        public static Task CreateClip(CreateClipData podData, Callback.CreateClip callback)
+        public static Task CreateClip(CreateClipData clipData, Callback.CreateClip callback)
         {
             string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips";
-            string data = new CreateClipRequest(podData, "high", false).Json();
+            string data = new CreateClipRequest(clipData, "high", false).Json();
 
             return EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
             {
@@ -269,7 +275,7 @@ namespace Resemble
         {
             task.status = Task.Status.Completed;
 
-            if (task.resultProcessor == null || task.type == Task.Type.Delete)
+            if (task.resultProcessor == null)
                 return;
 
             //Fail - Network error
@@ -280,8 +286,11 @@ namespace Resemble
                 task.resultProcessor.Invoke(webRequest.downloadHandler.text, Error.FromJson(webRequest.responseCode, webRequest.downloadHandler.text));
             else
             {
+                //Delete - Nothing to return
+                if (task.type == Task.Type.Delete)
+                    task.resultProcessor.Invoke("", Error.None);
                 //Fail - Empty reponse
-                if (webRequest.downloadHandler == null || string.IsNullOrEmpty(webRequest.downloadHandler.text))
+                else if (webRequest.downloadHandler == null || string.IsNullOrEmpty(webRequest.downloadHandler.text))
                     task.resultProcessor.Invoke(null, Error.EmptyResponse);
                 //Succes
                 else

@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEditor;
 using Resemble.Structs;
@@ -8,22 +7,80 @@ namespace Resemble.GUIEditor
 {
     public partial class Resemble_Window
     {
+        private const string oneShotLabel = "Unity - OneShotClip";
         public static AudioPreview preview;
-        private static Task task;
         private static Text_Editor drawer;
         private static bool drawProgressBar;
+
+        private const float checkCooldown = 1.5f;  //Time in seconds between 2 checks
+        private double lastCheckTime;
+
+        //Saved stuff
         private static Text text
         {
             get
             {
-                return Resources.instance.text;
+                return Resources.instance.oneShotText;
+            }
+        }
+        private static string voiceName
+        {
+            get
+            {
+                return Resources.instance.oneShotVoiceName;
+            }
+            set
+            {
+                if (value != voiceName)
+                {
+                    Resources.instance.oneShotVoiceName = value;
+                    EditorUtility.SetDirty(Resources.instance);
+                }
+            }
+        }
+        private static string voiceUUID
+        {
+            get
+            {
+                return Resources.instance.oneShotVoiceUUID;
+            }
+            set
+            {
+                if (value != voiceUUID)
+                {
+                    Resources.instance.oneShotVoiceUUID = value;
+                    EditorUtility.SetDirty(Resources.instance);
+                }
+            }
+        }
+        private static string savePath
+        {
+            get
+            {
+                return Resources.instance.oneShotPath;
+            }
+            set
+            {
+                if (value != savePath)
+                {
+                    Resources.instance.oneShotPath = value;
+                    EditorUtility.SetDirty(Resources.instance);
+                }
             }
         }
 
         //GUI stuff
+        private static Error error;
         private Dropdown fileDropDown;
         private Dropdown editDropDown;
         private Dropdown settingsDropDown;
+        private Rect voiceRect;
+
+        /// <summary> Called when the window is show. </summary>
+        private static void EnableOneShot()
+        {
+            drawer.Refresh();
+        }
 
         public void DrawOneShotGUI()
         {
@@ -31,10 +88,6 @@ namespace Resemble.GUIEditor
             if (!Settings.haveProject)
                 Utils.ConnectionRequireMessage();
             EditorGUI.BeginDisabledGroup(!Settings.haveProject);
-
-            //Purpose box
-            EditorGUILayout.HelpBox("The audio files generated here will not be saved in the Resemble project.", MessageType.None);
-
 
             //Update progress bar if exist
             if (drawProgressBar)
@@ -47,12 +100,11 @@ namespace Resemble.GUIEditor
                 }
             }
 
-
             //Init components
-            if (Resources.instance.text == null)
-                Resources.instance.text = new Text();
+            if (Resources.instance.oneShotText == null)
+                Resources.instance.oneShotText = new Text();
             if (drawer == null)
-                drawer = new Text_Editor(Resources.instance.text, SetDirty, Repaint);
+                drawer = new Text_Editor(Resources.instance.oneShotText, SetDirty, Repaint);
 
             //Tags
             drawer.DrawTagsBtnsLayout(!Settings.haveProject);
@@ -66,18 +118,43 @@ namespace Resemble.GUIEditor
             drawer.DrawCharCountBar(rect);
             GUILayout.Space(20);
 
-            if (GUILayout.Button("Generate audio file"))
+
+            //Bot commands
+            GUILayout.BeginHorizontal();
+            GUILayout.Space(10);
+
+            //Voice field
+            DrawVoiceField();
+
+            //Generate button
+            if (GUILayout.Button("Generate audio", GUILayout.ExpandWidth(false)))
             {
-                CancelCurrentTask();
                 Generate();
             }
 
-            if (preview != null && preview.clip != null && GUILayout.Button("Play clip"))
-            {
-                AudioPreview.PlayClip(preview.clip);
-            }
-
+            GUILayout.Space(7);
+            GUILayout.EndHorizontal();
             EditorGUI.EndDisabledGroup();
+
+
+            //Footer
+            GUILayout.FlexibleSpace();
+            Utils.DrawSeparator();
+            GUILayout.Label("The audio files generated here will not be saved in the Resemble project.", Styles.settingsBody);
+        }
+
+        private void DrawVoiceField()
+        {
+            if (EditorGUILayout.DropdownButton(new GUIContent(string.IsNullOrEmpty(voiceName) ? "None" : voiceName), FocusType.Passive))
+            {
+                VoicePopup.Show(voiceRect, (Voice voice) =>
+                {
+                    voiceName = voice.name;
+                    voiceUUID = voice.uuid;
+                });
+            }
+            if (Event.current.type == EventType.Repaint)
+                voiceRect = GUIUtility.GUIToScreenRect(GUILayoutUtility.GetLastRect().Offset(0, 18, 0, 100));
         }
 
         private void SaveClipFile()
@@ -121,18 +198,16 @@ namespace Resemble.GUIEditor
         /// <summary> Create clip data and send the request. </summary>
         private void Generate()
         {
-            CreateClipData pod = new CreateClipData("OneShot", text.BuildResembleString(), "9816e4ee");
-            task = APIBridge.CreateClipSync(pod, GetClipCallback);
-        }
-
-        /// <summary> Cancel current task if exist. </summary>
-        private void CancelCurrentTask()
-        {
-            if (task != null && task.status != Task.Status.Completed)
-            {
-                task.status = Task.Status.Completed;
-                task.error = new Error(-1, "Cancel by the user.");
-            }
+            string path = EditorUtility.SaveFilePanel("Save OneShot clip", savePath, "", "wav");
+            if (string.IsNullOrEmpty(path))
+                return;
+            savePath = Path.GetDirectoryName(path);
+            AsyncRequest.Make(text.BuildResembleString(), voiceUUID, path);
+            string name = Path.GetFileName(path);
+            name = name.Remove(name.Length - 4);
+            NotificationsPopup.Add("OneShot request send : " + name, MessageType.Info, null);
+            text.SelectAll();
+            text.Delete();
         }
 
         private void Clear()

@@ -50,8 +50,16 @@ namespace Resemble
         public Shader loadingShader;
 
         public Font font;
-        public Text text = new Text();
         public Object processClip;
+
+        //One-shot stuff
+        [HideInInspector] public Text oneShotText = new Text();
+        [HideInInspector] public string oneShotVoiceName = "";
+        [HideInInspector] public string oneShotVoiceUUID = "";
+        [HideInInspector] public string oneShotPath = "";
+
+        /// <summary> A pool of requests that will be saved and constantly executed until they are finished. </summary>
+        public List<AsyncRequest> requests = new List<AsyncRequest>();
 
         public static string path
         {

@@ -26,7 +26,26 @@ namespace Resemble.GUIEditor
             }
         }
         private Vector2 _windowSize;
-        private Tab tab;
+        private Tab tab
+        {
+            get
+            {
+                return _tab;
+            }
+            set
+            {
+                if (_tab != value)
+                {
+                    _tab = value;
+                    switch (value)
+                    {
+                        case Tab.OneShot: EnableOneShot(); break;
+                        case Tab.Pool: EnablePool(); break;
+                    }
+                }
+            }
+        }
+        private Tab _tab;
 
 
         /// <summary> Open the Resemble window. This window is used to generate one-shots or seed pool data. </summary>
@@ -34,7 +53,7 @@ namespace Resemble.GUIEditor
         public static void Open()   
         {
             window = (Resemble_Window)EditorWindow.GetWindow(typeof(Resemble_Window));
-            window.minSize = new Vector2(390, 480);
+            window.minSize = new Vector2(390, 460);
             window.titleContent = new GUIContent("Resemble");
             window.Show();
         }
@@ -43,6 +62,7 @@ namespace Resemble.GUIEditor
         public static void Open(Tab tab)
         {
             Open();
+            tab = (Tab)(-1);
             window.tab = tab;
         }
 
@@ -61,7 +81,7 @@ namespace Resemble.GUIEditor
 
             switch (tab)
             {
-                case Tab.OneShoot:
+                case Tab.OneShot:
                     DrawOneShotGUI();
                     break;
                 case Tab.Pool:
@@ -88,36 +108,19 @@ namespace Resemble.GUIEditor
                 drawer.Refresh();
         }
 
+        /// <summary> Draw the top toolbar. </summary>
         private void DrawToolbar()
         {
             GUILayout.BeginHorizontal(EditorStyles.toolbar);
 
-
-            if (GUILayout.Toggle(tab == Tab.OneShoot, "OneShoot", EditorStyles.toolbarButton))
-                tab = Tab.OneShoot;
-
+            //Tabs
+            if (GUILayout.Toggle(tab == Tab.OneShot, "OneShot", EditorStyles.toolbarButton))
+                tab = Tab.OneShot;
             if (GUILayout.Toggle(tab == Tab.Pool, "Pending requests", EditorStyles.toolbarButton))
                 tab = Tab.Pool;
 
             GUILayout.FlexibleSpace();
 
-            /*
-            //File button
-            fileDropDown.DoLayout(new GUIContent("File"),
-                new Dropdown.Item("Save wav file...", preview != null && preview.clip != null, SaveClipFile),
-                new Dropdown.Item("Save as CharacterSet...", SaveAsCharacterPod)
-            );
-
-            //Edit button
-            editDropDown.DoLayout(new GUIContent("Edit"),
-                new Dropdown.Item("Generate", !string.IsNullOrEmpty(text.userString), Generate),
-                new Dropdown.Item(""),
-                new Dropdown.Item("Clear tags", ClearTags),
-                new Dropdown.Item("Clear", Clear)
-            );
-
-            GUILayout.FlexibleSpace();
-            */
             //Settings button
             settingsDropDown.DoLayout(new GUIContent(Styles.popupBtn),
                 new Dropdown.Item("Copy clip body", CopyClipBody),
@@ -133,7 +136,7 @@ namespace Resemble.GUIEditor
 
         public enum Tab
         {
-            OneShoot,
+            OneShot,
             Pool
         }
 

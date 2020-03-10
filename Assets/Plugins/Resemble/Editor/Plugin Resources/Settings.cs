@@ -375,9 +375,16 @@ namespace Resemble
                 {
                     System.IO.File.WriteAllBytes(filePath, data);
                     if (localPath)
+                    {
                         AssetDatabase.ImportAsset(Utils.LocalPath(filePath), ImportAssetOptions.ForceUpdate);
+                        AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(filePath);
+                        NotificationsPopup.Add("Download completed\n" + clips[i].title, MessageType.Info, clip);
+                    }
+                    else
+                    {
+                        NotificationsPopup.Add("Download completed\n" + clips[i].title, MessageType.Info, null);
+                    }
                 });
-                Pool.AddTask(task);
             }
         }
 

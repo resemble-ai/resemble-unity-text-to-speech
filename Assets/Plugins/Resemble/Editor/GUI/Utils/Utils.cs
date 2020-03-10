@@ -7,6 +7,20 @@ namespace Resemble.GUIEditor
 {
     public static class Utils
     {
+        public static void DrawPendingLabel(string label)
+        {
+            GUILayout.BeginHorizontal(GUILayout.Height(25));
+            GUILayout.FlexibleSpace();
+            GUILayout.Label(label, Styles.centredLabel);
+            Rect rect = GUILayoutUtility.GetRect(25, 25);
+            Material mat = Resources.instance.loadingMat;
+            mat.SetFloat("_Progress", (float)(EditorApplication.timeSinceStartup % 1.0f));
+            mat.SetColor("_Color", new Color(0.0f, 0.0f, 0.0f, 1.0f));
+            EditorGUI.DrawPreviewTexture(rect, Resources.instance.loadingTex, mat);
+            GUILayout.FlexibleSpace();
+            GUILayout.EndHorizontal();
+        }
+
         public static void DrawErrorBox(this Error error, string message = null)
         {
             if (!error)
@@ -283,6 +297,7 @@ namespace Resemble.GUIEditor
 
         public static string LocalPath(string absolutePath)
         {
+            absolutePath = absolutePath.Replace("\\", "/");
             if (absolutePath.Contains(Application.dataPath))
                 return absolutePath.Remove(0, Application.dataPath.Length - 6);
             return absolutePath;

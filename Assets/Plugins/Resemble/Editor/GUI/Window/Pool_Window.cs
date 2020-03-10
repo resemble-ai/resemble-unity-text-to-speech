@@ -10,31 +10,26 @@ namespace Resemble.GUIEditor
         private static Vector2 scroll;
         private static int requestCount;
         private static Color orange = new Color(1.0f, 0.6f, 0.2f, 1.0f);
+        private static List<AsyncRequest> requests
+        {
+            get
+            {
+                return Resources.instance.requests;
+            }
+        }
 
-        /// <summary> Draw list of all task. </summary>
+        /// <summary> Draw list of all request. </summary>
         public static void DrawPoolGUI()
         {
             scroll = GUILayout.BeginScrollView(scroll, false, true);
 
-            int count = Pool.tasks.Count;
+            int count = requests.Count;
             double time = EditorApplication.timeSinceStartup;
+
+            //Draw requests
             for (int i = 0; i < count; i++)
             {
-                Task task = Pool.tasks[i];
-
-                //Remove null or old completed task
-                if (task == null || task.status == Task.Status.Completed) // && time > task.time + 2.0f
-                {
-                    Pool.tasks.RemoveAt(i);
-                    i--;
-                    count--;
-                }
-
-                //Draw task
-                else
-                {
-                    DrawTaskGUI(Pool.tasks[i]);
-                }
+                DrawRequestGUI(requests[i]);
             }
             if (Event.current.type == EventType.Layout)
                 requestCount = count;
@@ -48,6 +43,12 @@ namespace Resemble.GUIEditor
             GUILayout.EndScrollView();
         }
 
+        /// <summary> Called when the window is show. </summary>
+        private static void EnablePool()
+        {
+            RefreshPoolList();
+        }
+
         /// <summary> Call this when the pool change. </summary>
         public static void RefreshPoolList()
         {
@@ -55,12 +56,12 @@ namespace Resemble.GUIEditor
                 window.Repaint();
         }
 
-        /// <summary> Draw gui status of one task. </summary>
-        private static void DrawTaskGUI(Task task)
+        /// <summary> Draw gui status of one request. </summary>
+        private static void DrawRequestGUI(AsyncRequest request)
         {
             //Init vars
-            bool error = task.error;
-            bool linked = task.link != null;
+            bool error = request.error;
+            bool linked = request.notificationLink != null;
             Rect rect = GUILayoutUtility.GetRect(Screen.width - 20, 40);
             
 
@@ -81,8 +82,8 @@ namespace Resemble.GUIEditor
                 Rect linkRect = new Rect(rect.x + rect.width - 70, rect.y + rect.height - 20, 68, 18);
                 if (GUI.Button(linkRect, "Select"))
                 {
-                    Selection.activeObject = task.link;
-                    EditorGUIUtility.PingObject(task.link);
+                    Selection.activeObject = request.notificationLink;
+                    EditorGUIUtility.PingObject(request.notificationLink);
                 }
             }
 
@@ -92,31 +93,25 @@ namespace Resemble.GUIEditor
 
             //Label rect
             Rect labelRect = rect.Shrink(4); labelRect.height -= 10;
-            string label = (linked ? task.link.name : "Unknown") + " : ";
 
             //Draw bar
             Rect barRect = new Rect(rect.x + 5, rect.y + rect.height - 8, rect.width - 80, 4);
             EditorGUI.ProgressBar(barRect, 0, "");
-            switch (task.status)
+            switch (request.status)
             {
-                case Task.Status.InQueue:
-                    GUI.Label(labelRect, label + "In queue...");
-                    EditorGUI.DrawRect(barRect.Shrink(1), Color.grey);
-                    break;
-                case Task.Status.Processing:
-                    GUI.Label(labelRect, label + "Processing...");
+                default:
+                    GUI.Label(labelRect, request.requestName + " - Processing...");
                     EditorGUI.DrawRect(barRect.Shrink(1), orange);
                     break;
-                case Task.Status.Downloading:
-                    GUI.Label(labelRect, label + "Downloading...");
-                    EditorGUI.ProgressBar(barRect, task.preview.progress, "");
+                case AsyncRequest.Status.Downloading:
+                    GUI.Label(labelRect, request.requestName + " - Downloading...");
+                    EditorGUI.ProgressBar(barRect, request.downloadProgress, "");
                     break;
-                case Task.Status.Completed:
-                    GUI.Label(labelRect, label + "Completed");
+                case AsyncRequest.Status.Completed:
+                    GUI.Label(labelRect, request.requestName + " - Completed");
                     EditorGUI.DrawRect(barRect.Shrink(1), Color.green);
                     break;
             }
         }
-
     }
 }
