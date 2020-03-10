@@ -15,7 +15,6 @@ namespace Resemble.GUIEditor
         private Clip clip;
         private Editor clipEditor;
         private AsyncRequest request;
-        private Error error = Error.None;
         private const float checkCooldown = 1.5f;  //Time in seconds between 2 checks
 
         //GUI
@@ -91,8 +90,17 @@ namespace Resemble.GUIEditor
             GUILayout.EndVertical();
 
             //Error box
-            if (error)
-                error.DrawErrorBox();
+            if (request != null && request.status == AsyncRequest.Status.Error)
+            {
+                request.error.DrawErrorBox();
+                Rect rect = GUILayoutUtility.GetLastRect();
+                rect.Set(rect.x + rect.width - 70, rect.y + rect.height - 20, 68, 18);
+                if (GUI.Button(rect, "Close"))
+                {
+                    request.status = AsyncRequest.Status.Completed;
+                    AsyncRequest.RegisterRefreshEvent();
+                }
+            }
 
             //Draw audio area
             GUILayout.Space(10);
@@ -137,8 +145,10 @@ namespace Resemble.GUIEditor
             GUILayout.FlexibleSpace();
             if (request == null)
             {
+                EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(clip.text.userString));
                 if (GUILayout.Button("Generate Audio"))
                     request = AsyncRequest.Make(clip);
+                EditorGUI.EndDisabledGroup();
             }
             else
             {

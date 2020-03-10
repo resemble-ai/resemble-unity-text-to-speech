@@ -1,5 +1,6 @@
 namespace Resemble.Structs
 {
+    [System.Serializable]
     public struct Error
     {
         public bool exist;

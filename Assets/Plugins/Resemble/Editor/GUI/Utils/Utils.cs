@@ -23,9 +23,6 @@ namespace Resemble.GUIEditor
 
         public static void DrawErrorBox(this Error error, string message = null)
         {
-            if (!error)
-                return;
-
             if (string.IsNullOrEmpty(message))
             {
                 message = error.code < 0 ? error.message :

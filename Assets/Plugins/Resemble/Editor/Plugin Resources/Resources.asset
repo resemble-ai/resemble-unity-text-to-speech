@@ -32,9 +32,13 @@ MonoBehaviour:
   boxShader: {fileID: 4800000, guid: 141736c3605ea5f409d75ef3bca5121f, type: 3}
   loadingShader: {fileID: 4800000, guid: 78bca071a80ca914c94dee0727d7fe32, type: 3}
   font: {fileID: 12800000, guid: be60bfb435fff2b4ab8d2cf748a1b25c, type: 3}
-  text:
-    userString: hnghng
-    tags: []
-    selectID: 6
-    carretID: 6
   processClip: {fileID: 102900000, guid: 5bc78681a20100349a602d423bb35862, type: 3}
+  oneShotText:
+    userString: 
+    tags: []
+    selectID: 0
+    carretID: 0
+  oneShotVoiceName: Kratos
+  oneShotVoiceUUID: 5b81e34a
+  oneShotPath: D:\Travaux\Resemble\ResemblePlugin\Assets\Audio\OneShots
+  requests: []

@@ -127,10 +127,10 @@ namespace Resemble.GUIEditor
             DrawVoiceField();
 
             //Generate button
+            EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(voiceUUID) || string.IsNullOrEmpty(text.userString));
             if (GUILayout.Button("Generate audio", GUILayout.ExpandWidth(false)))
-            {
                 Generate();
-            }
+            EditorGUI.EndDisabledGroup();
 
             GUILayout.Space(7);
             GUILayout.EndHorizontal();

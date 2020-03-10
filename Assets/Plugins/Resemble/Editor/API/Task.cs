@@ -20,7 +20,6 @@ namespace Resemble
         public Status status;
         public double time;
         public Error error;
-        public Object link;
 
         public Task(string uri, string data, Callback.Simple resultProcessor, Type type)
         {

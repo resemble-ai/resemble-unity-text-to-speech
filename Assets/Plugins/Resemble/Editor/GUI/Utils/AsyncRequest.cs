@@ -23,8 +23,42 @@ public class AsyncRequest
     public Object notificationLink;
     public bool needToBeRefresh;
     public double lastCheckTime;
+    public double lastStateTime;
     public Error error;
-    public Status status;
+    
+    public Status status
+    {
+        get
+        {
+            return _status;
+        }
+        set
+        {
+            if (value == _status)
+                return;
+
+            switch (value)
+            {
+                case Status.NeedNewClipStatusRequest:
+                    if (_status == Status.WaitClipStatusRequest)
+                        break;
+                    else
+                    lastStateTime = EditorApplication.timeSinceStartup;
+                    break;
+                case Status.WaitClipStatusRequest:
+                    if (_status == Status.NeedNewClipStatusRequest)
+                        break;
+                    else
+                        lastStateTime = EditorApplication.timeSinceStartup;
+                    break;
+                default:
+                    lastStateTime = EditorApplication.timeSinceStartup;
+                    break;
+            }
+            _status = value;
+        }
+    }
+    private Status _status;
 
     public float downloadProgress
     {
@@ -140,7 +174,7 @@ public class AsyncRequest
     }
 
     [InitializeOnLoadMethod]
-    private static void RegisterRefreshEvent()
+    public static void RegisterRefreshEvent()
     {
         if (Resources.instance.requests.Count == 0)
             return;
@@ -165,16 +199,30 @@ public class AsyncRequest
             {
                 case Status.NeedNewClipStatusRequest:
                 case Status.WaitClipStatusRequest:
-                    ExecuteRequest(time, request);
-                    break;
+                    if (time - request.lastStateTime > waitClipTimout)
+                    {
+                        request.SetError(Error.Timeout);
+                        continue;
+                    }
+                    else
+                    {
+                        ExecuteRequest(time, request);
+                        break;
+                    }
                 case Status.Completed:
-                case Status.Error:
                     Resources.instance.requests.RemoveAt(i);
                     EditorUtility.SetDirty(Resources.instance);
                     i--;
                     count--;
                     continue;
+                case Status.Error:
+                    continue;
                 default:
+                    if (time - request.lastStateTime > waitClipTimout)
+                    {
+                        request.SetError(Error.Timeout);
+                        continue;
+                    }
                     break;
             }
             ExecuteRequest(time, Resources.instance.requests[i]);
@@ -187,20 +235,15 @@ public class AsyncRequest
     private static void ExecuteRequest(double time, AsyncRequest request)
     {
         //Do nothing if request is waiting for API response
-        double delta = time - request.lastCheckTime;
         if (request.status == Status.WaitClipStatusRequest)
-        {
-            //Check timout error (the API take too much time to generate the clip)
-            if (delta > waitClipTimout)
-                request.SetError(Error.Timeout);
             return;
-        }
 
         //The next steps are only used to send status request
         if (request.status != Status.NeedNewClipStatusRequest)
             return;
 
         //Force a delay in requests to avoid flooding the api
+        double delta = time - request.lastCheckTime;
         if (delta < 0.0f || delta > checkCooldown)
             request.lastCheckTime = time;
         else

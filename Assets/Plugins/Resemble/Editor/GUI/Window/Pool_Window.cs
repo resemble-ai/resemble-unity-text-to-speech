@@ -60,7 +60,7 @@ namespace Resemble.GUIEditor
         private static void DrawRequestGUI(AsyncRequest request)
         {
             //Init vars
-            bool error = request.error;
+            bool error = request.status == AsyncRequest.Status.Error;
             bool linked = request.notificationLink != null;
             Rect rect = GUILayoutUtility.GetRect(Screen.width - 20, 40);
             
@@ -68,13 +68,21 @@ namespace Resemble.GUIEditor
             //Draw box
             if (error)
             {
-                EditorGUI.HelpBox(rect, error.ToString(), MessageType.Error);
+                EditorGUI.HelpBox(rect, request.requestName + "\n" + request.error.ToString(), MessageType.Error);
             }
             else
             {
                 EditorGUI.HelpBox(rect, "", MessageType.None);
             }
 
+            void DrawErrorButton(Rect btnRect)
+            {
+                if (GUI.Button(btnRect, "Close"))
+                {
+                    request.status = AsyncRequest.Status.Completed;
+                    AsyncRequest.RegisterRefreshEvent();
+                }
+            }
 
             //Select button
             if (linked)
@@ -85,6 +93,18 @@ namespace Resemble.GUIEditor
                     Selection.activeObject = request.notificationLink;
                     EditorGUIUtility.PingObject(request.notificationLink);
                 }
+
+                if (error)
+                {
+                    linkRect.x -= linkRect.width + 5;
+                    DrawErrorButton(linkRect);
+                }
+
+            }
+            else if (error)
+            {
+                Rect linkRect = new Rect(rect.x + rect.width - 70, rect.y + rect.height - 20, 68, 18);
+                DrawErrorButton(linkRect);
             }
 
 
@@ -92,7 +112,7 @@ namespace Resemble.GUIEditor
                 return;
 
             //Label rect
-            Rect labelRect = rect.Shrink(4); labelRect.height -= 10;
+            Rect labelRect = rect.Shrink(4); labelRect.height -= 8;
 
             //Draw bar
             Rect barRect = new Rect(rect.x + 5, rect.y + rect.height - 8, rect.width - 80, 4);
@@ -100,15 +120,15 @@ namespace Resemble.GUIEditor
             switch (request.status)
             {
                 default:
-                    GUI.Label(labelRect, request.requestName + " - Processing...");
+                    GUI.Label(labelRect, "Processing...\n" + request.requestName);
                     EditorGUI.DrawRect(barRect.Shrink(1), orange);
                     break;
                 case AsyncRequest.Status.Downloading:
-                    GUI.Label(labelRect, request.requestName + " - Downloading...");
+                    GUI.Label(labelRect, "Downloading...\n" + request.requestName);
                     EditorGUI.ProgressBar(barRect, request.downloadProgress, "");
                     break;
                 case AsyncRequest.Status.Completed:
-                    GUI.Label(labelRect, request.requestName + " - Completed");
+                    GUI.Label(labelRect, "Completed\n" + request.requestName);
                     EditorGUI.DrawRect(barRect.Shrink(1), Color.green);
                     break;
             }
