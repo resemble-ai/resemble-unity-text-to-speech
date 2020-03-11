@@ -8,6 +8,7 @@
 [Bb]ackups/
 [Ll]ogs/
 Assets/AssetStoreTools*
+Assets/Examples/
 
 # Visual Studio cache directory
 .vs/
