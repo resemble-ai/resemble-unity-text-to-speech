@@ -64,6 +64,7 @@ namespace Resemble.GUIEditor
             Open();
             tab = (Tab)(-1);
             window.tab = tab;
+            window.Repaint();
         }
 
         void OnGUI()

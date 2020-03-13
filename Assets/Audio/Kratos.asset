@@ -1,28 +1,5 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-736184566473116859
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: 369a4c10-Kratos
-  m_EditorClassIdentifier: 
-  speech: {fileID: 11400000}
-  clip: {fileID: 0}
-  text:
-    userString: 
-    tags: []
-    selectID: 0
-    carretID: 0
-  uuid: 369a4c10
-  clipName: Kratos
-  userdata: 
-  labels: []
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39,7 +16,6 @@ MonoBehaviour:
   voiceUUID: 5b81e34a
   clips:
   - {fileID: 3552388956198535345}
-  - {fileID: -736184566473116859}
 --- !u!114 &3552388956198535345
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -53,7 +29,7 @@ MonoBehaviour:
   m_Name: b4faa141-In the first age
   m_EditorClassIdentifier: 
   speech: {fileID: 11400000}
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 588987eeb6e8c924eb3bfc86e7248e37, type: 3}
   text:
     userString: 'In the first age, in the first battle, when the shadows first lengthened,
       one stood.
@@ -71,8 +47,8 @@ MonoBehaviour:
 
       The Doom Slayer.'
     tags: []
-    selectID: 0
-    carretID: 0
+    selectID: 352
+    carretID: 352
   uuid: b4faa141
   clipName: In the first age
   userdata: 

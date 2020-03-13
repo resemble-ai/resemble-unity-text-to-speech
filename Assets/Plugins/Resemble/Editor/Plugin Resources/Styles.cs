@@ -30,6 +30,8 @@ namespace Resemble
         public static GUIStyle codeBox;
         public static GUIStyle folderPathField;
         public static GUIStyle folderPathFieldRight;
+        public static GUIStyle whiteFrame;
+        public static GUIStyle whiteLabel;
         public static GUIContent characterSetHelpBtn;
         public static GUIContent popupBtn;
         public static Color clipGreenColor = new Color(0.1921f, 0.8196f, 0.6352f);
@@ -116,6 +118,12 @@ namespace Resemble
             folderPathField = new GUIStyle(GUI.skin.textField);
             folderPathFieldRight = new GUIStyle(folderPathField);
             folderPathFieldRight.alignment = TextAnchor.MiddleRight;
+
+            whiteFrame = new GUIStyle(GUI.skin.textArea);
+            whiteFrame.normal = whiteFrame.focused;
+
+            whiteLabel = new GUIStyle(GUI.skin.label);
+            whiteLabel.normal.textColor = Color.white;
 
 
             //GUIContent

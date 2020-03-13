@@ -176,7 +176,7 @@ public class AsyncRequest
     [InitializeOnLoadMethod]
     public static void RegisterRefreshEvent()
     {
-        if (Resources.instance.requests.Count == 0)
+        if (EditorApplication.isPlayingOrWillChangePlaymode || Resources.instance.requests.Count == 0)
             return;
         refreshing = true;
         EditorApplication.update += ExecutePoolRequests;

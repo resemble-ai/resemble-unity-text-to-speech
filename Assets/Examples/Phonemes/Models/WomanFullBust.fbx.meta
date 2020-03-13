@@ -1,0 +1,153 @@
+fileFormatVersion: 2
+guid: f54883b36a7548a4c87ec04d1552f7be
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Coat
+    100002: Eye
+    100004: Hair_01
+    100006: Hair_02
+    100008: Head_Silent
+    100010: //RootNode
+    100012: Eye_lashes
+    400000: Coat
+    400002: Eye
+    400004: Hair_01
+    400006: Hair_02
+    400008: Head_Silent
+    400010: //RootNode
+    400012: Eye_lashes
+    2100000: Hair_01
+    2100002: head
+    2100004: Eye
+    2100006: Hair_02
+    2100008: coat
+    2300000: Coat
+    2300002: Eye
+    2300004: Hair_01
+    2300006: Hair_02
+    2300008: Eye_lashes
+    3300000: Coat
+    3300002: Eye
+    3300004: Hair_01
+    3300006: Hair_02
+    3300008: Eye_lashes
+    4300000: Hair_01
+    4300002: Head_Silent
+    4300004: Eye
+    4300006: Hair_02
+    4300008: Coat
+    4300010: Eye_lashes
+    9500000: //RootNode
+    13700000: Head_Silent
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Eye
+    second: {fileID: 2100000, guid: d8d2c32ade1f15f4eb44c46521563837, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Hair_01
+    second: {fileID: 2100000, guid: 6b9d33a196e6ecb46ade82e7083a0a26, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Hair_02
+    second: {fileID: 2100000, guid: b56ec241da45a484680af0d7394bccb5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: coat
+    second: {fileID: 2100000, guid: 8fb4b38378bf33a48b84f4180a90f4e5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: head
+    second: {fileID: 2100000, guid: 3746946075f83224caeb352772f0ac4e, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    useSRGBMaterialColor: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 2
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
