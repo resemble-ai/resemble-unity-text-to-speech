@@ -244,7 +244,7 @@ Material:
     - _EnableSpecularOcclusion: 1
     - _EnableWind: 0
     - _EnergyConservingSpecularColor: 1
-    - _FV: 0.65717953
+    - _FV: 0
     - _FpsModeFov: 60
     - _GlossMapScale: 1
     - _Glossiness: 0.556
@@ -272,7 +272,7 @@ Material:
     - _Mode: 0
     - _NormalMapSpace: 0
     - _NormalScale: 1
-    - _OO: 0.22972095
+    - _OO: 0
     - _OcclusionStrength: 1
     - _PPDLodThreshold: 5
     - _PPDMaxSamples: 15
@@ -281,7 +281,7 @@ Material:
     - _PPDPrimitiveWidth: 1
     - _Parallax: 0.02
     - _PreRefractionPass: 0
-    - _R: 0.0016166402
+    - _R: 0.055392027
     - _RefractionMode: 2
     - _RefractionModel: 1
     - _SSRefractionProjectionModel: 0
@@ -315,7 +315,7 @@ Material:
     - _TransparentDepthPostpassEnable: 0
     - _TransparentDepthPrepassEnable: 0
     - _TransparentSortPriority: 0
-    - _UU: 0.0082169585
+    - _UU: 0.00013568113
     - _UVBase: 0
     - _UVDetail: 0
     - _UVEmissive: 0

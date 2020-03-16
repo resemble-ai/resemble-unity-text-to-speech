@@ -28,7 +28,7 @@ public class PhonemeToShader_Editor : Editor
         float temp = time;
         if (reader.data != null)
         {
-            Phonemes_Editor.DrawGraph(reader.data, ref temp, Repaint);
+            Phonemes_Editor.DrawGraph(reader.data, ref temp, Repaint, null);
         }
         if (temp != time)
         {

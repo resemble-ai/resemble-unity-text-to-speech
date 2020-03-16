@@ -16,6 +16,7 @@ public class Phonemes_Editor : Editor
     private float time;
 
     public delegate void Callback();
+    public delegate void CallbackIndex(Rect rect, int index);
 
     public override void OnInspectorGUI()
     {
@@ -37,10 +38,10 @@ public class Phonemes_Editor : Editor
         if (GUILayout.Button("Load remaping table"))
             ApplyTable();
 
-        DrawGraph(phonemes, ref time, Repaint);
+        DrawGraph(phonemes, ref time, Repaint, null);
     }
 
-    public static void DrawGraph(Phonemes phonemes, ref float time, Callback repaint)
+    public static void DrawGraph(Phonemes phonemes, ref float time, Callback repaint, CallbackIndex onDrawItem)
     {
         //Get area space
         Rect rect = GUILayoutUtility.GetRect(Screen.width, 300).Shrink(10);
@@ -73,7 +74,8 @@ public class Phonemes_Editor : Editor
 
 
         //Draw curves and fields
-        float width = Screen.width - EditorGUIUtility.labelWidth - 50;
+        bool haveCustomItem = onDrawItem != null;
+        float width = Screen.width - EditorGUIUtility.labelWidth - (haveCustomItem ? 180 : 50);
         float maxValue = 0.0f;
         string maxValueName = "";
         Color maxValueColor = Color.white;
@@ -91,7 +93,8 @@ public class Phonemes_Editor : Editor
             barRect.width = width;
             GUI.Box(barRect, "", Styles.whiteFrame);
             float value = phonemes.curves[i].curve.Evaluate(time);
-            barRect.width *= value;
+            Rect fillRect = barRect;
+            fillRect.width *= value;
 
             if (value > maxValue)
             {
@@ -100,8 +103,16 @@ public class Phonemes_Editor : Editor
                 maxValueColor = curveColor;
             }
 
-            barRect = barRect.Shrink(1);
-            EditorGUI.DrawRect(barRect, curveColor);
+            fillRect = fillRect.Shrink(1);
+            EditorGUI.DrawRect(fillRect, curveColor);
+
+            if (haveCustomItem)
+            {
+                barRect.Set(barRect.x + barRect.width + 10, barRect.y, 120, barRect.height);
+                onDrawItem.Invoke(barRect, i);
+            }
+
+
             GUILayout.EndHorizontal();
             GUILayout.Space(3);
         }

@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Terraformer_A_Eyes
-  m_Shader: {fileID: 4800000, guid: 27f4911c7d711ff459652a49518c7d44, type: 3}
+  m_Shader: {fileID: 4800000, guid: 80ab5126e198a084fa84f8a23ea50d61, type: 3}
   m_ShaderKeywords: _EMISSIVE_COLOR_MAP _ENABLESPECULAROCCLUSION _HEIGHTMAP _MASKMAP
     _MATERIAL_FEATURE_SUBSURFACE_SCATTERING _MATERIAL_FEATURE_TRANSMISSION _NORMALMAP
     _NORMALMAP_TANGENT_SPACE _THICKNESSMAP
@@ -216,6 +216,7 @@ Material:
     - _EnableWind: 0
     - _EnergyConservingSpecularColor: 1
     - _FpsModeFov: 60
+    - _Gloss: 0.92
     - _GlossMapScale: 1
     - _Glossiness: 0.781
     - _GlossyReflections: 1
@@ -289,7 +290,7 @@ Material:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
-    - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
+    - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _EmissiveColor: {r: 0, g: 0, b: 0, a: 1}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}
