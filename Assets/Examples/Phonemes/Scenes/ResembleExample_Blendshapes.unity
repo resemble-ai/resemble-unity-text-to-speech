@@ -1577,14 +1577,14 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights:
   - 0
   - 0
-  - 0
-  - 0.39637005
-  - 0
-  - 0
-  - 1.2527046
+  - 65.63638
   - 0
   - 0
-  - 43.185482
+  - 0
+  - 0
+  - 0
+  - 0
+  - 1.7712218
   m_RootBone: {fileID: 1707243785815769758}
   m_AABB:
     m_Center: {x: 0, y: 0.043902397, z: 0.09350221}
@@ -5057,12 +5057,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a99a78cd3c614fc49b5a86daec675d65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: 1f23d459559c8894c84ef2b9345f254b, type: 2}
+  data: {fileID: 11400000, guid: 7462ab87d87235245bcbd6512aa9930c, type: 2}
   audio: {fileID: 1027114423}
   renderer: {fileID: 1561349503371267106}
   materialIndex: 0
   factor: 1.6
-  remap: 08000000020000000700000003000000000000000000000001000000090000000600000009000000
+  smoothFactor: 24
+  remap: 09000000080000000700000006000000000000000500000004000000030000000200000001000000
 --- !u!1 &8331094428223880413
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,7 +6,15 @@ public class PhonemesToBlendShapes : PhonemeReader
     public new SkinnedMeshRenderer renderer;
     public int materialIndex;
     public float factor = 1.0f;
+    public float smoothFactor = 3.0f;
+
     [HideInInspector] public int[] remap;
+    private float[] smoothValues;
+
+    protected private void Awake()
+    {
+        smoothValues = new float[data.curves.Length];
+    }
 
     protected virtual void Update()
     {
@@ -24,9 +32,13 @@ public class PhonemesToBlendShapes : PhonemeReader
     {
         if (renderer != null)
         {
+            if (smoothValues == null)
+                smoothValues = new float[data.curves.Length];
+
             float f = 100 * factor;
             int count = data.curves.Length;
             float[] values = new float[count];
+            float smoothDelta = Time.deltaTime * smoothFactor;
             for (int i = 0; i < count; i++)
             {
                 float value = data.curves[i].curve.Evaluate(time);
@@ -37,7 +49,19 @@ public class PhonemesToBlendShapes : PhonemeReader
                 int id = remap[i];
                 if (id == -1)
                     continue;
-                renderer.SetBlendShapeWeight(id, values[i] * f);
+
+                if (Application.isPlaying)
+                {
+                    if (values[i] > smoothValues[i] || true)
+                        smoothValues[i] = values[i];
+                    else
+                        smoothValues[i] = Mathf.Lerp(smoothValues[i], values[i], smoothDelta);
+                    renderer.SetBlendShapeWeight(id, smoothValues[i] * f);
+                }
+                else
+                {
+                    renderer.SetBlendShapeWeight(id, values[i] * f);
+                }
             }
         }
     }

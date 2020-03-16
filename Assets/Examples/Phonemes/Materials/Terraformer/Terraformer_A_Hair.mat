@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Terraformer_A_Hair
-  m_Shader: {fileID: 4800000, guid: 27f4911c7d711ff459652a49518c7d44, type: 3}
+  m_Shader: {fileID: 4800000, guid: fc20bc1739e4c2a4db0556459c8b6dfd, type: 3}
   m_ShaderKeywords: _BENTNORMALMAP _DISPLACEMENT_LOCK_TILING_SCALE _ENABLESPECULAROCCLUSION
     _HEIGHTMAP _MASKMAP _MATERIAL_FEATURE_ANISOTROPY _NORMALMAP _NORMALMAP_TANGENT_SPACE
     _PARALLAXMAP _PIXEL_DISPLACEMENT _PIXEL_DISPLACEMENT_LOCK_OBJECT_SCALE _VERTEX_WIND
@@ -270,6 +270,7 @@ Material:
     - _TexWorldScaleEmissive: 1
     - _Thickness: 1
     - _ThicknessMultiplier: 1
+    - _Threshold: 0.218
     - _TransmissionEnable: 1
     - _TransparentBackfaceEnable: 0
     - _TransparentDepthPostpassEnable: 0
