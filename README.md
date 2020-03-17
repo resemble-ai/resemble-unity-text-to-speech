@@ -30,7 +30,7 @@ You can find a documentation page about the plugin here :
   
 ![Preference page](https://i.imgur.com/0jAWjOc.png?1)
 
-### Try out sample scenes
+## Try out sample scenes
 The example scenes are not yet included in the plugin build. To test an example scene, you can download it directly from the repository.
 
 There are currently two examples of the use of the phoneme table :
