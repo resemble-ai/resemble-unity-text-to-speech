@@ -4,6 +4,7 @@
 * [General info](#general-info)
 * [Setup](#setup)
 * [Help](#help)
+* [Try out sample scenes](#try-out-sample-scenes)
 
 ## General info
 Unity plugin to interface our API
