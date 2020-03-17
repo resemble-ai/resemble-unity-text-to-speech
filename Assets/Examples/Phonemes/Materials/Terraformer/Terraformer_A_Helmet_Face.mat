@@ -281,7 +281,7 @@ Material:
     - _PPDPrimitiveWidth: 1
     - _Parallax: 0.02
     - _PreRefractionPass: 0
-    - _R: 0.055392027
+    - _R: 0.01
     - _RefractionMode: 2
     - _RefractionModel: 1
     - _SSRefractionProjectionModel: 0
@@ -315,7 +315,7 @@ Material:
     - _TransparentDepthPostpassEnable: 0
     - _TransparentDepthPrepassEnable: 0
     - _TransparentSortPriority: 0
-    - _UU: 0.00013568113
+    - _UU: 0.48633593
     - _UVBase: 0
     - _UVDetail: 0
     - _UVEmissive: 0

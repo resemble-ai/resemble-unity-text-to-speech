@@ -1,18 +1,16 @@
 using UnityEngine;
 
-[RequireComponent(typeof(AudioSource))]
 public class SpaceToPlay : MonoBehaviour
 {
-    private new AudioSource audio;
-
-    void Awake()
-    {
-        audio = GetComponent<AudioSource>();
-    }
+    public Animator anim;
+    public new AudioSource audio;
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (!audio.isPlaying && Input.GetKeyDown(KeyCode.Space) || Input.GetMouseButtonDown(0))
+        {
             audio.Play();
+            anim.SetTrigger("Talk");
+        }
     }
 }
