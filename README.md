@@ -37,9 +37,9 @@ There are currently two examples of the use of the phoneme table :
 
 - ResembleExample_Shader.unity
 - ResembleExample_Blendshapes.unity
-https://youtu.be/v7ow2eT1hOg
 
-[![Phonemes to shader](https://i.imgur.com/pyEl7NI.png)](https://www.youtube.com/watch?v=v7ow2eT1hOg)
+[![Phonemes to Shader](https://i.imgur.com/EZNGE81.png)](https://www.youtube.com/watch?v=v7ow2eT1hOg)
+[![Phonemes to Blendshapes](https://i.imgur.com/Cw9RP2e.png)](https://www.youtube.com/watch?v=KefS24jl9Qg)
 
 To make the character speak use the space key or a left click.
 
