@@ -149,7 +149,8 @@ namespace Resemble.GUIEditor
                 AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(clip.clip));
 
             //Delete on APIif needed
-            APIBridge.DeleteClip(clip.uuid);
+            if (deleteOnAPI)
+                APIBridge.DeleteClip(clip.uuid);
 
             //Delete clip from speech
             AssetDatabase.RemoveObjectFromAsset(clip);

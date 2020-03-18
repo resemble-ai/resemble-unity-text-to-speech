@@ -148,6 +148,32 @@ public class AsyncRequest
         return request;
     }
 
+    /// <summary> Build a async request for import a clip. This request handles downloading and notifications. </summary>
+    public static AsyncRequest Make(string url, string savePath)
+    {
+        //Build request
+        AsyncRequest request = new AsyncRequest();
+        request.status = Status.BuildRequest;
+        request.saveDirectory = Path.GetDirectoryName(savePath);
+        request.fileName = Path.GetFileName(savePath);
+        request.deleteClipAtEnd = false;
+        request.requestName = "Import > " + request.fileName.Remove(request.fileName.Length - 4);
+
+        //Generate placeholder
+        request.status = Status.GeneratePlaceHolder;
+        request.GeneratePlaceHolder();
+
+        //Send request
+        DownloadClip(request, url);
+
+        //Register request into pool
+        Resources.instance.requests.Add(request);
+        EditorUtility.SetDirty(Resources.instance);
+
+        //Return the request
+        return request;
+    }
+
     /// <summary> Returns the current request running on the given UUID if it exists. </summary>
     public static AsyncRequest Get(string clipUUID)
     {

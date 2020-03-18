@@ -76,7 +76,7 @@ namespace Resemble.GUIEditor
             }
             if (GUILayout.Button("Confirm"))
             {
-                callback.Invoke(selected == 0, deleteAudioClip);
+                callback.Invoke(selected == 1, deleteAudioClip);
                 Close();
             }
             GUILayout.EndHorizontal();     

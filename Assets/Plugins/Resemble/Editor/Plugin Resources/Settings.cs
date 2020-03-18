@@ -366,26 +366,14 @@ namespace Resemble
         /// <summary> Download and save at path clips in wav format. </summary>
         private static void DownloadWavFiles(string path, ResembleClip[] clips)
         {
-            Resemble_Window.Open(Resemble_Window.Tab.Pool);
-            bool localPath = path.Contains(Application.dataPath);
+            path = Utils.LocalPath(path);
             for (int i = 0; i < clips.Length; i++)
             {
                 string filePath = path + "/" + clips[i].title + ".wav";
-                Task task = APIBridge.DownloadClip(clips[i].link, (byte[] data, Error error) =>
-                {
-                    System.IO.File.WriteAllBytes(filePath, data);
-                    if (localPath)
-                    {
-                        AssetDatabase.ImportAsset(Utils.LocalPath(filePath), ImportAssetOptions.ForceUpdate);
-                        AudioClip clip = AssetDatabase.LoadAssetAtPath<AudioClip>(filePath);
-                        NotificationsPopup.Add("Download completed\n" + clips[i].title, MessageType.Info, clip);
-                    }
-                    else
-                    {
-                        NotificationsPopup.Add("Download completed\n" + clips[i].title, MessageType.Info, null);
-                    }
-                });
+                AsyncRequest.Make(clips[i].link, filePath);
             }
+            Resemble_Window.Open(Resemble_Window.Tab.Pool);
+            AsyncRequest.RegisterRefreshEvent();
         }
 
         /// <summary> Open the preference page about Resemble in the Editor. </summary>

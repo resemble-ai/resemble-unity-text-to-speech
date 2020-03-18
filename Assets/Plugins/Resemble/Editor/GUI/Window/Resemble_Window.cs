@@ -62,7 +62,7 @@ namespace Resemble.GUIEditor
         public static void Open(Tab tab)
         {
             Open();
-            tab = (Tab)(-1);
+            window.tab = (Tab)(-1);
             window.tab = tab;
             window.Repaint();
         }
