@@ -16,6 +16,7 @@ namespace Resemble
         public static GUIStyle settingsLink;
         public static GUIStyle settingsCode;
         public static GUIStyle settingsButton;
+        public static GUIStyle settingsQuote;
         public static GUIStyle linkStyle;
         public static GUIStyle linkStyleSmall;
         public static GUIStyle centredLabel;
@@ -71,6 +72,12 @@ namespace Resemble
 
             settingsButton = new GUIStyle(GUI.skin.button);
             settingsButton.margin = new RectOffset(30, 10, 0, 0);
+
+            settingsQuote = new GUIStyle(GUI.skin.box);
+            settingsQuote.wordWrap = true;
+            settingsQuote.fontSize = 12;
+            settingsCode.alignment = TextAnchor.MiddleLeft;
+            settingsQuote.margin = new RectOffset(30, 10, 0, 0);
 
             linkStyle = new GUIStyle(bodyStyle);
             linkStyle.padding = new RectOffset(-5, 0, 0, 0);

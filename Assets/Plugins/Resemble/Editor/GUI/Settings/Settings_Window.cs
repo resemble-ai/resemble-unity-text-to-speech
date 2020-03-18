@@ -14,7 +14,7 @@ namespace Resemble.GUIEditor
 
         //Misc GUI stuff
         private EditorWindow prefWindow;
-        private Vector2[] scroll = new Vector2[3];
+        private static Vector2[] scroll = new Vector2[3];
         private int selected = -1;
         private VisualElement visualElement;
         private Rect winRect;
