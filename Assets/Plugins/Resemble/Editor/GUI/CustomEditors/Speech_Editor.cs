@@ -21,6 +21,7 @@ namespace Resemble.GUIEditor
         private PopupButton deleteButton = new PopupButton("Delete", "Delete the clip selected in the list.", new Vector2(300, 51));
         private PopupButton importButton = new PopupButton("Import", "Import a clip that already exists in the project with this voice.", new Vector2(200, 120));
         private PopupButton CreateButton = new PopupButton("Create", "Create a new clip with this voice.", new Vector2(200, 51));
+        private GUIContent phonemeTableLabel = new GUIContent("Phoneme table", "A phoneme table allows you to transform the raw phoneme data into a usable version for your project.\nLeave this field empty if you want to keep the raw data.");
 
         protected override bool ShouldHideOpenButton()
         {
@@ -164,7 +165,7 @@ namespace Resemble.GUIEditor
         {
             if (!string.IsNullOrEmpty(name))
             {
-                APIBridge.CreateClip(new CreateClipData(name, "", speech.voiceUUID), (ClipStatus status, Error error) =>
+                APIBridge.CreateClip(new ClipPatch.Data(name, "", speech.voiceUUID), false, (ClipStatus status, Error error) =>
                 {
                     if (error)
                         error.Log();
@@ -270,8 +271,9 @@ namespace Resemble.GUIEditor
 
         private void DrawSpeechProperties()
         {
+            //Voice field
             EditorGUILayout.BeginHorizontal();
-            GUILayout.Label("Voice", GUILayout.Width(EditorGUIUtility.labelWidth));
+            GUILayout.Label("Voice", GUILayout.Width(EditorGUIUtility.labelWidth - 2));
             if (EditorGUILayout.DropdownButton(new GUIContent(string.IsNullOrEmpty(speech.voiceName) ? "None" : speech.voiceName), FocusType.Passive))
             {
                 VoicePopup.Show(voiceRect, (Voice voice) =>
@@ -281,9 +283,25 @@ namespace Resemble.GUIEditor
                     EditorUtility.SetDirty(speech);
                 });
             }
+
+            //Set rect for popup
             if (Event.current.type == EventType.Repaint)
                 voiceRect = GUIUtility.GUIToScreenRect(GUILayoutUtility.GetLastRect().Offset(0, 18, 0, 100));
             EditorGUILayout.EndHorizontal();
+
+            //Begin Change Check
+            EditorGUI.BeginChangeCheck();
+
+            //Include phonemes
+            speech.includePhonemes = EditorGUILayout.Toggle("Include phonemes", speech.includePhonemes);
+
+            //Phoneme table
+            if (speech.includePhonemes)
+                speech.phonemeTable = EditorGUILayout.ObjectField(phonemeTableLabel, speech.phonemeTable, typeof(PhonemeTable), false) as PhonemeTable;
+
+            //Apply change if any
+            if (EditorGUI.EndChangeCheck())
+                EditorUtility.SetDirty(speech);
 
             GUILayout.Space(5);
             Utils.DrawSeparator();

@@ -21,8 +21,10 @@ namespace Resemble.GUIEditor
         private Rect renameRect;
         private bool clipPlaying;
         private bool haveUserData;
+        private bool showRawPhonemes;
         public Text_Editor drawer;
-        private GUIContent userData = new GUIContent("UserData", "This area is available to make your life easier. Put whatever you want in it. You can retrieve it in game via YourClip.userData;");
+        private GUIContent userData = new GUIContent("UserData", "This area is available to make your life easier. Put whatever you want in it. You can retrieve it in game via YourClip.userData.");
+        private GUIContent phonemes = new GUIContent("Phonemes", "You will find here the phonemes pronounced by the generated voice.");
         private double lastCheckTime;
         
         protected override void OnHeaderGUI()
@@ -108,6 +110,15 @@ namespace Resemble.GUIEditor
             DrawAudioArea();
             GUILayout.EndVertical();
 
+            //Draw phonemes area
+            if (clip.speech.includePhonemes)
+            {
+                GUILayout.Space(10);
+                GUILayout.BeginVertical(EditorStyles.helpBox);
+                DrawPhonemesArea();
+                GUILayout.EndVertical();
+            }
+
             //Draw userdata area
             GUILayout.Space(10);
             GUILayout.BeginVertical(EditorStyles.helpBox);
@@ -116,6 +127,7 @@ namespace Resemble.GUIEditor
 
             //Drax connection message
             Utils.ConnectionRequireMessage();
+            GUILayout.Space(30);
 
             //TEMP (still necessary?) Keep refreshing this window 
             Repaint();
@@ -218,6 +230,33 @@ namespace Resemble.GUIEditor
             GUILayout.EndHorizontal();
         }
 
+        private void DrawPhonemesArea()
+        {
+            //Toolbar
+            GUILayout.BeginHorizontal(EditorStyles.toolbar);
+            GUILayout.Space(-4);
+            GUILayout.Label(phonemes, EditorStyles.toolbarButton);
+            GUILayout.FlexibleSpace();
+            bool haveTable = clip.speech.phonemeTable != null;
+
+            if (GUILayout.Toggle(showRawPhonemes, "Raw", EditorStyles.toolbarButton) || !haveTable)
+                showRawPhonemes = true;
+
+            EditorGUI.BeginDisabledGroup(!haveTable);
+            if (GUILayout.Toggle(!showRawPhonemes, "Refined", EditorStyles.toolbarButton))
+                showRawPhonemes = false;
+            EditorGUI.EndDisabledGroup();
+
+            GUILayout.Space(-4);
+            GUILayout.EndHorizontal();
+            GUILayout.Space(10);
+
+
+            //Draw preview
+            Rect rect = GUILayoutUtility.GetRect(Screen.width, 100);
+            EditorGUI.DrawRect(rect, Color.black * 0.7f);
+        }
+
         private void DrawUserDataArea()
         {
             //Toolbar
@@ -253,7 +292,7 @@ namespace Resemble.GUIEditor
             if (haveUserData)
             {
                 GUILayout.Space(10);
-                clip.userdata = GUILayout.TextArea(clip.userdata, GUILayout.MinHeight(50));
+                clip.userdata = GUILayout.TextArea(clip.userdata, GUILayout.MinHeight(100));
             }
 
             //Draw labels

@@ -7,6 +7,9 @@ namespace Resemble
     [CreateAssetMenu(fileName = "New Speech", menuName = "Resemble Speech", order = 220), System.Serializable]
     public class Speech : ScriptableObject
     {
+
+        public bool includePhonemes;
+        public PhonemeTable phonemeTable;
         public string voiceName;
         public string voiceUUID;
         public List<Clip> clips = new List<Clip>();

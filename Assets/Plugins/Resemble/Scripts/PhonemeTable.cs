@@ -4,10 +4,15 @@ using UnityEngine;
 
 namespace Resemble
 {
-    public class PhonemeTable : ScriptableObject
+    public class PhonemeTable : ScriptableObject, iPhonemeTable
     {
 
         public PhonemeGroup[] groups;
+
+        public Phonemes RefineData(PhonemesRaw raw)
+        {
+            throw new System.NotImplementedException();
+        }
 
         [System.Serializable]
         public class PhonemeGroup

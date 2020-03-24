@@ -10,13 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0da67f1a901af494288cbafce6a4e541, type: 3}
-  m_Name: Kratos
+  m_Name: Captain
   m_EditorClassIdentifier: 
-  voiceName: Kratos
-  voiceUUID: 5b81e34a
+  voiceName: Grace (Steamroller)
+  voiceUUID: 7d422820
   clips:
-  - {fileID: 7684094614033797529}
---- !u!114 &7684094614033797529
+  - {fileID: 143140198546848256}
+--- !u!114 &143140198546848256
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -26,16 +26,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
-  m_Name: 264676b2-In the first age
+  m_Name: dd2f9cb5-Hello
   m_EditorClassIdentifier: 
   speech: {fileID: 11400000}
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 8d69096ea1804d142b3b09b94795fba0, type: 3}
   text:
-    userString: 
+    userString: Hello, Captain. Welcome aboard ! I'll be your ship's assistant during
+      your flight.
     tags: []
-    selectID: 0
-    carretID: 0
-  uuid: 264676b2
-  clipName: In the first age
+    selectID: 32
+    carretID: 32
+  uuid: dd2f9cb5
+  clipName: Hello
   userdata: 
   labels: []

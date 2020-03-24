@@ -1,45 +1,33 @@
-﻿namespace Resemble.Structs
+namespace Resemble.Structs
 {
     /// <summary> Response format of the api after a Create clip request. </summary>
     [System.Serializable]
     public class CreateClipRequest
     {
-        public CreateClipData data;
+        public ClipPatch.Data data;
         public string quality;
         public bool raw;
+        public bool phoneme_timestamps;
 
-        public CreateClipRequest(CreateClipData data)
+        public CreateClipRequest(ClipPatch.Data data, bool phonemes)
         {
             this.data = data;
             quality = "high";
             raw = false;
+            phoneme_timestamps = phonemes;
         }
 
-        public CreateClipRequest(CreateClipData data, string quality, bool raw)
+        public CreateClipRequest(ClipPatch.Data data, string quality, bool raw, bool phonemes)
         {
             this.data = data;
             this.quality = quality;
             this.raw = raw;
+            this.phoneme_timestamps = phonemes;
         }
 
         public string Json()
         {
             return UnityEngine.JsonUtility.ToJson(this);
-        }
-    }
-
-    [System.Serializable]
-    public class CreateClipData
-    {
-        public string title;
-        public string body;
-        public string voice;
-
-        public CreateClipData(string title, string body, string voice)
-        {
-            this.title = title;
-            this.body = body;
-            this.voice = voice;
         }
     }
 }

@@ -101,20 +101,25 @@ public class AsyncRequest
         request.status = Status.GeneratePlaceHolder;
         clip.clip = request.GeneratePlaceHolder();
 
-        //No UUID - Create new clip
+
+        //Phonemes stuff
+        bool includePhonemes = clip.speech.includePhonemes;
+        string voiceUUID = includePhonemes ? "681b7996" : clip.speech.voiceUUID;
+
+        //No UUID - Create new clip        
         request.status = Status.SendDataToAPI;
         if (string.IsNullOrEmpty(request.clipUUID))
         {
             //Create new clip
-            CreateClipData data = new CreateClipData(clip.clipName, clip.text.BuildResembleString(), clip.speech.voiceUUID);
-            request.currentTask = APIBridge.CreateClip(data, (ClipStatus status, Error error) =>
+            ClipPatch.Data data = new ClipPatch.Data(clip.clipName, clip.text.BuildResembleString(), voiceUUID);
+            request.currentTask = APIBridge.CreateClip(data, includePhonemes, (ClipStatus status, Error error) =>
             { request.clipUUID = clip.uuid = status.id;  RegisterRequestToPool(request); });
 
         }
         else
         {
             //Patch existing clip
-            ClipPatch patch = new ClipPatch(clip.clipName, clip.text.BuildResembleString(), clip.speech.voiceUUID);
+            ClipPatch patch = new ClipPatch(clip.clipName, clip.text.BuildResembleString(), voiceUUID, includePhonemes);
             request.currentTask = APIBridge.UpdateClip(request.clipUUID, patch, (string content, Error error) =>
             { RegisterRequestToPool(request); });
         }
@@ -140,8 +145,8 @@ public class AsyncRequest
 
         //Send request
         request.status = Status.SendDataToAPI;
-        CreateClipData data = new CreateClipData(GetTemporaryName(), body, voice);
-        request.currentTask = APIBridge.CreateClip(data, (ClipStatus status, Error error) =>
+        ClipPatch.Data data = new ClipPatch.Data(GetTemporaryName(), body, voice);
+        request.currentTask = APIBridge.CreateClip(data, false, (ClipStatus status, Error error) =>
         { request.clipUUID = status.id; RegisterRequestToPool(request);});
 
         //Return the request

@@ -17,7 +17,7 @@ namespace Resemble
         /// <summary> API base url. </summary>
         private const string apiUri = "https://app.resemble.ai/api/v1";
 
-        //Execution queue for tasks (Guaranteed a maximum of tasks at the same time)
+        //Execution queue for tasks (Guaranteed a max limit of tasks at the same time)
         private static Queue<Task> tasks = new Queue<Task>();
         private static List<Task> executionLoop = new List<Task>();
         private static bool receiveUpdates;
@@ -73,10 +73,10 @@ namespace Resemble
             });
         }
 
-        public static Task CreateClipSync(CreateClipData podData, Callback.Simple callback)
+        public static Task CreateClipSync(ClipPatch.Data clipData, bool includePhonemes, Callback.Simple callback)
         {
             string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips/sync";
-            string data = new CreateClipRequest(podData, "x-high", false).Json();
+            string data = new CreateClipRequest(clipData, "high", false, includePhonemes).Json();
 
             return EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
             {
@@ -91,10 +91,10 @@ namespace Resemble
             });
         }
 
-        public static Task CreateClip(CreateClipData clipData, Callback.CreateClip callback)
+        public static Task CreateClip(ClipPatch.Data clipData, bool includePhonemes, Callback.CreateClip callback)
         {
             string uri = apiUri + "/projects/" + Settings.projectUUID + "/clips";
-            string data = new CreateClipRequest(clipData, "high", false).Json();
+            string data = new CreateClipRequest(clipData, "high", false, includePhonemes).Json();
 
             return EnqueueTask(uri, data, Task.Type.Post, (string content, Error error) =>
             {
