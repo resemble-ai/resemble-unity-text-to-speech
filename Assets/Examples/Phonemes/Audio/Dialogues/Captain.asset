@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da67f1a901af494288cbafce6a4e541, type: 3}
   m_Name: Captain
   m_EditorClassIdentifier: 
+  includePhonemes: 1
+  phonemeTable: {fileID: 11400000, guid: 1c1ca46ae5afc7d488d7f0a3907656fc, type: 2}
   voiceName: Grace (Steamroller)
   voiceUUID: 7d422820
   clips:

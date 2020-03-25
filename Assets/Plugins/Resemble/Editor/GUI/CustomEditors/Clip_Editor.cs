@@ -24,7 +24,7 @@ namespace Resemble.GUIEditor
         private bool showRawPhonemes;
         public Text_Editor drawer;
         private GUIContent userData = new GUIContent("UserData", "This area is available to make your life easier. Put whatever you want in it. You can retrieve it in game via YourClip.userData.");
-        private GUIContent phonemes = new GUIContent("Phonemes", "You will find here the phonemes pronounced by the generated voice.");
+        private GUIContent phonemes = new GUIContent("Phonemes", "Phonemes pronounced by the generated voice.");
         private double lastCheckTime;
         
         protected override void OnHeaderGUI()
@@ -351,6 +351,8 @@ namespace Resemble.GUIEditor
             info.SetValue(null, value);
             InitComponents();
             request = AsyncRequest.Get(clip.uuid);
+            if (request != null && !AsyncRequest.refreshing)
+                AsyncRequest.RegisterRefreshEvent();
             haveUserData = !string.IsNullOrEmpty(clip.userdata);
             drawer.Refresh();
             Repaint();

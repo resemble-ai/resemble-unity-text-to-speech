@@ -14,6 +14,11 @@ namespace Resemble.Structs
             phoneme_timestamps = phonemes;
         }
 
+        public bool CompareContent(ResembleClip clip)
+        {
+            return clip.title == data.title && clip.body == data.body && clip.voice == data.voice && clip.phoneme_timestamps == phoneme_timestamps;
+        }
+
         [System.Serializable]
         public class Data
         {

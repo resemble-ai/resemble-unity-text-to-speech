@@ -10,6 +10,7 @@ namespace Resemble.GUIEditor
         private static NotificationsPopup window;
         private static List<Notification> notifs = new List<Notification>();
         private static bool registerToUpdates;
+        private static Color highlightColor = new Color(0.2f, 0.6f, 1.0f, 0.3f);
 
         //Notifications properties
         const int notifHeight = 38;
@@ -154,7 +155,10 @@ namespace Resemble.GUIEditor
                 //Main button
                 else if (rect.Contains(mp))
                 {
-                    EditorGUI.DrawRect(rect, new Color(0.2f, 0.6f, 1.0f, 0.3f));
+                    if (btnRect.Contains(mp))
+                        EditorGUI.DrawRect(btnRect, highlightColor);
+                    else
+                        EditorGUI.DrawRect(rect, highlightColor);
                     if (GUI.Button(rect, "", GUIStyle.none))
                     {
                         notifs[i].displayTime = time - notifTime + 0.5f;

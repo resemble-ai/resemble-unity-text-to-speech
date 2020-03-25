@@ -13,7 +13,7 @@ public class AsyncRequest
     private const float checkCooldown = 1.5f;       //Time in seconds between each request to know if the clip is ready to be downloaded.
     private const int waitClipTimout = 600;         //Maximum time a clip can take to be generated, after it's considered a timout.
 
-    private static bool refreshing;
+    public static bool refreshing;
     public Task currentTask;
     public string saveDirectory;
     public string fileName;
@@ -118,10 +118,32 @@ public class AsyncRequest
         }
         else
         {
-            //Patch existing clip
             ClipPatch patch = new ClipPatch(clip.clipName, clip.text.BuildResembleString(), voiceUUID, includePhonemes);
-            request.currentTask = APIBridge.UpdateClip(request.clipUUID, patch, (string content, Error error) =>
-            { RegisterRequestToPool(request); });
+
+            //Get existing clip
+            request.currentTask = APIBridge.GetClip(clip.uuid, (ResembleClip apiClip, Error error) =>
+            {
+                //Handle error
+                if (error)
+                    request.SetError(error);
+
+                else
+                {
+                    //No changes - Download existing clip
+                    if (apiClip.finished && patch.CompareContent(apiClip))
+                    {
+                        request.currentTask = APIBridge.DownloadClip(apiClip.link, (byte[] data, Error downloadError) =>
+                        { OnDownloaded(request, data, downloadError); RegisterRequestToPool(request); });
+                    }
+
+                    //Changes - Patch existing clip
+                    else
+                    {
+                        request.currentTask = APIBridge.UpdateClip(request.clipUUID, patch, (string content, Error patchError) =>
+                        { RegisterRequestToPool(request); });
+                    }
+                }
+            });
         }
 
         //Return the request

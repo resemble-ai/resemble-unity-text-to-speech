@@ -23,6 +23,7 @@ namespace Resemble.Structs
         public string emotion;
         public string team_id;
         public string callback_uri;
+        public bool phoneme_timestamps;
 
         public override string ToString()
         {
