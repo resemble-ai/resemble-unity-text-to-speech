@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Examples/Phonemes/Scenes/ResembleExample_Blendshapes.unity
+    guid: 9f476fa6889f68343be8dec6a77275c4
   m_configObjects: {}

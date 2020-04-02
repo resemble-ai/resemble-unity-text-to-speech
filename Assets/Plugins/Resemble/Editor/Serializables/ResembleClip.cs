@@ -37,7 +37,8 @@ namespace Resemble.Structs
         public static ResembleClip FromJson(string json)
         {
             ResembleClip clip = JsonUtility.FromJson<ResembleClip>(json);
-            clip.phonemesRaw = JsonUtility.FromJson<PhonemesRaw>(clip.phoneme_timestamps);
+            if (!string.IsNullOrEmpty(clip.phoneme_timestamps))
+                clip.phonemesRaw = JsonUtility.FromJson<PhonemesRaw>(clip.phoneme_timestamps);
             return clip;
         }
 
@@ -45,7 +46,10 @@ namespace Resemble.Structs
         {
             ResembleClip[] clips = JsonUtility.FromJson<SerializablePodArray>(json).clips;
             for (int i = 0; i < clips.Length; i++)
-                clips[i].phonemesRaw = JsonUtility.FromJson<PhonemesRaw>(clips[i].phoneme_timestamps);
+            {
+                if (!string.IsNullOrEmpty(clips[i].phoneme_timestamps))
+                    clips[i].phonemesRaw = JsonUtility.FromJson<PhonemesRaw>(clips[i].phoneme_timestamps);
+            }
             return clips;
         }
 

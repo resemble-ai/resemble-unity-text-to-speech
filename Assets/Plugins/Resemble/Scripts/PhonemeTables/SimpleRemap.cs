@@ -9,7 +9,6 @@ public class SimpleRemap : PhonemeTable
     {
         Phonemes phonemes = new Phonemes();
         phonemes.curves = new Phonemes.PhonemeCurve[groups.Length];
-        bool[] enable = new bool[groups.Length];
 
         for (int i = 0; i < groups.Length; i++)
         {
@@ -26,12 +25,8 @@ public class SimpleRemap : PhonemeTable
                 float time = raw.end_times[i] * inLength;
                 string pho = raw.phonemes[i];
                 bool contains = groups[j].phonemes.Contains(pho);
-                //if (enable[j] != contains)
-                {
-                    Keyframe keyFrame = new Keyframe(time, contains ? 0.5f : 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-                    phonemes.curves[j].curve.AddKey(keyFrame);
-                    enable[j] = contains;
-                }
+                Keyframe keyFrame = new Keyframe(time, contains ? 0.5f : 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+                phonemes.curves[j].curve.AddKey(keyFrame);
             }
         }
 

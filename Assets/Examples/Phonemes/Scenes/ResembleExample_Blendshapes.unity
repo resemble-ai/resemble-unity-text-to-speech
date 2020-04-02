@@ -1238,7 +1238,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: 27b46a7050a8d2b4eb40cd49920bc29d, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 984c57889324c664686e5c1997f76ec5, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
@@ -1336,7 +1336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a99a78cd3c614fc49b5a86daec675d65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clip: {fileID: -7381811459731651528, guid: 382a5362f1a503b41bdef43457ceb354, type: 2}
+  clip: {fileID: -3165240557806161934, guid: 382a5362f1a503b41bdef43457ceb354, type: 2}
   audio: {fileID: 686196725617811525}
   renderer: {fileID: 8002674739784942678}
   materialIndex: 0
@@ -5010,7 +5010,7 @@ SkinnedMeshRenderer:
   - {fileID: 5458475981522622473}
   m_BlendShapeWeights:
   - 0
-  - 4.084311
+  - 0
   - 0
   - 0
   - 0

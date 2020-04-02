@@ -16,7 +16,8 @@ namespace Resemble.GUIEditor
             Material mat = Resources.instance.loadingMat;
             if (Event.current.type == EventType.Repaint)
             {
-                float time = System.DateTime.Now.Millisecond / 1000.0f;
+                System.DateTime now = System.DateTime.Now;
+                float time = now.Millisecond / 1000.0f + now.Second;
                 mat.SetFloat("_Progress", time);
                 mat.SetColor("_Color", new Color(0.0f, 0.0f, 0.0f, 1.0f));
             }
