@@ -115,7 +115,7 @@ namespace Resemble
             return EnqueueTask(uri, Task.Type.Get, (string content, Error error) =>
             {
                 callback.Method.Invoke(callback.Target, error ? new object[] { null, error } :
-                    new object[] { JsonUtility.FromJson<ResembleClip>(content), Error.None });
+                    new object[] { ResembleClip.FromJson(content), Error.None });
             });
         }
 
@@ -128,7 +128,7 @@ namespace Resemble
                 if (error)
                     callback.Method.Invoke(callback.Target, new object[] { null, error });
                 else
-                    callback.Method.Invoke(callback.Target, new object[] { ResembleClip.FromJson(content), Error.None }) ;
+                    callback.Method.Invoke(callback.Target, new object[] { ResembleClip.ArrayFromJson(content), Error.None }) ;
             });
         }
 

@@ -26,7 +26,8 @@ namespace Resemble.GUIEditor
         private GUIContent userData = new GUIContent("UserData", "This area is available to make your life easier. Put whatever you want in it. You can retrieve it in game via YourClip.userData.");
         private GUIContent phonemes = new GUIContent("Phonemes", "Phonemes pronounced by the generated voice.");
         private double lastCheckTime;
-        
+        private float clipTime;
+
         protected override void OnHeaderGUI()
         {
             //Init resources
@@ -152,14 +153,17 @@ namespace Resemble.GUIEditor
             drawer.DrawCharCountBar(rect);
 
             //Draw bottom text buttons
-            GUILayout.Space(10);
+            GUILayout.Space(5);
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if (request == null)
             {
                 EditorGUI.BeginDisabledGroup(string.IsNullOrEmpty(clip.text.userString));
                 if (GUILayout.Button("Generate Audio"))
+                {
                     request = AsyncRequest.Make(clip);
+                    clip.phonemes = null;
+                }
                 EditorGUI.EndDisabledGroup();
             }
             else
@@ -204,7 +208,7 @@ namespace Resemble.GUIEditor
             }
 
             //Draw commands
-            GUILayout.Space(10);
+            GUILayout.Space(5);
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if (request != null)
@@ -238,23 +242,145 @@ namespace Resemble.GUIEditor
             GUILayout.Label(phonemes, EditorStyles.toolbarButton);
             GUILayout.FlexibleSpace();
             bool haveTable = clip.speech.phonemeTable != null;
+            bool havePhonemes = clip.phonemes != null && !clip.phonemes.raw.isEmpty;
 
+            EditorGUI.BeginDisabledGroup(!havePhonemes);
             if (GUILayout.Toggle(showRawPhonemes, "Raw", EditorStyles.toolbarButton) || !haveTable)
                 showRawPhonemes = true;
 
             EditorGUI.BeginDisabledGroup(!haveTable);
             if (GUILayout.Toggle(!showRawPhonemes, "Refined", EditorStyles.toolbarButton))
                 showRawPhonemes = false;
+
+            EditorGUI.EndDisabledGroup();
             EditorGUI.EndDisabledGroup();
 
             GUILayout.Space(-4);
             GUILayout.EndHorizontal();
             GUILayout.Space(10);
 
+            //No phonemes
+            if (!havePhonemes)
+            {
+                if (request == null)
+                    EditorGUILayout.HelpBox("This clip does not contain any phoneme data. Regenerate your clip to get new phonemes.", MessageType.Warning);
+                return;
+            }
 
-            //Draw preview
+            //Get preview area rect
             Rect rect = GUILayoutUtility.GetRect(Screen.width, 100);
-            EditorGUI.DrawRect(rect, Color.black * 0.7f);
+
+            //Set time by click or drag in preview area
+            Event e = Event.current;
+            if ((e.type == EventType.MouseDrag || e.type == EventType.MouseDown) && rect.Offset(0, 0, 0, -20).Contains(e.mousePosition))
+            {
+                Vector2 mousePos = Event.current.mousePosition;
+                clipTime = Rect.PointToNormalized(rect, mousePos).x;
+                int sample = Mathf.RoundToInt(clipTime * clip.clip.samples);
+                Repaint();
+            }
+
+            //Draw area background
+            EditorGUI.DrawRect(rect, Color.black);
+            rect = rect.Shrink(1);
+            EditorGUI.DrawRect(rect, new Color(0.3f, 0.3f, 0.3f, 1.0f));
+
+            //Draw progress bar
+            Rect barRect = new Rect(rect.x + rect.width * clipTime, rect.y, 2, rect.height);
+            EditorGUI.DrawRect(barRect, Color.grey);
+
+            //Preview
+            if (showRawPhonemes)
+                DrawRawPhonemePreview(rect);
+            else
+                DrawPhonemePreview(rect, clip.phonemes.refined);
+        }
+
+        private void DrawRawPhonemePreview(Rect rect)
+        {
+            string[] phonemes = clip.phonemes.raw.phonemes;
+            float[] times = clip.phonemes.raw.end_times;
+
+            int count = phonemes.Length;
+            int id = Utils.FindPreviousIndex(clipTime * clip.clip.length, times) + 1;
+            id = Mathf.Clamp(id, 0, count - 1);
+
+            //Duration
+            float start = id > 0 ? times[id - 1] : 0.0f;
+            float end = times[id];
+            float duration = end - start;
+
+            //Draw infos
+            string info = "Index :\t" + id + " / " + count + "\n";
+            info += "Phoneme :\t[" + phonemes[id] + "]\n";
+            info += "Start :\t" + start.ToString("0.000") + "\n";
+            info += "End :\t" + end.ToString("0.000") + "\n";
+            info += "Duration :\t" + duration.ToString("0.000") + "\n";
+            GUI.Label(rect, info, Styles.phonemesInfos);
+
+            //Commands
+            GUILayout.Space(5);
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("<"))
+                clipTime = Mathf.Max(start / clip.clip.length - 0.0001f, 0);
+            if (GUILayout.Button(">"))
+                clipTime = Mathf.Min(end / clip.clip.length + 0.0001f);
+            if (GUILayout.Button("Copy"))
+                EditorGUIUtility.systemCopyBuffer = phonemes[id];
+            GUILayout.EndHorizontal();
+        }
+
+        private void DrawPhonemePreview(Rect rect, Phonemes phonemes)
+        {
+            //No phonemes
+            if (phonemes == null)
+            {
+                if (Utils.BoxWithLink("There is no refined phonemes.", "Rebuild", MessageType.Error))
+                    clip.phonemes.UpdateTable(clip.speech.phonemeTable);
+                return;
+            }
+
+            //Draw top rect
+            Rect topRect = new Rect(rect.x, rect.y, rect.width, 18);
+            EditorGUI.DrawRect(topRect, Phonemes_Editor.graphBgColor);
+
+            //Draw curves and fields
+            float maxValue = 0.0f;
+            string maxValueName = "";
+            Color maxValueColor = Color.white;
+            for (int i = 0; i < phonemes.curves.Length; i++)
+            {
+                Color curveColor = Color.HSVToRGB((i * 0.13f) % 1.0f, 0.8f, 1.0f);
+                EditorGUIUtility.DrawCurveSwatch(rect, phonemes.curves[i].curve, null, curveColor, Phonemes_Editor.transparent, new Rect(0, 0, 1, 1));
+
+                float value = phonemes.curves[i].curve.Evaluate(clipTime);
+
+                if (value > maxValue)
+                {
+                    maxValue = value;
+                    maxValueName = phonemes.curves[i].name;
+                    maxValueColor = curveColor;
+                }
+            }
+
+            //Draw maxValue top label
+            if (maxValue > 0.0001f)
+            {
+                topRect.x = rect.x + rect.width * clipTime;
+                Color guiColor = GUI.color;
+                GUI.color = maxValueColor;
+                GUI.Label(topRect, maxValueName, Styles.whiteLabel);
+                GUI.color = guiColor;
+            }
+
+            //Commands
+            GUILayout.Space(5);
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (GUILayout.Button("Rebuild"))
+                clip.phonemes.UpdateTable(clip.speech.phonemeTable);
+            GUILayout.EndHorizontal();
         }
 
         private void DrawUserDataArea()
@@ -326,6 +452,9 @@ namespace Resemble.GUIEditor
                 }
                 GUILayout.Space(10);
             }
+
+            else if (!haveUserData)
+                GUILayout.Space(10);
         }
 
         private void InitComponents()
@@ -379,54 +508,6 @@ namespace Resemble.GUIEditor
             }
         }
 
-        public static bool RenameableField(Rect rect, ref bool rename, ref string renameLabel, string originName, out int controlID)
-        {
-            KeyCode keycode = KeyCode.A;
-            controlID = GUIUtility.GetControlID("renameLabel".GetHashCode(), FocusType.Passive, rect);
-            if (Event.current.GetTypeForControl(controlID) == EventType.KeyDown)
-                keycode = Event.current.keyCode;
-            renameLabel = GUI.TextField(rect, rename ? renameLabel : originName, rename ? Styles.headerField : Styles.header);
-            TextEditor textEdit = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-
-            switch (keycode)
-            {
-                case KeyCode.Return:
-                case KeyCode.KeypadEnter:
-                    if (rename)
-                    {
-                        controlID = 0;
-                        GUI.FocusControl("None");
-                    }
-                    break;
-                case KeyCode.Escape:
-                    if (rename)
-                    {
-                        controlID = 0;
-                        renameLabel = originName;
-                        GUI.FocusControl("None");
-                    }
-                    break;
-            }
-
-            if (controlID != textEdit.controlID - 1)
-            {
-                if (rename)
-                {
-                    rename = false;
-                    return true;
-                }
-            }
-            else
-            {
-                if (!rename)
-                {
-                    rename = true;
-                    renameLabel = originName;
-                }
-            }
-            return false;
-        }
-
         public void DrawAudioPlayer()
         {
             if (clipEditor == null || clipEditor.target != clip.clip)
@@ -435,13 +516,11 @@ namespace Resemble.GUIEditor
             }
 
             //Get playing clip data
-            int sample = 0;
-            float time = 0.0f;
             if (clipPlaying)
             {
                 clipPlaying = AudioPreview.IsClipPlaying(clip.clip);
-                sample = AudioPreview.GetClipSamplePosition(clip.clip);
-                time = sample / (float)clip.clip.samples;
+                int sample = AudioPreview.GetClipSamplePosition(clip.clip);
+                clipTime = sample / (float)clip.clip.samples;
             }
 
             //Preview toolbar
@@ -452,7 +531,9 @@ namespace Resemble.GUIEditor
             {
                 if (GUILayout.Button("Play", EditorStyles.toolbarButton))
                 {
-                    AudioPreview.PlayClip(clip.clip);
+                    int sample = Mathf.RoundToInt(clipTime * clip.clip.samples);
+                    AudioPreview.PlayClip(clip.clip, sample);
+                    AudioPreview.SetClipSamplePosition(clip.clip, sample);
                     clipPlaying = true;
                 }
             }
@@ -468,37 +549,66 @@ namespace Resemble.GUIEditor
             GUILayout.FlexibleSpace();
 
             //Draw clip length label
-            float clipLength = clip.clip.length;
-            GUILayout.Label((time * clipLength).ToString("0:00") + "/" + clipLength.ToString("0:00"));
+            float clipLength = clip.clip.length * 1000;
+            GUILayout.Label((clipTime * clipLength).ToString("0:00:000") + " / " + clipLength.ToString("0:00:000"));
 
             GUILayout.EndHorizontal();
             GUILayout.Space(10);
 
-            //Draw preview
+
+            //Get preview area rect
             Rect rect = GUILayoutUtility.GetRect(Screen.width, 100);
-            
-            //Allows you to launch the clip at a given timming.
-            if (GUI.Button(rect, "", GUIStyle.none))
-            {
-                time = Rect.PointToNormalized(rect, Event.current.mousePosition).x;
-                sample = Mathf.RoundToInt(time * clip.clip.samples);
-                if (clipPlaying)
-                    AudioPreview.StopClip(clip.clip);
-                AudioPreview.PlayClip(clip.clip, sample);
-                AudioPreview.SetClipSamplePosition(clip.clip, sample);
-                clipPlaying = true;
-            }
 
-            //Draw clip spectrum
-            clipEditor.OnPreviewGUI(rect, GUI.skin.box);
 
-            //Draw progress bar
-            if (clipPlaying)
+            //Set time by click or drag in preview area
+            Event e = Event.current;
+            if ((e.type == EventType.MouseDrag || e.type == EventType.MouseDown) && rect.Contains(e.mousePosition))
             {
-                rect.Set(rect.x + rect.width * time, rect.y, 2, rect.height);
-                EditorGUI.DrawRect(rect, Color.white);
+                //Snap
+                Vector2 mousePos = Event.current.mousePosition;
+                if (mousePos.x - rect.x < 10)
+                    mousePos.x = rect.x;
+
+                clipTime = Rect.PointToNormalized(rect, mousePos).x;
+                int sample = Mathf.RoundToInt(clipTime * clip.clip.samples);
                 Repaint();
             }
+
+
+            //Play-Pause by space
+            if (e.type == EventType.KeyDown && e.keyCode == KeyCode.Space)
+            {
+                if (clipPlaying)
+                {
+                    AudioPreview.StopClip(clip.clip);
+                    clipPlaying = false;
+                }
+                else
+                {
+                    int sample = Mathf.RoundToInt(clipTime * clip.clip.samples);
+                    AudioPreview.PlayClip(clip.clip, sample);
+                    AudioPreview.SetClipSamplePosition(clip.clip, sample);
+                    clipPlaying = true;
+                }
+                e.Use();
+            }
+
+
+            //Block native preview interactions
+            if (e.type != EventType.Repaint && e.type != EventType.Layout && rect.Contains(e.mousePosition))
+                e.Use();
+
+
+            //Draw clip spectrum
+            EditorGUI.DrawRect(rect, Color.black);
+            rect = rect.Shrink(1);
+            EditorGUI.DrawRect(rect, new Color(0.3f, 0.3f, 0.3f, 1.0f));
+            clipEditor.OnPreviewGUI(rect, GUIStyle.none);
+
+
+            //Draw progress bar
+            rect.Set(rect.x + rect.width * clipTime, rect.y, 2, rect.height);
+            EditorGUI.DrawRect(rect, Color.white);
         }
 
         public void UpdateFromAPI()

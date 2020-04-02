@@ -8,8 +8,16 @@ namespace Resemble
         public Speech speech;
         public AudioClip clip;
         public Text text;
+        public PhonemeData phonemes;
         public string uuid;
         public string clipName;
+        public bool havePhonemes
+        {
+            get
+            {
+                return speech.includePhonemes && phonemes != null && !phonemes.raw.isEmpty;
+            }
+        }
 
         //User custom data
         public string userdata;
@@ -74,5 +82,11 @@ namespace Resemble
         }
 
         #endregion
+
+        public void SetPhonemesRaw(PhonemesRaw raw)
+        {
+            phonemes = new PhonemeData(raw, speech.phonemeTable);
+        }
+
     }
 }

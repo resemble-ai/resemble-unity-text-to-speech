@@ -21,6 +21,7 @@ namespace Resemble
         [SerializeField] private bool _showWelcomePopup = true;
         [SerializeField] private string _folderPathA = "";
         [SerializeField] private string _folderPathB = "";
+        [SerializeField] private bool _forceGeneration;
 
 
         //Acces to the saved settings - Make this object dirty when change
@@ -83,6 +84,13 @@ namespace Resemble
         public static bool haveProject
         {
             get { return !string.IsNullOrEmpty(instance._projectUUID); }
+        }
+
+        /// <summary> Performs a generation even if the clip is similar to the one already present on the api.. </summary>
+        public static bool forceGeneration
+        {
+            get { return instance._forceGeneration; }
+            set { if (instance._forceGeneration != value) instance._forceGeneration = value; SetDirty(); }
         }
 
         #endregion

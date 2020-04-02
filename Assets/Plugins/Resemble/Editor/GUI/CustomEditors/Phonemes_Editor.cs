@@ -6,40 +6,40 @@ using Resemble.GUIEditor;
 using Resemble;
 using System;
 
-[CustomEditor(typeof(Phonemes))]
+//[CustomEditor(typeof(Phonemes))]
 public class Phonemes_Editor : Editor
 {
 
     private Phonemes phonemes;
-    private static Color graphBgColor = new Color(0.2f, 0.2f, 0.2f, 1.0f);
-    private static Color transparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);
+    public static Color graphBgColor = new Color(0.2f, 0.2f, 0.2f, 1.0f);
+    public static Color transparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);
     private float time;
 
     public delegate void Callback();
     public delegate void CallbackIndex(Rect rect, int index);
 
-    public override void OnInspectorGUI()
-    {
-        //Init vars
-        phonemes = target as Phonemes;
-        Event e = Event.current;
-        Styles.Load();
+    //public override void OnInspectorGUI()
+    //{
+    //    //Init vars
+    //    phonemes = target as Phonemes;
+    //    Event e = Event.current;
+    //    Styles.Load();
 
 
-        //Fields
-        serializedObject.UpdateIfRequiredOrScript();
-        EditorGUILayout.PropertyField(serializedObject.FindProperty("phonemes"));
-        serializedObject.ApplyModifiedProperties();
+    //    //Fields
+    //    serializedObject.UpdateIfRequiredOrScript();
+    //    EditorGUILayout.PropertyField(serializedObject.FindProperty("phonemes"));
+    //    serializedObject.ApplyModifiedProperties();
 
 
-        //User commands
-        if (GUILayout.Button("Load alignement matrice"))
-            LoadAlignementMatrice();
-        if (GUILayout.Button("Load remaping table"))
-            ApplyTable();
+    //    //User commands
+    //    if (GUILayout.Button("Load alignement matrice"))
+    //        LoadAlignementMatrice();
+    //    if (GUILayout.Button("Load remaping table"))
+    //        ApplyTable();
 
-        DrawGraph(phonemes, ref time, Repaint, null);
-    }
+    //    DrawGraph(phonemes, ref time, Repaint, null);
+    //}
 
     public static void DrawGraph(Phonemes phonemes, ref float time, Callback repaint, CallbackIndex onDrawItem)
     {
@@ -129,15 +129,6 @@ public class Phonemes_Editor : Editor
         }
     }
 
-    private void LoadAlignementMatrice()
-    {
-        string path = EditorUtility.OpenFilePanel("Open phonemes csv file", "", "csv");
-        if (string.IsNullOrEmpty(path))
-            return;
-        phonemes.BuildCurves(path);
-        EditorUtility.SetDirty(phonemes);
-    }
-
     private void ApplyTable()
     {
         string path = EditorUtility.OpenFilePanel("Open Phoneme Table", Application.dataPath, "asset");
@@ -168,7 +159,7 @@ public class Phonemes_Editor : Editor
 
         phonemes.curves = curves;
 
-        EditorUtility.SetDirty(phonemes);
+        //EditorUtility.SetDirty(phonemes);
     }
 
     private void MaxKeyToCurve(AnimationCurve target, AnimationCurve addition)

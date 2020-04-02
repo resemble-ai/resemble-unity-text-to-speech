@@ -26,9 +26,9 @@ public class PhonemeToShader_Editor : Editor
 
         //Draw graph
         float temp = time;
-        if (reader.data != null)
+        if (reader.clip != null)
         {
-            Phonemes_Editor.DrawGraph(reader.data, ref temp, Repaint, null);
+            Phonemes_Editor.DrawGraph(reader.clip.phonemes.refined, ref temp, Repaint, null);
         }
         if (temp != time)
         {
@@ -59,13 +59,13 @@ public class PhonemeToShader_Editor : Editor
 
     void SetValuesToShader(float time)
     {
-        if (reader.renderer == null || reader.data == null)
+        if (reader.renderer == null || reader.clip == null)
             return;
         Material material = reader.renderer.sharedMaterials[reader.materialIndex];
         if (material == null)
             return;
 
-        KeyValuePair<string, float>[] values = reader.data.Evaluate(time);
+        KeyValuePair<string, float>[] values = reader.clip.phonemes.refined.Evaluate(time);
         for (int i = 0; i < values.Length; i++)
         {
             material.SetFloat(string.Format("_{0}", values[i].Key), values[i].Value * reader.factor);

@@ -32,9 +32,9 @@ public class PhonemeToBlendShapes_Editor : Editor
 
         //Draw graph
         float temp = time;
-        if (reader.data != null)
+        if (reader.clip != null)
         {
-            Phonemes_Editor.DrawGraph(reader.data, ref temp, Repaint, BlendShapeField);
+            Phonemes_Editor.DrawGraph(reader.clip.phonemes.refined, ref temp, Repaint, BlendShapeField);
         }
         if (temp != time)
         {
@@ -65,6 +65,7 @@ public class PhonemeToBlendShapes_Editor : Editor
 
     private void LoadBlendShapes()
     {
+        shapesNames = new string[] { "None" };
         if (reader.renderer != null && reader.renderer.sharedMesh != null)
         {
             Mesh mesh = reader.renderer.sharedMesh;
@@ -78,10 +79,10 @@ public class PhonemeToBlendShapes_Editor : Editor
 
     private void CheckRemapArraySize()
     {
-        if (reader.data == null)
+        if (reader.clip == null)
             return;
 
-        int lengthTarget = reader.data.curves.Length;
+        int lengthTarget = reader.clip.phonemes.refined.curves.Length;
         if (reader.remap == null)
             reader.remap = new int[lengthTarget];
         else if (reader.remap.Length != lengthTarget)
@@ -90,6 +91,8 @@ public class PhonemeToBlendShapes_Editor : Editor
 
     private void BlendShapeField(Rect rect, int index)
     {
+        LoadBlendShapes();
+
         bool containsID = index < reader.remap.Length;
         int shapeId = containsID ? reader.remap[index] + 1 : -1;
 

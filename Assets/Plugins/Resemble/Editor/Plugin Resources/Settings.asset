@@ -20,3 +20,4 @@ MonoBehaviour:
   _showWelcomePopup: 0
   _folderPathA: 
   _folderPathB: 
+  _forceGeneration: 0

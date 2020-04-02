@@ -14,8 +14,12 @@ namespace Resemble.GUIEditor
             GUILayout.Label(label, Styles.centredLabel);
             Rect rect = GUILayoutUtility.GetRect(25, 25);
             Material mat = Resources.instance.loadingMat;
-            mat.SetFloat("_Progress", (float)(EditorApplication.timeSinceStartup % 1.0f));
-            mat.SetColor("_Color", new Color(0.0f, 0.0f, 0.0f, 1.0f));
+            if (Event.current.type == EventType.Repaint)
+            {
+                float time = System.DateTime.Now.Millisecond / 1000.0f;
+                mat.SetFloat("_Progress", time);
+                mat.SetColor("_Color", new Color(0.0f, 0.0f, 0.0f, 1.0f));
+            }
             EditorGUI.DrawPreviewTexture(rect, Resources.instance.loadingTex, mat);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
@@ -312,6 +316,28 @@ namespace Resemble.GUIEditor
         {
             color.a = alpha;
             return color;
+        }
+
+        public static int FindPreviousIndex(float value, float[] array)
+        {
+            if (value < array[0])
+                return -1;
+
+            int start = 0;
+            int end = array.Length;
+            int mid;
+
+            while (end - start > 1)
+            {
+                mid = (start + end) / 2;
+                if (value > array[mid])
+                    start = mid;
+                else
+                    end = mid;
+            }
+
+            mid = (start + end) / 2;
+            return mid;
         }
 
         public enum ButtonState

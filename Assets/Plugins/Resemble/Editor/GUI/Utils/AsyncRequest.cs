@@ -14,16 +14,18 @@ public class AsyncRequest
     private const int waitClipTimout = 600;         //Maximum time a clip can take to be generated, after it's considered a timout.
 
     public static bool refreshing;
+
     public Task currentTask;
-    public string saveDirectory;
-    public string fileName;
-    public bool deleteClipAtEnd;
-    public string requestName;
-    public string clipUUID;
     public Object notificationLink;
-    public bool needToBeRefresh;
+    private PhonemesCallback phonemeCallback;
+    public string saveDirectory;
+    public string requestName;
+    public string fileName;
+    public string clipUUID;
     public double lastCheckTime;
     public double lastStateTime;
+    public bool deleteClipAtEnd;
+    public bool needToBeRefresh;
     public Error error;
     
     public Status status
@@ -60,15 +62,6 @@ public class AsyncRequest
     }
     private Status _status;
 
-    public float downloadProgress
-    {
-        get
-        {
-            if (status != Status.Downloading)
-                return 0.0f;
-            return currentTask.preview.download.progress;
-        }
-    }
     public bool isDone
     {
         get
@@ -83,6 +76,18 @@ public class AsyncRequest
             }
         }
     }
+    public float downloadProgress
+    {
+        get
+        {
+            if (status != Status.Downloading)
+                return 0.0f;
+            return currentTask.preview.download.progress;
+        }
+    }
+
+    private delegate void PhonemesCallback(PhonemesRaw phonemes);
+
 
     /// <summary> Build a async request for a clip. This request handles patching, downloading and notifications. </summary>
     public static AsyncRequest Make(Clip clip)
@@ -97,6 +102,7 @@ public class AsyncRequest
         request.clipUUID = clip.uuid;
         request.notificationLink = clip;
 
+
         //Generate place holder
         request.status = Status.GeneratePlaceHolder;
         clip.clip = request.GeneratePlaceHolder();
@@ -105,6 +111,8 @@ public class AsyncRequest
         //Phonemes stuff
         bool includePhonemes = clip.speech.includePhonemes;
         string voiceUUID = includePhonemes ? "681b7996" : clip.speech.voiceUUID;
+        if (includePhonemes)
+            request.phonemeCallback = clip.SetPhonemesRaw;
 
         //No UUID - Create new clip        
         request.status = Status.SendDataToAPI;
@@ -118,32 +126,44 @@ public class AsyncRequest
         }
         else
         {
-            ClipPatch patch = new ClipPatch(clip.clipName, clip.text.BuildResembleString(), voiceUUID, includePhonemes);
+            ClipPatch patch = new ClipPatch(clip.clipName, clip.text.BuildResembleString(), voiceUUID, clip.speech.includePhonemes);
 
-            //Get existing clip
-            request.currentTask = APIBridge.GetClip(clip.uuid, (ResembleClip apiClip, Error error) =>
+            //Bypass the api check for similarities.
+            if (Settings.forceGeneration)
             {
+                //Patch clip
+                request.currentTask = APIBridge.UpdateClip(request.clipUUID, patch, (string content, Error patchError) =>
+                { RegisterRequestToPool(request); });
+            }
+
+            //Check the api for similarities
+            else
+            {
+                //Get existing clip
+                APIBridge.GetClip(clip.uuid, (ResembleClip apiClip, Error error) =>
+                {
                 //Handle error
                 if (error)
-                    request.SetError(error);
+                        request.SetError(error);
 
-                else
-                {
+                    else
+                    {
                     //No changes - Download existing clip
                     if (apiClip.finished && patch.CompareContent(apiClip))
-                    {
-                        request.currentTask = APIBridge.DownloadClip(apiClip.link, (byte[] data, Error downloadError) =>
-                        { OnDownloaded(request, data, downloadError); RegisterRequestToPool(request); });
-                    }
+                        {
+                            APIBridge.DownloadClip(apiClip.link, (byte[] data, Error downloadError) =>
+                            { OnDownloaded(request, data, downloadError); RegisterRequestToPool(request); });
+                        }
 
                     //Changes - Patch existing clip
                     else
-                    {
-                        request.currentTask = APIBridge.UpdateClip(request.clipUUID, patch, (string content, Error patchError) =>
-                        { RegisterRequestToPool(request); });
+                        {
+                            request.currentTask = APIBridge.UpdateClip(request.clipUUID, patch, (string content, Error patchError) =>
+                            { RegisterRequestToPool(request); });
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         //Return the request
@@ -314,7 +334,13 @@ public class AsyncRequest
             {
                 //Clip is ready - Start downloading
                 if (clip.finished)
+                {
                     DownloadClip(request, clip.link);
+
+                    //Get phonemes
+                    if (request.phonemeCallback != null)
+                        request.phonemeCallback.Invoke(clip.phonemesRaw);
+                }
 
                 //Clip is not ready - Mark to create a request next time
                 else

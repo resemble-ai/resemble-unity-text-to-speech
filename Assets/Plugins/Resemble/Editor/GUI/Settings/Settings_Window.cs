@@ -52,7 +52,7 @@ namespace Resemble.GUIEditor
                 prefWindow.minSize = new Vector2(550, 500);
             }
 
-            //Draw (project | paths | help) toolbar
+            //Draw (project | options | help) toolbar
             DrawToolbar();
 
             //Open a scrollable layout area
@@ -70,7 +70,7 @@ namespace Resemble.GUIEditor
                     DrawProjectSettingsGUI();
                     break;
                 case 1:
-                    DrawPathsSettingsGUI();
+                    DrawOptionsSettingsGUI();
                     break;
                 case 2:
                     DrawHelpSettingsGUI();
@@ -91,7 +91,7 @@ namespace Resemble.GUIEditor
                     DrawProjectFooterGUI();
                     break;
                 case 1:
-                    DrawPathsFooterGUI();
+                    DrawOptionsFooterGUI();
                     break;
                 case 2:
                     DrawHelpFooterGUI();
@@ -101,7 +101,7 @@ namespace Resemble.GUIEditor
 
         private void DrawToolbar()
         {
-            pageID = GUILayout.Toolbar(pageID, new string[] { "Project", "Paths", "Help" });
+            pageID = GUILayout.Toolbar(pageID, new string[] { "Project", "Options", "Help" });
         }
 
         //Settings tags

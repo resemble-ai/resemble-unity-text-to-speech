@@ -12,6 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0da67f1a901af494288cbafce6a4e541, type: 3}
   m_Name: Sherlock
   m_EditorClassIdentifier: 
+  includePhonemes: 1
+  phonemeTable: {fileID: 11400000, guid: 1c1ca46ae5afc7d488d7f0a3907656fc, type: 2}
   voiceName: Sherlock
   voiceUUID: bbe98616
   clips:
@@ -30,7 +32,7 @@ MonoBehaviour:
   m_Name: 007c1b33-PotionShop
   m_EditorClassIdentifier: 
   speech: {fileID: 11400000}
-  clip: {fileID: 0}
+  clip: {fileID: 8300000, guid: 3a88e3c9f2751754aa5f06131ca1b343, type: 3}
   text:
     userString: "Morning old man,\u2003\u2003 do you know where I could find a potion
       shop?"
@@ -78,6 +80,11 @@ MonoBehaviour:
       duration: 0.5
     selectID: 64
     carretID: 64
+  phonemes:
+    raw:
+      phonemes: 
+      end_times: []
+    refined: {fileID: 0}
   uuid: 007c1b33
   clipName: PotionShop
   userdata: 
@@ -101,6 +108,11 @@ MonoBehaviour:
     tags: []
     selectID: 0
     carretID: 0
+  phonemes:
+    raw:
+      phonemes: 
+      end_times: []
+    refined: {fileID: 0}
   uuid: 4f271dcc
   clipName: Cannoli
   userdata: 

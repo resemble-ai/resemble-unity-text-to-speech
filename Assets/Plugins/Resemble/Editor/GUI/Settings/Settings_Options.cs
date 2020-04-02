@@ -12,11 +12,10 @@ namespace Resemble.GUIEditor
         private GUIContent useSubFolder = new GUIContent("Use subdirectory", "Specifies if you want a folder with the " +
             "name of the CharacterSet before saving the AudioClips.");
 
-        private void DrawPathsSettingsGUI()
+        private void DrawOptionsSettingsGUI()
         {
-            //Description
-            GUILayout.Label("Describe where AudioClips from CharacterSets should be generated.", EditorStyles.centeredGreyMiniLabel);
-            GUILayout.Space(10);
+            //Path settings
+            GUILayout.Label(new GUIContent("Paths", "Describe where AudioClips from CharacterSets should be generated."), Styles.header);
 
             //Path methode
             Settings.pathMethode = (Settings.PathMethode) EditorGUILayout.EnumPopup(
@@ -39,15 +38,22 @@ namespace Resemble.GUIEditor
             //Use subFolders
             Settings.useSubFolder = EditorGUILayout.Toggle(useSubFolder, Settings.useSubFolder);
 
-            //Example label
-            GUILayout.Space(10);
-            GUILayout.Label("Example :");
-
             //Draw example image
-            Rect rect = GUILayoutUtility.GetRect(1, 1);
             Texture image = Resources.instance.pathImages[(int)Settings.pathMethode * 2 + (Settings.useSubFolder ? 1 : 0)];
-            rect.Set(rect.x, rect.y, image.width+1, image.height+1);
+            Rect rect = GUILayoutUtility.GetAspectRect(image.width / image.height);
             GUI.Label(rect, image);
+
+
+
+            //Generation settings
+            Utils.DrawSeparator();
+            GUILayout.Space(20);
+            GUILayout.Label("Generation", Styles.header);
+            Settings.forceGeneration = !EditorGUILayout.Toggle(
+                new GUIContent("Bypass if unchanged", "Bypass the generation if the clip is similar to the api one and just download the existing clip."),
+                !Settings.forceGeneration);
+            GUILayout.Space(10);
+
         }
 
         private string FolderField(string label, string path)
@@ -81,6 +87,6 @@ namespace Resemble.GUIEditor
             return path;
         }
 
-        private void DrawPathsFooterGUI(){}
+        private void DrawOptionsFooterGUI(){}
     }
 }

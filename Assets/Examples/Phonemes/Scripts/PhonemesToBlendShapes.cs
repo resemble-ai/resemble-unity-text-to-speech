@@ -13,7 +13,7 @@ public class PhonemesToBlendShapes : PhonemeReader
 
     protected private void Awake()
     {
-        smoothValues = new float[data.curves.Length];
+        smoothValues = new float[clip.phonemes.refined.curves.Length];
     }
 
     protected virtual void Update()
@@ -33,15 +33,15 @@ public class PhonemesToBlendShapes : PhonemeReader
         if (renderer != null)
         {
             if (smoothValues == null)
-                smoothValues = new float[data.curves.Length];
+                smoothValues = new float[clip.phonemes.refined.curves.Length];
 
             float f = 100 * factor;
-            int count = data.curves.Length;
+            int count = clip.phonemes.refined.curves.Length;
             float[] values = new float[count];
             float smoothDelta = Time.deltaTime * smoothFactor;
             for (int i = 0; i < count; i++)
             {
-                float value = data.curves[i].curve.Evaluate(time);
+                float value = clip.phonemes.refined.curves[i].curve.Evaluate(time);
                 values[i] = Mathf.Max(values[i], value);
             }
             for (int i = 0; i < count; i++)

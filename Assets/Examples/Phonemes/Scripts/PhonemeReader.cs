@@ -4,7 +4,7 @@ using Resemble;
 
 public class PhonemeReader : MonoBehaviour
 {
-    public Phonemes data;
+    public Clip clip;
     public new AudioSource audio;
 
     public bool isPlaying
@@ -18,9 +18,9 @@ public class PhonemeReader : MonoBehaviour
     /// <summary> Get values at current audioTime </summary>
     public virtual KeyValuePair<string, float>[] GetValues()
     {
-        if (data == null)
+        if (clip == null)
             throw new System.NullReferenceException("The data field is null on the Phoneme Reader.");
 
-        return data.Evaluate(audio.time / audio.clip.length);
+        return clip.phonemes.refined.Evaluate(audio.time / audio.clip.length);
     }
 }

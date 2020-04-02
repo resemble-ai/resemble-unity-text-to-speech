@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Resemble
@@ -9,9 +7,10 @@ namespace Resemble
 
         public PhonemeGroup[] groups;
 
-        public Phonemes RefineData(PhonemesRaw raw)
+        public virtual Phonemes RefineData(PhonemesRaw raw)
         {
-            throw new System.NotImplementedException();
+            Debug.LogError("Refine not implemented");
+            return null;
         }
 
         [System.Serializable]

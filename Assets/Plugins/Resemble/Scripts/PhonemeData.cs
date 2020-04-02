@@ -11,14 +11,21 @@ namespace Resemble
         public PhonemesRaw raw;
         public Phonemes refined;
 
-        public void SetData(PhonemesRaw raw, PhonemeTable table)
+        public PhonemeData(PhonemesRaw raw, PhonemeTable table)
         {
-
+            this.raw = raw;
+            refined = table == null ? null : table.RefineData(raw);
         }
 
-        public void UpdateFromTable(PhonemeTable table)
+        public void SetData(PhonemesRaw raw, PhonemeTable table)
         {
+            this.raw = raw;
+            refined = table == null ? null : table.RefineData(raw);
+        }
 
+        public void UpdateTable(PhonemeTable table)
+        {
+            refined = table == null ? null : table.RefineData(raw);
         }
     }
 }

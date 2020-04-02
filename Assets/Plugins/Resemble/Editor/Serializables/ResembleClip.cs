@@ -23,23 +23,37 @@ namespace Resemble.Structs
         public string emotion;
         public string team_id;
         public string callback_uri;
-        public bool phoneme_timestamps;
+
+        //Phonemes
+        #pragma warning disable 0649
+        [SerializeField] private string phoneme_timestamps;
+        public PhonemesRaw phonemesRaw;
 
         public override string ToString()
         {
-            return string.Format("(Title: {0}, Body: {1}, Finished: {2})", title, body, finished);
+            return JsonUtility.ToJson(this, true);
+        }
+        
+        public static ResembleClip FromJson(string json)
+        {
+            ResembleClip clip = JsonUtility.FromJson<ResembleClip>(json);
+            clip.phonemesRaw = JsonUtility.FromJson<PhonemesRaw>(clip.phoneme_timestamps);
+            return clip;
         }
 
-        public static ResembleClip[] FromJson(string json)
+        public static ResembleClip[] ArrayFromJson(string json)
         {
-            return JsonUtility.FromJson<SerializablePodArray>(json).pods;
+            ResembleClip[] clips = JsonUtility.FromJson<SerializablePodArray>(json).clips;
+            for (int i = 0; i < clips.Length; i++)
+                clips[i].phonemesRaw = JsonUtility.FromJson<PhonemesRaw>(clips[i].phoneme_timestamps);
+            return clips;
         }
 
         [System.Serializable]
         public struct SerializablePodArray
         {
             [SerializeField]
-            public ResembleClip[] pods;
+            public ResembleClip[] clips;
         }
     }
 }

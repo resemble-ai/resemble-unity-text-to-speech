@@ -25,9 +25,9 @@ public class PhonemeReader_Editor : Editor
         }
 
         //Draw graph
-        if (reader.data != null)
+        if (reader.clip != null)
         {
-            Phonemes_Editor.DrawGraph(reader.data, ref time, Repaint, null);
+            Phonemes_Editor.DrawGraph(reader.clip.phonemes.refined, ref time, Repaint, null);
         }
 
         //Draw play button

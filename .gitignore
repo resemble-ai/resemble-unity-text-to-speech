@@ -9,6 +9,7 @@
 [Ll]ogs/
 Assets/AssetStoreTools*
 Assets/Examples/SphereWorlds
+Assets/Examples/Dialogues
 
 # Visual Studio cache directory
 .vs/

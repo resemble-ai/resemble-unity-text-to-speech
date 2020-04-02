@@ -33,6 +33,8 @@ namespace Resemble
         public static GUIStyle folderPathFieldRight;
         public static GUIStyle whiteFrame;
         public static GUIStyle whiteLabel;
+        public static GUIStyle phonemesInfos;
+        public static GUIStyle spectrumBackground;
         public static GUIContent characterSetHelpBtn;
         public static GUIContent popupBtn;
         public static Color clipGreenColor = new Color(0.1921f, 0.8196f, 0.6352f);
@@ -131,6 +133,12 @@ namespace Resemble
 
             whiteLabel = new GUIStyle(GUI.skin.label);
             whiteLabel.normal.textColor = Color.white;
+
+            phonemesInfos = new GUIStyle(whiteLabel);
+            phonemesInfos.alignment = TextAnchor.UpperLeft;
+            phonemesInfos.fontSize = 16;
+
+            spectrumBackground = new GUIStyle(GUI.skin.box);
 
 
             //GUIContent

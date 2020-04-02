@@ -87,7 +87,7 @@ Shader "Hidden/Ressemble/Loading"
 				float2 uv = i.texcoord;
 				float x = floor(uv.x * 3) * 0.333;
 
-				float off = (0.95 + sin(-_Time.y * 5 + x * 4) * 0.2 + 0.2);
+				float off = (0.95 + sin(-_Progress * 5 + x * 4) * 0.2 + 0.2);
 				off *= off;
 				off *= off;
 

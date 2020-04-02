@@ -297,7 +297,20 @@ namespace Resemble.GUIEditor
 
             //Phoneme table
             if (speech.includePhonemes)
-                speech.phonemeTable = EditorGUILayout.ObjectField(phonemeTableLabel, speech.phonemeTable, typeof(PhonemeTable), false) as PhonemeTable;
+            {
+                PhonemeTable temp = EditorGUILayout.ObjectField(phonemeTableLabel, speech.phonemeTable, typeof(PhonemeTable), false) as PhonemeTable;
+
+                //Update phoneme table on clip when change
+                if (temp != speech.phonemeTable)
+                {
+                    speech.phonemeTable = temp;
+                    for (int i = 0; i < speech.clips.Count; i++)
+                    {
+                        if (speech.clips[i].havePhonemes)
+                            speech.clips[i].phonemes.UpdateTable(temp);
+                    }
+                }
+            }
 
             //Apply change if any
             if (EditorGUI.EndChangeCheck())
