@@ -14,6 +14,7 @@ public class PhonemesToBlendShapes : PhonemeReader
     protected private void Awake()
     {
         smoothValues = new float[clip.phonemes.refined.curves.Length];
+        audio.clip = clip.clip;
     }
 
     protected virtual void Update()
