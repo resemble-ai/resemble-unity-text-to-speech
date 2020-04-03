@@ -13,7 +13,8 @@ namespace Resemble
         #region Saved settings
 
         //Saved settings - Saved between session - Acces via static getter only
-        [SerializeField] private string _token;
+        private static string _resembleToken;
+        private static bool _cachedToken;
         [SerializeField] private bool _connected;
         [SerializeField] private string _projectUUID;
         [SerializeField] private PathMethode _pathMethode = PathMethode.SamePlace;
@@ -28,8 +29,28 @@ namespace Resemble
         /// <summary> User token, Used to authenticate to the Resemble API.  </summary>
         public static string token
         {
-            get { return instance._token; }
-            set { if (instance._token != value) instance._token = value; SetDirty(); }
+            get
+            {
+                if (!_cachedToken)
+                {
+                    _resembleToken = EditorPrefs.GetString("ResembleToken", "");
+                    _cachedToken = true;
+                }
+                return _resembleToken;
+            }
+            set
+            {
+                if (!_cachedToken)
+                {
+                    _resembleToken = EditorPrefs.GetString("ResembleToken", "");
+                    _cachedToken = true;
+                }
+                if (_resembleToken != value)
+                {
+                    EditorPrefs.SetString("ResembleToken", value);
+                    _resembleToken = value;
+                }
+            }
         }
 
         /// <summary> Indicate if the user is connected. </summary>
