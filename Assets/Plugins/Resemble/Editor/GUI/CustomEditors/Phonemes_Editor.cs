@@ -94,7 +94,7 @@ public class Phonemes_Editor : Editor
             GUI.Box(barRect, "", Styles.whiteFrame);
             float value = phonemes.curves[i].curve.Evaluate(time);
             Rect fillRect = barRect;
-            fillRect.width *= value;
+            fillRect.width *= Mathf.Clamp01(value);
 
             if (value > maxValue)
             {

@@ -246,7 +246,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e87e209ad614e6f458b37a7a125a5fe7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clip: {fileID: -3165240557806161934, guid: 382a5362f1a503b41bdef43457ceb354, type: 2}
+  clip: {fileID: 601481613567650726, guid: 597ab8206c30c37458dfa69a739d2fa7, type: 2}
   audio: {fileID: 32072810}
   renderer: {fileID: 225482955}
   materialIndex: 1
@@ -4057,6 +4057,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   anim: {fileID: 32072811}
   audio: {fileID: 32072810}
+  onTrigger:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!4 &1532125796
 Transform:
   m_ObjectHideFlags: 0

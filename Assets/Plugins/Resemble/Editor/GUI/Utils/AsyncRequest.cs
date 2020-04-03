@@ -110,7 +110,7 @@ public class AsyncRequest
 
         //Phonemes stuff
         bool includePhonemes = clip.speech.includePhonemes;
-        string voiceUUID = includePhonemes ? "681b7996" : clip.speech.voiceUUID;
+        string voiceUUID = clip.speech.voiceUUID;
         if (includePhonemes)
             request.phonemeCallback = clip.SetPhonemesRaw;
 
