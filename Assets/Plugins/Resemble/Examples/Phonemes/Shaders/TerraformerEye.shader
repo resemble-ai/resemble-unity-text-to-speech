@@ -1,11 +1,11 @@
-Shader "Custom/TerraformerFace"
+Shader "Hidden/TerraformerFace"
 {
     Properties
     {
-		[NoScaleOffset] _MainTex("Albedo", 2D) = "white" {}
-		[NoScaleOffset] _Normal("Normal", 2D) = "bump" {}
-		[NoScaleOffset] _Mask ("Mask", 2D) = "grey" {}
+		_MainTex("Albedo", 2D) = "white" {}
 		[NoScaleOffset] _Emission("Emission", 2D) = "black" {}
+		[HDR] _EmissionColor("Emission Color", Color) = (0.0, 0.0, 0.0, 1.0)
+		_Gloss("Gloss", Range(0.0, 1.0)) = 0.0
     }
     SubShader
     {
@@ -17,9 +17,9 @@ Shader "Custom/TerraformerFace"
         #pragma target 3.0
 
         sampler2D _MainTex;
-		sampler2D _Normal;
-		sampler2D _Mask;
 		sampler2D _Emission;
+		float _Gloss;
+		float4 _EmissionColor;
 
         struct Input
         {
@@ -29,17 +29,12 @@ Shader "Custom/TerraformerFace"
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
 			half4 color = tex2D(_MainTex, IN.uv_MainTex);
-			half3 normal = UnpackNormal(tex2D(_Normal, IN.uv_MainTex));
-			half4 mask = tex2D(_Mask, IN.uv_MainTex);
 			half4 emission = tex2D(_Emission, IN.uv_MainTex);
 
             fixed4 c = color;
             o.Albedo = c.rgb;
-			o.Normal = normal;
-			o.Occlusion = mask.g;
-            o.Metallic = mask.r;
-            o.Smoothness = min(mask.a, 0.5);
-			o.Emission = emission;
+            o.Smoothness = _Gloss;
+			o.Emission = emission * color * _EmissionColor;
             o.Alpha = c.a;
         }
         ENDCG

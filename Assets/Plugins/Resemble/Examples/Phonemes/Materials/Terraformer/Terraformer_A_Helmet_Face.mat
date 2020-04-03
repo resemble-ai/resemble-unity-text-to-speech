@@ -229,7 +229,7 @@ Material:
     - _DoubleSidedNormalMode: 1
     - _Drag: 1
     - _DstBlend: 0
-    - _EE: -0.2147752
+    - _EE: -0.2634426
     - _EditorExpendedAreas: 3.3e-43
     - _EmissionMaskThreshold: 0.35
     - _EmissionMaskTilling: 5.84

@@ -1,4 +1,4 @@
-Shader "Custom/TerraformerFace"
+Shader "Hidden/TerraformerFace"
 {
     Properties
     {
