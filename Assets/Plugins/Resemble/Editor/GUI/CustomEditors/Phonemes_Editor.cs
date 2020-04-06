@@ -1,45 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using Resemble.GUIEditor;
 using Resemble;
-using System;
 
-//[CustomEditor(typeof(Phonemes))]
 public class Phonemes_Editor : Editor
 {
-
-    private Phonemes phonemes;
+    //private Phonemes phonemes;
     public static Color graphBgColor = new Color(0.2f, 0.2f, 0.2f, 1.0f);
     public static Color transparent = new Color(0.0f, 0.0f, 0.0f, 0.0f);
-    private float time;
 
     public delegate void Callback();
     public delegate void CallbackIndex(Rect rect, int index);
-
-    //public override void OnInspectorGUI()
-    //{
-    //    //Init vars
-    //    phonemes = target as Phonemes;
-    //    Event e = Event.current;
-    //    Styles.Load();
-
-
-    //    //Fields
-    //    serializedObject.UpdateIfRequiredOrScript();
-    //    EditorGUILayout.PropertyField(serializedObject.FindProperty("phonemes"));
-    //    serializedObject.ApplyModifiedProperties();
-
-
-    //    //User commands
-    //    if (GUILayout.Button("Load alignement matrice"))
-    //        LoadAlignementMatrice();
-    //    if (GUILayout.Button("Load remaping table"))
-    //        ApplyTable();
-
-    //    DrawGraph(phonemes, ref time, Repaint, null);
-    //}
 
     public static void DrawGraph(Phonemes phonemes, ref float time, Callback repaint, CallbackIndex onDrawItem)
     {
@@ -126,59 +97,6 @@ public class Phonemes_Editor : Editor
             GUI.color = maxValueColor;
             GUI.Label(topRect, maxValueName, Styles.whiteLabel);
             GUI.color = guiColor;
-        }
-    }
-
-    private void ApplyTable()
-    {
-        string path = EditorUtility.OpenFilePanel("Open Phoneme Table", Application.dataPath, "asset");
-        if (string.IsNullOrEmpty(path))
-            return;
-
-        path = Utils.LocalPath(path);
-
-        PhonemeTable table = AssetDatabase.LoadAssetAtPath<PhonemeTable>(path);
-        Phonemes.PhonemeCurve[] curves = new Phonemes.PhonemeCurve[table.groups.Length];
-        for (int i = 0; i < table.groups.Length; i++)
-        {
-            curves[i].curve = new AnimationCurve();
-            curves[i].name = table.groups[i].name;
-        }
-
-        for (int i = 0; i < phonemes.curves.Length; i++)
-        {
-            for (int j = 0; j < table.groups.Length; j++)
-            {
-                if (table.groups[j].phonemes.Contains(phonemes.curves[i].phoneme.ToString()))
-                {
-                    MaxKeyToCurve(curves[j].curve, phonemes.curves[i].curve);
-                    continue;
-                }
-            }
-        }
-
-        phonemes.curves = curves;
-
-        //EditorUtility.SetDirty(phonemes);
-    }
-
-    private void MaxKeyToCurve(AnimationCurve target, AnimationCurve addition)
-    {
-        Dictionary<float, int> keys = new Dictionary<float, int>();
-        for (int i = 0; i < target.length; i++)
-            keys.Add(target[i].time, i);
-
-        for (int i = 0; i < addition.length; i++)
-        {
-            if (keys.ContainsKey(addition[i].time))
-            {
-                Keyframe maxKey = new Keyframe(addition[i].time, Mathf.Max(addition[i].value, target[keys[addition[i].time]].value));
-                target.MoveKey(keys[addition[i].time], maxKey);
-            }
-            else
-            {
-                target.AddKey(addition[i]);
-            }
         }
     }
 }

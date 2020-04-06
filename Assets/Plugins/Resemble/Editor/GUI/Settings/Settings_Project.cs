@@ -202,10 +202,8 @@ namespace Resemble.GUIEditor
             Rect rect = EditorGUILayout.BeginVertical(GUI.skin.box, GUILayout.ExpandWidth(true)).Shrink(1);
             GUILayout.Space(160);
             EditorGUILayout.EndVertical();
-            //rect.width = Mathf.Min(rect.width, winRect.width - 6);
-            Utils.FlatBox(rect, Styles.lightGreen, Color.white, 0.01f, 40.0f);
-            //EditorGUI.DrawRect(rect.Shrink(5), Color.red.Alpha(0.5f));
-            //Debug.Log(rect.width + "  " + winRect);
+
+            Utils.FlatBox(rect, Styles.lightGreen, Styles.background, 0.01f, 40.0f);
 
             //Header Label
             Rect temp = rect;

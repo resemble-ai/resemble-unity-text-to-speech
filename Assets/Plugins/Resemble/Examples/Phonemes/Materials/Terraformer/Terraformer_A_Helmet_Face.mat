@@ -229,7 +229,7 @@ Material:
     - _DoubleSidedNormalMode: 1
     - _Drag: 1
     - _DstBlend: 0
-    - _EE: -0.2634426
+    - _EE: 0
     - _EditorExpendedAreas: 3.3e-43
     - _EmissionMaskThreshold: 0.35
     - _EmissionMaskTilling: 5.84
@@ -259,7 +259,7 @@ Material:
     - _HeightPoMAmplitude: 2
     - _HeightTessAmplitude: 2
     - _HeightTessCenter: 0.5
-    - _IH: 0
+    - _IH: -0.08722786
     - _IOR: 1
     - _InitialBend: 1
     - _InvTilingScale: 1
@@ -281,7 +281,7 @@ Material:
     - _PPDPrimitiveWidth: 1
     - _Parallax: 0.02
     - _PreRefractionPass: 0
-    - _R: 0
+    - _R: 0.94829464
     - _RefractionMode: 2
     - _RefractionModel: 1
     - _SSRefractionProjectionModel: 0
@@ -331,7 +331,7 @@ Material:
     - _DoubleSidedConstants: {r: 1, g: 1, b: -1, a: 0}
     - _EmissionColor: {r: 77.87429, g: 21.609097, b: 0, a: 1}
     - _EmissiveColor: {r: 64, g: 64, b: 64, a: 1}
-    - _EyeSelect: {r: 1, g: 0, b: 0, a: 0}
+    - _EyeSelect: {r: 1, g: 0.35442403, b: 0, a: 0}
     - _Face: {r: 1, g: 0, b: 0.35092545, a: 0}
     - _InvPrimScale: {r: 1, g: 1, b: 0, a: 0}
     - _IridescenceThicknessRemap: {r: 0, g: 1, b: 0, a: 0}

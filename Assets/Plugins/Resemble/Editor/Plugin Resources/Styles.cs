@@ -42,6 +42,7 @@ namespace Resemble
         public static Color selectColor = new Color(0.0f, 0.611f, 1.0f, 0.5f);
         public static Color lightGreen = new Color(0.196f, 0.8196f, 0.6352f);
         public static Color purple = new Color(0.3921f, 0.2705f, 0.5921f);
+        public static Color background;
 
 
         public static void Load()
@@ -80,6 +81,8 @@ namespace Resemble
             settingsQuote.fontSize = 12;
             settingsCode.alignment = TextAnchor.MiddleLeft;
             settingsQuote.margin = new RectOffset(30, 10, 0, 0);
+            if (EditorGUIUtility.isProSkin)
+                settingsQuote.normal.textColor = new Color(0.6f, 0.6f, 0.8f, 1.0f);
 
             linkStyle = new GUIStyle(bodyStyle);
             linkStyle.padding = new RectOffset(-5, 0, 0, 0);
@@ -145,6 +148,10 @@ namespace Resemble
             characterSetHelpBtn = EditorGUIUtility.IconContent("_Help");
             characterSetHelpBtn.tooltip = "Open the documentation for Resemble CharacterSet";
             popupBtn = EditorGUIUtility.IconContent("_Popup");
+
+
+            //Color
+            background = EditorGUIUtility.isProSkin ? new Color(0.4f, 0.4f, 0.4f, 1.0f) : Color.white;
 
             loaded = true;
             return;

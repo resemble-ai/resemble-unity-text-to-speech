@@ -320,7 +320,7 @@ namespace Resemble.GUIEditor
 
             Vector2 pos = GetCarretAt(selectID);
             Rect rect = new Rect(pos.x, pos.y, 1, 16);
-            EditorGUI.DrawRect(rect, Color.black);
+            EditorGUI.DrawRect(rect, EditorGUIUtility.isProSkin ? Color.white : Color.black);
         }
         #endregion
 
