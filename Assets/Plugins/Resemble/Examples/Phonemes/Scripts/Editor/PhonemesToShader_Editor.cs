@@ -34,7 +34,7 @@ public class PhonemeToShader_Editor : Editor
         {
             time = temp;
             if (!Application.isPlaying)
-                SetValuesToShader(time);
+                reader.Evaluate(time);
         }
 
         //Draw play button
@@ -54,21 +54,6 @@ public class PhonemeToShader_Editor : Editor
                     reader.audio.Stop();
                 }
             }
-        }
-    }
-
-    void SetValuesToShader(float time)
-    {
-        if (reader.renderer == null || reader.clip == null)
-            return;
-        Material material = reader.renderer.sharedMaterials[reader.materialIndex];
-        if (material == null)
-            return;
-
-        KeyValuePair<string, float>[] values = reader.clip.phonemes.refined.Evaluate(time);
-        for (int i = 0; i < values.Length; i++)
-        {
-            material.SetFloat(string.Format("_{0}", values[i].Key), values[i].Value * reader.factor);
         }
     }
 }

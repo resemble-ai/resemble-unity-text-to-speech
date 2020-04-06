@@ -1,70 +1,42 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PhonemesToBlendShapes : PhonemeReader
 {
-
+    //Exposed
     public new SkinnedMeshRenderer renderer;
-    public int materialIndex;
     public float factor = 1.0f;
-    public float smoothFactor = 3.0f;
 
+    //Hidden
     [HideInInspector] public int[] remap;
-    private float[] smoothValues;
 
     protected private void Awake()
     {
-        smoothValues = new float[clip.phonemes.refined.curves.Length];
         audio.clip = clip.clip;
     }
 
-    protected virtual void Update()
+    protected override bool CanRead()
+    {
+        //Stop reading if renderer is null
+        return renderer != null;
+    }
+
+    /// <summary> Called when a phoneme group change. </summary>
+    protected override void OnReadPhoneme(string label, int groupID, float instantValue, float smoothValue)
+    {
+        int id = remap[groupID];
+        if (id == -1)
+            return;
+        renderer.SetBlendShapeWeight(id, smoothValue * factor * 100);
+    }
+
+    /// <summary> Applies phoneme group values to shared material. Useful for the editor's preview functions. </summary>
+    public virtual void Evaluate(float time)
     {
         if (renderer == null)
             return;
-
-        if (isPlaying)
-        {
-            float time = audio.time / audio.clip.length;
-            SetValuesToBlendShapes(time);
-        }
+        KeyValuePair<string, float>[] values = GetValues(time);
+        for (int i = 0; i < values.Length; i++)
+            renderer.SetBlendShapeWeight(remap[i], values[i].Value * factor * 100);
     }
-
-    public virtual void SetValuesToBlendShapes(float time)
-    {
-        if (renderer != null)
-        {
-            if (smoothValues == null)
-                smoothValues = new float[clip.phonemes.refined.curves.Length];
-
-            float f = 100 * factor;
-            int count = clip.phonemes.refined.curves.Length;
-            float[] values = new float[count];
-            float smoothDelta = Time.deltaTime * smoothFactor;
-            for (int i = 0; i < count; i++)
-            {
-                float value = clip.phonemes.refined.curves[i].curve.Evaluate(time);
-                values[i] = Mathf.Max(values[i], value);
-            }
-            for (int i = 0; i < count; i++)
-            {
-                int id = remap[i];
-                if (id == -1)
-                    continue;
-
-                if (Application.isPlaying)
-                {
-                    if (values[i] > smoothValues[i] || true)
-                        smoothValues[i] = values[i];
-                    else
-                        smoothValues[i] = Mathf.Lerp(smoothValues[i], values[i], smoothDelta);
-                    renderer.SetBlendShapeWeight(id, smoothValues[i] * f);
-                }
-                else
-                {
-                    renderer.SetBlendShapeWeight(id, values[i] * f);
-                }
-            }
-        }
-    }
-
 }

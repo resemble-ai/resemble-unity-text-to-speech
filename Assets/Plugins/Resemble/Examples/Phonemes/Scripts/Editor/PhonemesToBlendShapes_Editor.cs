@@ -40,7 +40,7 @@ public class PhonemeToBlendShapes_Editor : Editor
         {
             time = temp;
             if (!Application.isPlaying)
-                reader.SetValuesToBlendShapes(time);
+                reader.Evaluate(time);
         }
 
         //Draw play button

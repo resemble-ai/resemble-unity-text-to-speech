@@ -248,10 +248,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   clip: {fileID: 601481613567650726, guid: 597ab8206c30c37458dfa69a739d2fa7, type: 2}
   audio: {fileID: 32072810}
+  smoothFactor: 0.5
+  smoothValues: []
+  sleeping: 0
   renderer: {fileID: 225482955}
   materialIndex: 1
-  material: {fileID: 0}
   factor: 2
+  material: {fileID: 0}
 --- !u!82 &32072810
 AudioSource:
   m_ObjectHideFlags: 0
@@ -2457,7 +2460,7 @@ MeshCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  serializedVersion: 3
+  serializedVersion: 4
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: 10209, guid: 0000000000000000e000000000000000, type: 0}
