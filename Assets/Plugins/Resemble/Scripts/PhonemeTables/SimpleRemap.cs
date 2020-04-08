@@ -1,10 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 using Resemble;
 
 public class SimpleRemap : PhonemeTable
 {
-
     public override Phonemes RefineData(PhonemesRaw raw)
     {
         Phonemes phonemes = new Phonemes();

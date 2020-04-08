@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 337b6de7b2635434a86b6aa9ed3817a1, type: 3}
+  m_Name: APIGraph_Example
+  m_EditorClassIdentifier: 
+  groups:
+  - name: OO
+    phonemes: "o\u028C\u0264\u0263\u0254"
+  - name: FV
+    phonemes: fv
+  - name: EE
+    phonemes: "iyIY\u0268"
+  - name: BM
+    phonemes: pbm
+  - name: R
+    phonemes: "td\u027Ek\u0261\u014B\u0294lj\u0279hw"
+  - name: IH
+    phonemes: "e\xF8\u0258\u0259\u0275\u026A"
+  - name: CH
+    phonemes: "\u0283\u0292"
+  - name: AA
+    phonemes: "\u0250\u0251\u0252"
+  - name: UU
+    phonemes: "\u0289\u026Fu\u028A\u02D0sz\u03B8\xF0"
+  - name: AE
+    phonemes: "\u0153\xE6\u025B\u025Ca\u0276"
+  items:
+  - phonemes: "\u0127\u0295hy\u025E"
+    vowel: 1
+    vowelPos: {x: 0.0651341, y: 0.109195404}
+    consonantPos: 0
+  - phonemes: "\u0250"
+    vowel: 0
+    vowelPos: {x: 0.5996169, y: 0.651341}
+    consonantPos: 0
+  - phonemes: "\xE6"
+    vowel: 0
+    vowelPos: {x: 0.30842912, y: 0.6455939}
+    consonantPos: 0
+  - phonemes: "a\u0276"
+    vowel: 0
+    vowelPos: {x: 0.36015326, y: 0.77394634}
+    consonantPos: 0
+  - phonemes: "\u0251\u0252"
+    vowel: 0
+    vowelPos: {x: 0.8984674, y: 0.77203065}
+    consonantPos: 0
+  - phonemes: o
+    vowel: 0
+    vowelPos: {x: 0.9003831, y: 0.3218391}
+    consonantPos: 0
+  - phonemes: "\u0259"
+    vowel: 0
+    vowelPos: {x: 0.55938697, y: 0.42145595}
+    consonantPos: 0
+  - phonemes: "\u0254\u028C"
+    vowel: 0
+    vowelPos: {x: 0.8984674, y: 0.55172414}
+    consonantPos: 0
+  - phonemes: "\u0275"
+    vowel: 0
+    vowelPos: {x: 0.5363985, y: 0.3218391}
+    consonantPos: 0
+  - phonemes: "\u025C"
+    vowel: 0
+    vowelPos: {x: 0.5804598, y: 0.5440613}
+    consonantPos: 0
+  - phonemes: "\u0153\u025B"
+    vowel: 0
+    vowelPos: {x: 0.26436782, y: 0.5440613}
+    consonantPos: 0
+  - phonemes: "i\u026A\u028F"
+    vowel: 0
+    vowelPos: {x: 0.28927204, y: 0.19923371}
+    consonantPos: 0
+  - phonemes: "\u0268"
+    vowel: 0
+    vowelPos: {x: 0.21455939, y: 0.10344828}
+    consonantPos: 0
+  - phonemes: "\u028A"
+    vowel: 0
+    vowelPos: {x: 0.70689654, y: 0.19923371}
+    consonantPos: 0
+  - phonemes: "\u0289"
+    vowel: 0
+    vowelPos: {x: 0.49425286, y: 0.09578544}
+    consonantPos: 0
+  - phonemes: "\xF8e"
+    vowel: 0
+    vowelPos: {x: 0.17816092, y: 0.3218391}
+    consonantPos: 0
