@@ -10,6 +10,8 @@ public class APIGraph_Editor : Editor
     private APIGraph graph;
     private Event e;
     private GUIStyle phonemePreview;
+    private int selectedConsonant;
+    private int dragConsonant = -1;
     private int highlight = -1;
     private int dragContainer = -1;
     private bool releaseDrag;
@@ -54,7 +56,7 @@ public class APIGraph_Editor : Editor
     private Rect DrawVowelsGraph()
     {
         //Get area & draw background
-        GUILayout.Label("Vowels" + focusPhoneme, EditorStyles.largeLabel);
+        GUILayout.Label("Vowels", EditorStyles.largeLabel);
         Rect rect = Shrink(GUILayoutUtility.GetAspectRect(1.0f), 10);
         EditorGUI.DrawRect(rect, Color.black);
         rect = Shrink(rect, 1);
@@ -77,10 +79,10 @@ public class APIGraph_Editor : Editor
         GUI.Label(RectFromPoint(points[4], 0, - 15), "Central");
         GUI.Label(RectFromPoint(points[8], 0, - 15), "Back");
 
-        GUI.Label(RectFromPoint(points[0], -45, 0), "Close");
-        GUI.Label(RectFromPoint(points[1], -70, 0), "Close-mid");
-        GUI.Label(RectFromPoint(points[2], -70, 0), "Open-mid");
-        GUI.Label(RectFromPoint(points[3], -45, 0), "Open");
+        GUI.Label(RectFromPoint(points[0], -34, 10), "Close");
+        GUI.Label(RectFromPoint(points[1], -65, 0), "Close-mid");
+        GUI.Label(RectFromPoint(points[2], -65, 0), "Open-mid");
+        GUI.Label(RectFromPoint(points[3], -40, 0), "Open");
 
 
         //Get deltaTime
@@ -89,12 +91,12 @@ public class APIGraph_Editor : Editor
 
 
         //Drag stuff
-        if (highlight >= graph.items.Count)
+        if (highlight >= graph.vowels.Count)
             highlight = -1;
-        if (dragContainer >= graph.items.Count)
+        if (dragContainer >= graph.vowels.Count)
             dragContainer = -1;
-        if (dragContainer != -1 && dragContainer < graph.items.Count)
-            focusPhoneme = graph.items[dragContainer].phonemes;
+        if (dragContainer != -1 && dragContainer < graph.vowels.Count)
+            focusPhoneme = graph.vowels[dragContainer].characters;
         else
             focusPhoneme = "";
         if (e.type == EventType.MouseUp && dragContainer != -1)
@@ -102,9 +104,9 @@ public class APIGraph_Editor : Editor
 
 
         //Draw containers
-        for (int i = 0; i < graph.items.Count; i++)
+        for (int i = 0; i < graph.vowels.Count; i++)
         {
-            DrawContainer(rect, graph.items[i], i, delta);
+            DrawContainer(rect, graph.vowels[i], i, delta);
         }
         if (releaseDrag)
         {
@@ -149,7 +151,7 @@ public class APIGraph_Editor : Editor
                 menu.AddDisabledItem(new GUIContent("Add characters"));
                 menu.AddItem(new GUIContent("Remove characters"), false, () => {
                     Undo.RecordObject(target, "Remove character");
-                    graph.items.RemoveAt(highlight);
+                    graph.vowels.RemoveAt(highlight);
                     highlight = -1;
                     EditorUtility.SetDirty(target);
                 });
@@ -172,9 +174,9 @@ public class APIGraph_Editor : Editor
                 Undo.RecordObject(target, "Add characters");
                 addVowelRequest = false;
                 if (addVowelFieldContent.Length > 0)
-                    graph.items.Add(new APIGraph.PhoItem() {
-                        phonemes = addVowelFieldContent,
-                        vowelPos = Rect.PointToNormalized(rect, addVowelFieldPos) });
+                    graph.vowels.Add(new APIGraph.Vowels() {
+                        characters = addVowelFieldContent,
+                        position = Rect.PointToNormalized(rect, addVowelFieldPos) });
                 addVowelFieldContent = "";
                 EditorUtility.SetDirty(target);
             }
@@ -184,15 +186,147 @@ public class APIGraph_Editor : Editor
 
     private void DrawConsonants()
     {
+        //Get area & Draw background
         GUILayout.Label("Consonants", EditorStyles.largeLabel);
+        Rect rect = Shrink(GUILayoutUtility.GetRect(Screen.width, 80), 10);
+        EditorGUI.DrawRect(rect, Color.black);
+        rect = Shrink(rect, 1);
+        EditorGUI.DrawRect(rect, graphBgColor);
+
+        //Labels
+        Rect polyRect = new Rect(rect.x + 2, rect.y + 2, 50, 16);
+        GUI.Label(polyRect, "Labial");
+        polyRect.Set(rect.x + rect.width * 0.5f - 25, rect.y, 50, 16);
+        GUI.Label(polyRect, "Coronal");
+        polyRect.Set(rect.x + rect.width - 41, rect.y, 46, 16);
+        GUI.Label(polyRect, "Dorsal");
+
+
+        //Bars
+        rect = Offset(rect, 5, 20, -5, 0);
+
+        for (float i = 0; i < 1.0f; i += 0.05f)
+        {
+            polyRect.Set(rect.x + rect.width * i, rect.y + 20, 1, rect.height - 20);
+            EditorGUI.DrawRect(polyRect, Color.grey * 0.7f);
+        }
+
+        polyRect = new Rect(rect.x, rect.y, 1, rect.height);
+        EditorGUI.DrawRect(polyRect, Color.grey);
+        polyRect.x += rect.width * 0.5f;
+        EditorGUI.DrawRect(polyRect, Color.grey);
+        polyRect.x = rect.x + rect.width;
+        EditorGUI.DrawRect(polyRect, Color.grey);
+
+
+        //Draw keys
+        int count = graph.consonants.Count;
+
+        //End drag
+        bool release = e.type == EventType.MouseUp;
+        for (int i = 0; i < graph.consonants.Count; i++)
+        {
+            polyRect = new Rect(rect.x + rect.width * graph.consonants[i].position - 4, rect.y + 23, 8, 15);
+
+            //Drag
+            if (dragConsonant == i && e.type == EventType.Repaint && !release)
+            {
+                Undo.RecordObject(target, "Move consonant");
+                float t = Rect.PointToNormalized(rect, e.mousePosition).x;
+                graph.consonants[i].position = t;
+                EditorUtility.SetDirty(target);
+            }
+
+            //Start drag
+            if (GUI.RepeatButton(polyRect, "") && dragConsonant == -1 && !release)
+            {
+                dragConsonant = i;
+                selectedConsonant = i;
+                GUI.FocusControl("None");
+            }
+
+            //highlight selected
+            if (selectedConsonant == i)
+            {
+                polyRect = Shrink(polyRect, 1);
+                EditorGUI.DrawRect(polyRect, Color.white * 0.7f);
+            }
+
+        }
+        if (release)
+            dragConsonant = -1;
+
+        //Draw consonants array
+        rect = Shrink(GUILayoutUtility.GetRect(Screen.width, 100), 10);
+        for (int i = 0; i < count + 1; i++)
+        {
+            float p = rect.width / 50.0f - 1;
+            int x = Mathf.FloorToInt(i % p);
+            int y = Mathf.FloorToInt(i / p);
+            polyRect = new Rect(rect.x + x * 50, rect.y + y * 16, 50, 16);
+
+            if (i == count)
+            {
+                //Add consonant
+                if (GUI.Button(Offset(polyRect, 0, 0, -28, 5), "+"))
+                {
+                    Undo.RecordObject(target, "Add characters");
+                    graph.consonants.Add(new APIGraph.Consonants());
+                    selectedConsonant = graph.consonants.Count - 1;
+                    GUI.FocusControl("None");
+                    EditorUtility.SetDirty(target);
+                }
+            }
+            else
+            {
+                //Select consonant
+                if (GUI.Toggle(polyRect, selectedConsonant == i, graph.consonants[i].characters, GUI.skin.button))
+                {
+                    if (selectedConsonant != i)
+                    {
+                        selectedConsonant = i;
+                        GUI.FocusControl("None");
+                    }
+                }
+            }
+        }
+
+        //Properties fields
+        if (selectedConsonant != -1 && selectedConsonant < graph.consonants.Count)
+        {
+            APIGraph.Consonants consonant = graph.consonants[selectedConsonant];
+            GUILayout.BeginHorizontal();
+            string temp = EditorGUILayout.TextField("Phoneme", consonant.characters);
+            if (temp != consonant.characters)
+            {
+                Undo.RecordObject(target, "Change characters");
+                consonant.characters = temp;
+                EditorUtility.SetDirty(target);
+            }
+            if (GUILayout.Button("X", GUILayout.Width(20)))
+            {
+                Undo.RecordObject(target, "Remove characters");
+                graph.vowels.RemoveAt(selectedConsonant);
+                selectedConsonant = 0;
+                EditorUtility.SetDirty(target);
+            }
+            GUILayout.EndHorizontal();
+            float value = Mathf.Clamp01(EditorGUILayout.FloatField("Labial - Dorsal", consonant.position));
+            if (value != consonant.position)
+            {
+                Undo.RecordObject(target, "Change consonant value");
+                consonant.position = value;
+                EditorUtility.SetDirty(target);
+            }
+        }
 
     }
 
-    private void DrawContainer(Rect rect, APIGraph.PhoItem item, int id, float delta)
+    private void DrawContainer(Rect rect, APIGraph.Vowels item, int id, float delta)
     {
-        int count = item.phonemes.Length;
+        int count = item.characters.Length;
         float itemsHeight = (count - 1) * 16;
-        Rect r = new Rect(Rect.NormalizedToPoint(rect, item.vowelPos), Vector2.one * 40);
+        Rect r = new Rect(Rect.NormalizedToPoint(rect, item.position), Vector2.one * 40);
         Rect ro = r; if (id == highlight) ro.height += itemsHeight;
         bool over = (e.type == EventType.Repaint ? ro.Contains(e.mousePosition) : id == highlight) &&
             dragContainer != id;
@@ -205,9 +339,9 @@ public class APIGraph_Editor : Editor
             if (releaseDrag)
             {
                 Undo.RecordObject(target, "Merge characters");
-                string phoneme = graph.items[dragContainer].phonemes;
-                graph.items.RemoveAt(dragContainer);
-                item.phonemes += phoneme;
+                string phoneme = graph.vowels[dragContainer].characters;
+                graph.vowels.RemoveAt(dragContainer);
+                item.characters += phoneme;
                 dragContainer = -1;
                 highlight = -1;
                 EditorUtility.SetDirty(target);
@@ -240,7 +374,7 @@ public class APIGraph_Editor : Editor
         if (dragContainer == id && e.type == EventType.Repaint)
         {
             Undo.RecordObject(target, "Move characters");
-            item.vowelPos = Rect.PointToNormalized(rect, e.mousePosition);
+            item.position = Rect.PointToNormalized(rect, e.mousePosition);
             EditorUtility.SetDirty(target);
         }
 
@@ -261,15 +395,15 @@ public class APIGraph_Editor : Editor
         for (int j = 0; j < count; j++)
         {
             r.Set(5, j * 16 + 17, r.width, 16);
-            string label = item.phonemes[j].ToString();
+            string label = item.characters[j].ToString();
             if (GUI.RepeatButton(r, label, GUI.skin.button) && dragContainer == -1 && e.button == 0)
             {
                 if (count > 1)
                 {
                     Undo.RecordObject(target, "Extract character");
-                    item.phonemes = item.phonemes.Replace(label, "");
-                    graph.items.Add(new APIGraph.PhoItem() { vowelPos = item.vowelPos, phonemes = label });
-                    dragContainer = graph.items.Count - 1;
+                    item.characters = item.characters.Replace(label, "");
+                    graph.vowels.Add(new APIGraph.Vowels() { position = item.position, characters = label });
+                    dragContainer = graph.vowels.Count - 1;
                     EditorUtility.SetDirty(target);
                     break;
                 }
@@ -286,6 +420,12 @@ public class APIGraph_Editor : Editor
     private Rect Shrink(Rect rect, float size)
     {
         rect.Set(rect.x + size, rect.y + size, rect.width - size * 2, rect.height - size * 2);
+        return rect;
+    }
+
+    private Rect Offset(Rect rect, float x, float y, float width, float height)
+    {
+        rect.Set(rect.x + x, rect.y + y, rect.width + width - x, rect.height + height - y);
         return rect;
     }
 

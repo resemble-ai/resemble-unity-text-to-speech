@@ -1,21 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Resemble;
 
     
 public class APIGraph : PhonemeTable
 {
 
-    public List<PhoItem> items = new List<PhoItem>();
+    public List<Vowels> vowels = new List<Vowels>();
+    public List<Consonants> consonants = new List<Consonants>();
 
     [System.Serializable]
-    public class PhoItem
+    public class Vowels
     {
-        public string phonemes;
-        public bool vowel;
-        public Vector2 vowelPos;
-        public float consonantPos;
+        public string characters = "";
+        public Vector2 position;
+    }
+
+    [System.Serializable]
+    public class Consonants
+    {
+        public string characters = "";
+        public float position;
     }
 
     public override Phonemes RefineData(PhonemesRaw raw)

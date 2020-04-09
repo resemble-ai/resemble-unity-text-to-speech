@@ -33,68 +33,51 @@ MonoBehaviour:
     phonemes: "\u0289\u026Fu\u028A\u02D0sz\u03B8\xF0"
   - name: AE
     phonemes: "\u0153\xE6\u025B\u025Ca\u0276"
-  items:
-  - phonemes: "\u0127\u0295hy\u025E"
-    vowel: 1
-    vowelPos: {x: 0.0651341, y: 0.109195404}
-    consonantPos: 0
-  - phonemes: "\u0250"
-    vowel: 0
-    vowelPos: {x: 0.5996169, y: 0.651341}
-    consonantPos: 0
-  - phonemes: "\xE6"
-    vowel: 0
-    vowelPos: {x: 0.30842912, y: 0.6455939}
-    consonantPos: 0
-  - phonemes: "a\u0276"
-    vowel: 0
-    vowelPos: {x: 0.36015326, y: 0.77394634}
-    consonantPos: 0
-  - phonemes: "\u0251\u0252"
-    vowel: 0
-    vowelPos: {x: 0.8984674, y: 0.77203065}
-    consonantPos: 0
-  - phonemes: o
-    vowel: 0
-    vowelPos: {x: 0.9003831, y: 0.3218391}
-    consonantPos: 0
-  - phonemes: "\u0259"
-    vowel: 0
-    vowelPos: {x: 0.55938697, y: 0.42145595}
-    consonantPos: 0
-  - phonemes: "\u0254\u028C"
-    vowel: 0
-    vowelPos: {x: 0.8984674, y: 0.55172414}
-    consonantPos: 0
-  - phonemes: "\u0275"
-    vowel: 0
-    vowelPos: {x: 0.5363985, y: 0.3218391}
-    consonantPos: 0
-  - phonemes: "\u025C"
-    vowel: 0
-    vowelPos: {x: 0.5804598, y: 0.5440613}
-    consonantPos: 0
-  - phonemes: "\u0153\u025B"
-    vowel: 0
-    vowelPos: {x: 0.26436782, y: 0.5440613}
-    consonantPos: 0
-  - phonemes: "i\u026A\u028F"
-    vowel: 0
-    vowelPos: {x: 0.28927204, y: 0.19923371}
-    consonantPos: 0
-  - phonemes: "\u0268"
-    vowel: 0
-    vowelPos: {x: 0.21455939, y: 0.10344828}
-    consonantPos: 0
-  - phonemes: "\u028A"
-    vowel: 0
-    vowelPos: {x: 0.70689654, y: 0.19923371}
-    consonantPos: 0
-  - phonemes: "\u0289"
-    vowel: 0
-    vowelPos: {x: 0.49425286, y: 0.09578544}
-    consonantPos: 0
-  - phonemes: "\xF8e"
-    vowel: 0
-    vowelPos: {x: 0.17816092, y: 0.3218391}
-    consonantPos: 0
+  vowels:
+  - characters: "\u0250"
+    position: {x: 0.6, y: 0.6653846}
+  - characters: "\xE6"
+    position: {x: 0.31730768, y: 0.66923076}
+  - characters: "\u0276a"
+    position: {x: 0.3596154, y: 0.7692308}
+  - characters: "\u0251\u0252"
+    position: {x: 0.8942308, y: 0.77115387}
+  - characters: "\u0254\u028C"
+    position: {x: 0.89615387, y: 0.5480769}
+  - characters: "\u0258\u0275\u0259"
+    position: {x: 0.5365385, y: 0.31923077}
+  - characters: "\u025C\u025E"
+    position: {x: 0.5826923, y: 0.54615384}
+  - characters: "\u0153\u025B"
+    position: {x: 0.26436782, y: 0.5440613}
+  - characters: "\u026A\u028F"
+    position: {x: 0.28927204, y: 0.19923371}
+  - characters: iy
+    position: {x: 0.086538464, y: 0.098076925}
+  - characters: "\u028A"
+    position: {x: 0.70689654, y: 0.19923371}
+  - characters: "\u0289\u0268"
+    position: {x: 0.49425286, y: 0.09578544}
+  - characters: "\xF8e"
+    position: {x: 0.17816092, y: 0.3218391}
+  - characters: u
+    position: {x: 0.89615387, y: 0.09615385}
+  - characters: "\u0263\u0264o"
+    position: {x: 0.89615387, y: 0.32115385}
+  - characters: jhge
+    position: {x: 0.06866953, y: 0.73390555}
+  consonants:
+  - characters: pbmw
+    position: 0
+  - characters: fv
+    position: 0.15789473
+  - characters: "\xF0\u03B8"
+    position: 0.34429824
+  - characters: tdsznl
+    position: 0.5
+  - characters: "\u0283\u0292\u026E\u0288rj"
+    position: 0.6754386
+  - characters: "kg\u014BW"
+    position: 0.85745615
+  - characters: "h\u0294"
+    position: 1
