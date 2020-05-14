@@ -20,7 +20,7 @@ Resemble helps you build AI generated voices from just minutes of audio data. To
 ## Setup
 You can add Assets and Projects settings folders to your project or directly download the [latest build here](Output/ResemblePlugin.unitypackage).
   
-  
+**You may encounter problems with version 2 of the unity asset pipeline which is not yet fully functional. It is strongly recommended to use version 1 of the asset pipeline if you can.**
   
 #### Version
 The plugin was created on version [2019.3.2](https://unity3d.com/fr/unity/whats-new/2019.2.8) of Unity. I recommend to have the same version in order to avoid any incompatibility problems.  
