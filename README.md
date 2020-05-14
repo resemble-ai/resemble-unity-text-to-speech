@@ -1,4 +1,4 @@
-# UnityPlugin
+# Resemble's Unity Plugin
 
 ## Table of contents
 * [General info](#general-info)
@@ -7,8 +7,14 @@
 * [Try out sample scenes](#try-out-sample-scenes)
 
 ## General info
-Unity plugin to interface our API
-	
+Unity plugin to interface our API.
+
+Resemble helps you build AI generated voices from just minutes of audio data. To build your voice, [go to our website](https://www.resemble.ai).
+
+
+**Note: You need a Resemble account with an API token to use the plugin**
+
+
 ## Setup
 You can add Assets and Projects settings folders to your project or directly download the [latest build here](Output/ResemblePlugin.unitypackage).
   
