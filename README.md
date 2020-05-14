@@ -1,5 +1,7 @@
 # Resemble's Unity Plugin
 
+![Image that shows how useful our plugin is](https://www.resemble.ai/wp-content/uploads/2020/05/resemble-unity-main.jpg)
+
 ## Table of contents
 * [General info](#general-info)
 * [Setup](#setup)
