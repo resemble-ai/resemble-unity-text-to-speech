@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -253,8 +254,13 @@ public class APIGraph_Editor : Editor
             }
 
         }
-        if (release)
+        if (release && dragConsonant != -1)
+        {
+            string selected = graph.consonants[selectedConsonant].characters;
+            graph.consonants = graph.consonants.OrderBy(x => x.position).ToList();
+            selectedConsonant = graph.consonants.FindIndex(x => x.characters == selected);
             dragConsonant = -1;
+        }
 
         //Draw consonants array
         rect = Shrink(GUILayoutUtility.GetRect(Screen.width, 100), 10);
@@ -311,12 +317,15 @@ public class APIGraph_Editor : Editor
                 EditorUtility.SetDirty(target);
             }
             GUILayout.EndHorizontal();
-            float value = Mathf.Clamp01(EditorGUILayout.FloatField("Labial - Dorsal", consonant.position));
+            float value = Mathf.Clamp01(EditorGUILayout.FloatField("Labial - Coronal - Dorsal", consonant.position));
             if (value != consonant.position)
             {
                 Undo.RecordObject(target, "Change consonant value");
                 consonant.position = value;
                 EditorUtility.SetDirty(target);
+                string selected = graph.consonants[selectedConsonant].characters;
+                graph.consonants = graph.consonants.OrderBy(x => x.position).ToList();
+                selectedConsonant = graph.consonants.FindIndex(x => x.characters == selected);
             }
         }
 

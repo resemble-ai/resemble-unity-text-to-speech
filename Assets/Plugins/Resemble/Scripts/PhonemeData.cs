@@ -14,18 +14,18 @@ namespace Resemble
         public PhonemeData(PhonemesRaw raw, PhonemeTable table)
         {
             this.raw = raw;
-            refined = table == null ? null : table.RefineData(raw);
+            refined = table == null || raw.end_times == null ? null : table.RefineData(raw);
         }
 
         public void SetData(PhonemesRaw raw, PhonemeTable table)
         {
             this.raw = raw;
-            refined = table == null ? null : table.RefineData(raw);
+            refined = table == null || raw.end_times == null ? null : table.RefineData(raw);
         }
 
         public void UpdateTable(PhonemeTable table)
         {
-            refined = table == null ? null : table.RefineData(raw);
+            refined = table == null || raw.end_times == null ? null : table.RefineData(raw);
         }
     }
 }

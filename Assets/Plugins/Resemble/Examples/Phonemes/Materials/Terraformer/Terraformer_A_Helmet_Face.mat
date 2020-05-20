@@ -281,7 +281,7 @@ Material:
     - _PPDPrimitiveWidth: 1
     - _Parallax: 0.02
     - _PreRefractionPass: 0
-    - _R: 0
+    - _R: 0.54301006
     - _RefractionMode: 2
     - _RefractionModel: 1
     - _SSRefractionProjectionModel: 0

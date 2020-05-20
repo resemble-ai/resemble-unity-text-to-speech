@@ -27,7 +27,8 @@ namespace Resemble.Structs
         //Phonemes
         #pragma warning disable 0649
         [SerializeField] private string phoneme_timestamps;
-        public PhonemesRaw phonemesRaw;
+        [SerializeField] public PhonemesRaw phonemesRaw;
+
 
         public override string ToString()
         {
@@ -37,14 +38,20 @@ namespace Resemble.Structs
         public static ResembleClip FromJson(string json)
         {
             ResembleClip clip = JsonUtility.FromJson<ResembleClip>(json);
+
             if (!string.IsNullOrEmpty(clip.phoneme_timestamps))
-                clip.phonemesRaw = JsonUtility.FromJson<PhonemesRaw>(clip.phoneme_timestamps);
+            {
+                string timeStamps = clip.phoneme_timestamps.Remove(clip.phoneme_timestamps.Length - 1, 1).Remove(0, 1);
+                clip.phonemesRaw = PhonemesRaw.FromJson(timeStamps);
+            }
+
             return clip;
         }
 
         public static ResembleClip[] ArrayFromJson(string json)
         {
-            ResembleClip[] clips = JsonUtility.FromJson<SerializablePodArray>(json).clips;
+            ResembleClip[] clips = JsonUtility.FromJson<SerializablePodArray>(json).pods;
+
             for (int i = 0; i < clips.Length; i++)
             {
                 if (!string.IsNullOrEmpty(clips[i].phoneme_timestamps))
@@ -57,7 +64,7 @@ namespace Resemble.Structs
         public struct SerializablePodArray
         {
             [SerializeField]
-            public ResembleClip[] clips;
+            public ResembleClip[] pods;
         }
     }
 }

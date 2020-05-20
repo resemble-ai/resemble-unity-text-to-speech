@@ -233,6 +233,21 @@ public class AsyncRequest
         return null;
     }
 
+
+    /// <summary> Cancel the request running on the given UUID if it exists. </summary>
+    public static void Cancel(string clipUUID)
+    {
+        for (int i = 0; i < Resources.instance.requests.Count; i++)
+        {
+            AsyncRequest request = Resources.instance.requests[i];
+            if (request.clipUUID == clipUUID)
+            {
+                Resources.instance.requests.RemoveAt(i);
+                EditorUtility.SetDirty(Resources.instance);
+            }
+        }
+    }
+
     /// <summary> Add a request to the pool. </summary>
     private static void RegisterRequestToPool(AsyncRequest request)
     {

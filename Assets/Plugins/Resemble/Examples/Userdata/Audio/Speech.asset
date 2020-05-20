@@ -1,0 +1,86 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0da67f1a901af494288cbafce6a4e541, type: 3}
+  m_Name: Speech
+  m_EditorClassIdentifier: 
+  includePhonemes: 1
+  phonemeTable: {fileID: 11400000, guid: 7e160d41203509c4d8c9b4c1f172fefb, type: 2}
+  voiceName: Grace
+  voiceUUID: 7d422820
+  clips:
+  - {fileID: 408765124208448054}
+--- !u!114 &408765124208448054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
+  m_Name: c6b9e15b-AskForTavern
+  m_EditorClassIdentifier: 
+  speech: {fileID: 11400000}
+  clip: {fileID: 8300000, guid: f09a7b3ce92f187409d12f30a277d68e, type: 3}
+  text:
+    userString: "Greetings peasant,\u2003 can you direct me to the nearest tavern?"
+    tags:
+    - type: 0
+      emotion: 0
+      start: 18
+      end: 19
+      rects:
+      - serializedVersion: 2
+        x: 132
+        y: 7
+        width: 14
+        height: 17
+      color: {r: 0.8, g: 0.1, b: 0.1, a: 1}
+      duration: 0.1
+    - type: 1
+      emotion: 3
+      start: 20
+      end: 60
+      rects:
+      - serializedVersion: 2
+        x: 150
+        y: 7
+        width: 266
+        height: 17
+      color: {r: 1, g: 0.737, b: 0.427, a: 1}
+      duration: 0.5
+    - type: 1
+      emotion: 5
+      start: 0
+      end: 18
+      rects:
+      - serializedVersion: 2
+        x: 6
+        y: 7
+        width: 126
+        height: 17
+      color: {r: 0.667, g: 0.729, b: 0.239, a: 1}
+      duration: 0.5
+    selectID: 60
+    carretID: 60
+  phonemes:
+    raw:
+      phonemes: []
+      end_times: []
+    refined:
+      phonemes: 
+      curves: []
+  uuid: c6b9e15b
+  clipName: AskForTavern
+  userdata: 
+  labels: []

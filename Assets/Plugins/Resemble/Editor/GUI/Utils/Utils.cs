@@ -19,7 +19,10 @@ namespace Resemble.GUIEditor
                 System.DateTime now = System.DateTime.Now;
                 float time = now.Millisecond / 1000.0f + now.Second;
                 mat.SetFloat("_Progress", time);
-                mat.SetColor("_Color", new Color(0.0f, 0.0f, 0.0f, 1.0f));
+                if (EditorGUIUtility.isProSkin)
+                    mat.SetColor("_Color", new Color(0.8f, 0.8f, 0.8f, 1.0f));
+                else
+                    mat.SetColor("_Color", new Color(0.0f, 0.0f, 0.0f, 1.0f));
             }
             EditorGUI.DrawPreviewTexture(rect, Resources.instance.loadingTex, mat);
             GUILayout.FlexibleSpace();

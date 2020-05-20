@@ -213,6 +213,11 @@ namespace Resemble.GUIEditor
             GUILayout.FlexibleSpace();
             if (request != null)
             {
+                if (GUILayout.Button("Cancel"))
+                {
+                    AsyncRequest.Cancel(clip.uuid);
+                    request = null;
+                }
                 if (GUILayout.Button("Show pending list"))
                 {
                     Resemble_Window.Open(Resemble_Window.Tab.Pool);
@@ -298,7 +303,7 @@ namespace Resemble.GUIEditor
 
         private void DrawRawPhonemePreview(Rect rect)
         {
-            string[] phonemes = clip.phonemes.raw.phonemes;
+            char[] phonemes = clip.phonemes.raw.phonemesChars;
             float[] times = clip.phonemes.raw.end_times;
 
             int count = phonemes.Length;
@@ -327,7 +332,7 @@ namespace Resemble.GUIEditor
             if (GUILayout.Button(">"))
                 clipTime = Mathf.Min(end / clip.clip.length + 0.0001f);
             if (GUILayout.Button("Copy"))
-                EditorGUIUtility.systemCopyBuffer = phonemes[id];
+                EditorGUIUtility.systemCopyBuffer = phonemes[id].ToString();
             GUILayout.EndHorizontal();
         }
 
@@ -465,11 +470,6 @@ namespace Resemble.GUIEditor
                 clip.text = new Text();
             if (drawer == null)
                 drawer = new Text_Editor(clip.text, SetDirty, Repaint);
-        }
-
-        private void OnEditText()
-        {
-            EditorUtility.SetDirty(clip);
         }
 
         public void OnEnable()

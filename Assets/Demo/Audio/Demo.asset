@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-1186438026816406789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3e5042a8e744f14f85e01ada8e0f6e3, type: 3}
+  m_Name: 66bd14a6-HeyBuddy
+  m_EditorClassIdentifier: 
+  speech: {fileID: 11400000}
+  clip: {fileID: 8300000, guid: 28e413c70f4089c4db9abf84d0ea2e09, type: 3}
+  text:
+    userString: Hey buddy, creating a new sentence is super easy. It's amazing!
+    tags: []
+    selectID: 63
+    carretID: 63
+  phonemes:
+    raw:
+      phonemes: []
+      end_times: []
+    refined:
+      phonemes: 
+      curves: []
+  uuid: 66bd14a6
+  clipName: HeyBuddy
+  userdata: 
+  labels: []
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0da67f1a901af494288cbafce6a4e541, type: 3}
+  m_Name: Demo
+  m_EditorClassIdentifier: 
+  includePhonemes: 1
+  phonemeTable: {fileID: 11400000, guid: 3865e7decc50b5341b0e780510e98402, type: 2}
+  voiceName: Grace
+  voiceUUID: 7d422820
+  clips:
+  - {fileID: -1186438026816406789}

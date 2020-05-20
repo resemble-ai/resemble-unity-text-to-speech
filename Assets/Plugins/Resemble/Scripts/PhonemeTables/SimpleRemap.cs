@@ -21,7 +21,7 @@ public class SimpleRemap : PhonemeTable
             for (int i = 0; i < raw.end_times.Length; i++)
             {
                 float time = raw.end_times[i] * inLength;
-                string pho = raw.phonemes[i];
+                string pho = raw.phonemesChars[i].ToString();
                 bool contains = groups[j].phonemes.Contains(pho);
                 Keyframe keyFrame = new Keyframe(time, contains ? 0.5f : 0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
                 phonemes.curves[j].curve.AddKey(keyFrame);
