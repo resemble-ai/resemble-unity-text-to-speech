@@ -12,11 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ec1a61af7b103b44adfd0840239d03f, type: 3}
   m_Name: Settings
   m_EditorClassIdentifier: 
-  _connected: 1
-  _projectUUID: 770b9577
+  _connected: 0
+  _projectUUID: 
   _pathMethode: 1
   _useSubFolder: 1
-  _showWelcomePopup: 0
+  _showWelcomePopup: 1
   _folderPathA: 
   _folderPathB: 
   _forceGeneration: 0
