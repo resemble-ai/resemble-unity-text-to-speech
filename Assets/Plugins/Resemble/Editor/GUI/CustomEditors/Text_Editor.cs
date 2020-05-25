@@ -467,7 +467,7 @@ namespace Resemble.GUIEditor
                         ArrowMove(e);
                         break;
                     default:
-                        Debug.Log(e.keyCode);
+                        //Debug.Log(e.keyCode);
                         break;
                 }
             }

@@ -118,6 +118,8 @@ public class AsyncRequest
 
         //Add request to the pending pool
         Resources.instance.requests.Add(request);
+        EditorUtility.SetDirty(Resources.instance);
+        Resemble_Window.RefreshPoolList();
 
 
         //No UUID - Create new clip        
@@ -197,6 +199,11 @@ public class AsyncRequest
         request.currentTask = APIBridge.CreateClip(data, false, (ClipStatus status, Error error) =>
         { request.clipUUID = status.id; RegisterRequestToPool(request);});
 
+        //Add request to the pending pool
+        Resources.instance.requests.Add(request);
+        EditorUtility.SetDirty(Resources.instance);
+        Resemble_Window.RefreshPoolList();
+
         //Return the request
         return request;
     }
@@ -222,6 +229,7 @@ public class AsyncRequest
         //Register request into pool
         Resources.instance.requests.Add(request);
         EditorUtility.SetDirty(Resources.instance);
+        Resemble_Window.RefreshPoolList();
 
         //Return the request
         return request;

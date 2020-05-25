@@ -67,6 +67,20 @@ namespace Resemble.GUIEditor
             window.Repaint();
         }
 
+        private void OnEnable()
+        {
+            //Refresh text area with delay
+            int refreshDelay = 0;
+            void RefreshText()
+            {
+                text.CallOnEdit();
+                refreshDelay++;
+                if (refreshDelay > 2)
+                    EditorApplication.update -= RefreshText;
+            }
+            EditorApplication.update += RefreshText;
+        }
+
         void OnGUI()
         {
             //Init components

@@ -52,7 +52,7 @@ namespace Resemble
 
             private void Save()
             {
-                EditorPrefs.GetBool(key, value);
+                EditorPrefs.SetBool(key, value);
                 loaded = true;
             }
 
@@ -101,7 +101,7 @@ namespace Resemble
 
             private void Save()
             {
-                EditorPrefs.GetInt(key, value);
+                EditorPrefs.SetInt(key, value);
                 loaded = true;
             }
 
@@ -241,6 +241,7 @@ namespace Resemble
         }
 
         #endregion
+
 
         #region Acces to the saved data
         private static Settings _instance;
