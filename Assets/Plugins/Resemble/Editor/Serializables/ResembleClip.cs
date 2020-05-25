@@ -41,7 +41,7 @@ namespace Resemble.Structs
 
             if (!string.IsNullOrEmpty(clip.phoneme_timestamps))
             {
-                string timeStamps = clip.phoneme_timestamps.Remove(clip.phoneme_timestamps.Length - 1, 1).Remove(0, 1);
+                string timeStamps = clip.phoneme_timestamps;
                 clip.phonemesRaw = PhonemesRaw.FromJson(timeStamps);
             }
 
