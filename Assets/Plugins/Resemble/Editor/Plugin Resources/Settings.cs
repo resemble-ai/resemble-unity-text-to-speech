@@ -13,105 +13,231 @@ namespace Resemble
         #region Saved settings
 
         //Saved settings - Saved between session - Acces via static getter only
-        private static string _resembleToken;
-        private static bool _cachedToken;
-        [SerializeField] private bool _connected;
-        [SerializeField] private string _projectUUID;
-        [SerializeField] private PathMethode _pathMethode = PathMethode.SamePlace;
-        [SerializeField] private bool _useSubFolder = true;
-        [SerializeField] private bool _showWelcomePopup = true;
-        [SerializeField] private string _folderPathA = "";
-        [SerializeField] private string _folderPathB = "";
-        [SerializeField] private bool _forceGeneration;
+        private static SettingString _token = new SettingString("", "Resemble_Token");
+        private static SettingBool _connected = new SettingBool(false, "Resemble_Connected");
+        private static SettingString _projectUUID = new SettingString("", "Resemble_ProjectUUID");
+        private static SettingInt _pathMethode = new SettingInt(0, "Resemble_PathMethode");
+        private static SettingBool _useSubDirectory = new SettingBool(true, "Resemble_UseSubDirectory");
+        private static SettingBool _showWelcomePopup = new SettingBool(true, "Resemble_ShowWelcomePopup");
+        private static SettingString _folderPathA = new SettingString("", "Resemble_FolderPathA");
+        private static SettingString _folderPathB = new SettingString("", "Resemble_folderPathB");
+        private static SettingBool _forceGeneration = new SettingBool(false, "Resemble_ForceHeneration");
 
+        public struct SettingBool
+        {
+            public bool value;
+            public string key;
+            private bool loaded;
+
+            public enum Type
+            {
+                Bool,
+                Int,
+                Float,
+                String,
+            }
+
+            public SettingBool(bool defaultValue, string key)
+            {
+                value = defaultValue;
+                this.key = key;
+                loaded = false;
+            }
+
+            private void Load()
+            {
+                value = EditorPrefs.GetBool(key, value);
+                loaded = true;
+            }
+
+            private void Save()
+            {
+                EditorPrefs.GetBool(key, value);
+                loaded = true;
+            }
+
+            public bool Get()
+            {
+                if (!loaded)
+                    Load();
+                return value;
+            }
+
+            public void Set(object value)
+            {
+                if (this.value == (bool)value)
+                    return;
+                this.value = (bool)value;
+                Save();
+            }
+        }
+
+        public struct SettingInt
+        {
+            public int value;
+            public string key;
+            private bool loaded;
+
+            public enum Type
+            {
+                Bool,
+                Int,
+                Float,
+                String,
+            }
+
+            public SettingInt(int defaultValue, string key)
+            {
+                value = defaultValue;
+                this.key = key;
+                loaded = false;
+            }
+
+            private void Load()
+            {
+                value = EditorPrefs.GetInt(key, value);
+                loaded = true;
+            }
+
+            private void Save()
+            {
+                EditorPrefs.GetInt(key, value);
+                loaded = true;
+            }
+
+            public int Get()
+            {
+                if (!loaded)
+                    Load();
+                return value;
+            }
+
+            public void Set(object value)
+            {
+                if (this.value == (int)value)
+                    return;
+                this.value = (int)value;
+                Save();
+            }
+        }
+
+        public struct SettingString
+        {
+            public string value;
+            public string key;
+            private bool loaded;
+
+            public enum Type
+            {
+                Bool,
+                Int,
+                Float,
+                String,
+            }
+
+            public SettingString(string defaultValue, string key)
+            {
+                value = defaultValue;
+                this.key = key;
+                loaded = false;
+            }
+
+            private void Load()
+            {
+                value = EditorPrefs.GetString(key, value);
+                loaded = true;
+            }
+
+            private void Save()
+            {
+                EditorPrefs.SetString(key, value);
+                loaded = true;
+            }
+
+            public string Get()
+            {
+                if (!loaded)
+                    Load();
+                return value;
+            }
+
+            public void Set(object value)
+            {
+                if (this.value == (string)value)
+                    return;
+                this.value = (string)value;
+                Save();
+            }
+        }
 
         //Acces to the saved settings - Make this object dirty when change
         /// <summary> User token, Used to authenticate to the Resemble API.  </summary>
         public static string token
         {
-            get
-            {
-                if (!_cachedToken)
-                {
-                    _resembleToken = EditorPrefs.GetString("ResembleToken", "");
-                    _cachedToken = true;
-                }
-                return _resembleToken;
-            }
-            set
-            {
-                if (!_cachedToken)
-                {
-                    _resembleToken = EditorPrefs.GetString("ResembleToken", "");
-                    _cachedToken = true;
-                }
-                if (_resembleToken != value)
-                {
-                    EditorPrefs.SetString("ResembleToken", value);
-                    _resembleToken = value;
-                }
-            }
+            get { return _token.Get(); }
+            set { _token.Set(value); }
         }
 
         /// <summary> Indicate if the user is connected. </summary>
         public static bool connected
         {
-            get { return instance._connected; }
-            set { if (instance._connected != value) instance._connected = value; SetDirty(); }
+            get { return _connected.Get(); }
+            set { _connected.Set(value); }
         }
 
         /// <summary> UUID of the current binded project. </summary>
         public static string projectUUID
         {
-            get { return instance._projectUUID; }
+            get { return _projectUUID.Get(); }
+            set { _projectUUID.Set(value); }
         }
 
         /// <summary> Indicates the method used to generate the path for saving new audio files. </summary>
         public static PathMethode pathMethode
         {
-            get { return instance._pathMethode; }
-            set { if (instance._pathMethode != value) instance._pathMethode = value; SetDirty(); }
+            get { return (PathMethode) _pathMethode.Get(); }
+            set { _pathMethode.Set(value); }
         }
 
         /// <summary> Indicates if the method used to generate the path for saving new audio files need a sub folder. </summary>
-        public static bool useSubFolder
+        public static bool useSubDirectory
         {
-            get { return instance._useSubFolder; }
-            set { if (instance._useSubFolder != value) instance._useSubFolder = value; SetDirty(); }
+            get { return _useSubDirectory.Get(); }
+            set { _useSubDirectory.Set(value); }
         }
 
         /// <summary> Indicate if the Welcome panel need the be show on the first opening of the plugin. </summary>
         public static bool showWelcomePopup
         {
-            get { return instance._showWelcomePopup; }
-            set { if (instance._showWelcomePopup != value) instance._showWelcomePopup = value; SetDirty(); }
+            get { return _showWelcomePopup.Get(); }
+            set { _showWelcomePopup.Set(value); }
         }
 
         /// <summary> Used to generate the save path of new audio files. </summary>
         public static string folderPathA
         {
-            get { return instance._folderPathA; }
-            set { if (instance._folderPathA != value) instance._folderPathA = value; SetDirty(); }
+            get { return _folderPathA.Get(); }
+            set { _folderPathA.Set(value); }
         }
 
         /// <summary> Used to generate the save path of new audio files. </summary>
         public static string folderPathB
         {
-            get { return instance._folderPathB; }
-            set { if (instance._folderPathB != value) instance._folderPathB = value; SetDirty(); }
+            get { return _folderPathB.Get(); }
+            set { _folderPathB.Set(value); }
         }
 
         /// <summary> Return true if the plugin is bind to a Resemble project. </summary>
         public static bool haveProject
         {
-            get { return !string.IsNullOrEmpty(instance._projectUUID); }
+            get { return !string.IsNullOrEmpty(_projectUUID.Get()); }
         }
 
         /// <summary> Performs a generation even if the clip is similar to the one already present on the api.. </summary>
         public static bool forceGeneration
         {
-            get { return instance._forceGeneration; }
-            set { if (instance._forceGeneration != value) instance._forceGeneration = value; SetDirty(); }
+            get { return _forceGeneration.Get(); }
+            set { _forceGeneration.Set(value); }
         }
 
         #endregion
@@ -243,7 +369,7 @@ namespace Resemble
             private set
             {
                 instance._project = value;
-                instance._projectUUID = value == null ? null : value.uuid;
+                _projectUUID.Set(value == null ? null : value.uuid);
                 SetDirty();
             }
         }

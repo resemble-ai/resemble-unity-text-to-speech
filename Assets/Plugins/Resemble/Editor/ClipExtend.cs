@@ -38,7 +38,7 @@ namespace Resemble
             }
 
             //Add sub folder and extension
-            if (Settings.useSubFolder)
+            if (Settings.useSubDirectory)
                 path += "/" + clip.speech.name + "/";
             else
                 path += "/";

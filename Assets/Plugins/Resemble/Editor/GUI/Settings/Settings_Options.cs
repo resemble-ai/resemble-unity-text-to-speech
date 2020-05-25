@@ -36,10 +36,10 @@ namespace Resemble.GUIEditor
             }
 
             //Use subFolders
-            Settings.useSubFolder = EditorGUILayout.Toggle(useSubFolder, Settings.useSubFolder);
+            Settings.useSubDirectory = EditorGUILayout.Toggle(useSubFolder, Settings.useSubDirectory);
 
             //Draw example image
-            Texture image = Resources.instance.pathImages[(int)Settings.pathMethode * 2 + (Settings.useSubFolder ? 1 : 0)];
+            Texture image = Resources.instance.pathImages[(int)Settings.pathMethode * 2 + (Settings.useSubDirectory ? 1 : 0)];
             Rect rect = GUILayoutUtility.GetAspectRect(image.width / image.height);
             GUI.Label(rect, image);
 
