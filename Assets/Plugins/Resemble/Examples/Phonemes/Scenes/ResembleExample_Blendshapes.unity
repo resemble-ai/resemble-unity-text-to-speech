@@ -1339,9 +1339,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a99a78cd3c614fc49b5a86daec675d65, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clip: {fileID: 7735532708001814593, guid: 23ffc85fe92736e45ba75e23570f839d, type: 2}
+  clip: {fileID: -7829481213900429424, guid: 4a0d763b8c55c01459703169c0fc7875, type: 2}
   audio: {fileID: 686196725617811525}
-  smoothFactor: 0.2
+  smoothFactor: 0.6
   smoothValues: []
   sleeping: 0
   renderer: {fileID: 8002674739784942678}
@@ -1369,14 +1369,41 @@ MonoBehaviour:
   rightLid: {fileID: 5458475981522622473}
   autoRemapLid: 1
   lidRemap: {x: 0.65, y: 2.22, z: 0.7, w: 0.05}
-  blinkFrequency: {x: 0, y: 0}
+  blinkFrequency: {x: 3, y: 5}
   blink:
     serializedVersion: 2
-    m_Curve: []
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 7.662481
+      outSlope: 7.662481
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0.16725793
+    - serializedVersion: 3
+      time: 0.17743504
+      value: 1.0017247
+      inSlope: -0.056852534
+      outSlope: -0.056852534
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.20306045
+    - serializedVersion: 3
+      time: 1
+      value: 0.015167236
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  blinkSpeed: 0
+  blinkSpeed: 0.15
 --- !u!4 &732648075439623362
 Transform:
   m_ObjectHideFlags: 0
@@ -2302,7 +2329,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 1b77ab49bc387fb4ebfbc873e09aa794, type: 2}
+  - {fileID: 2100000, guid: 5b0603effb60e764d8caa4e9d4b31a4b, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5023,7 +5050,7 @@ SkinnedMeshRenderer:
   m_BlendShapeWeights:
   - 0
   - 0
-  - 0
+  - -1.905516
   - 0
   - 0
   - 0

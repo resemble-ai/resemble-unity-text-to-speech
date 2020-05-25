@@ -33,9 +33,10 @@ public class PhonemeReader : MonoBehaviour
     {
         if (!CanRead())
             return;
+        bool playing = audio.isPlaying;
 
         //Wake up or bypasse evaluation
-        sleeping &= !audio.isPlaying;
+        sleeping &= !playing;
         if (sleeping)
             return;
 
@@ -50,33 +51,35 @@ public class PhonemeReader : MonoBehaviour
         {
             for (int i = 0; i < count; i++)
             {
-                float newValue = pairs[i].Value;
+                float newValue = playing ? pairs[i].Value : 0;
                 if (Mathf.Abs(smoothValues[i] - newValue) > 0.0001f)
                 {
                     smoothValues[i] = newValue;
                     OnReadPhoneme(pairs[i].Key, i, newValue, newValue);
                 }
             }
-            if (!audio.isPlaying)
+            if (!playing)
                 sleeping = true;
-            return;
         }
 
         //Smoothing
-        float smoothDelta = Time.deltaTime * Mathf.Lerp(60.0f, 1.0f, smoothFactor);
-        bool dirty = false;
-        for (int i = 0; i < count; i++)
+        else
         {
-            float newValue = Mathf.Lerp(smoothValues[i], pairs[i].Value, smoothDelta);
-            if (Mathf.Abs(smoothValues[i] - newValue) > 0.0001f)
+            float smoothDelta = Time.deltaTime * Mathf.Lerp(60.0f, 1.0f, smoothFactor);
+            bool dirty = false;
+            for (int i = 0; i < count; i++)
             {
-                smoothValues[i] = newValue;
-                dirty = true;
-                OnReadPhoneme(pairs[i].Key, i, pairs[i].Value, smoothValues[i]);
+                float newValue = Mathf.Lerp(smoothValues[i], playing ? pairs[i].Value : 0, smoothDelta);
+                if (Mathf.Abs(smoothValues[i] - newValue) > 0.0001f)
+                {
+                    smoothValues[i] = newValue;
+                    dirty = true;
+                    OnReadPhoneme(pairs[i].Key, i, pairs[i].Value, smoothValues[i]);
+                }
             }
+            if (!dirty)
+                sleeping = true;
         }
-        if (!dirty)
-            sleeping = true;
     }
 
     #endregion

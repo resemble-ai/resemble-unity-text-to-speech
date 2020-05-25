@@ -28,6 +28,7 @@ namespace Resemble
         {
             //Format json for unity
             json = "{\"phonemes\":" + json + "}";
+
             PhonemesRaw raw = JsonUtility.FromJson<PhonemesRaw>(json);
 
             //Read data from sentences

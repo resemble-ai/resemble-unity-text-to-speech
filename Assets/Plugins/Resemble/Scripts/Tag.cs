@@ -82,7 +82,7 @@ namespace Resemble
             switch (type)
             {
                 case Type.Wait:
-                    return "<break time=\"" + duration.ToString("0.00", CultureInfo.InvariantCulture) + "S\"/>";
+                    return "<break time=\"" + duration.ToString("0.00", CultureInfo.InvariantCulture) + "s\"/>";
                 case Type.Emotion:
                     return emotion.OpenTag();
                 default:

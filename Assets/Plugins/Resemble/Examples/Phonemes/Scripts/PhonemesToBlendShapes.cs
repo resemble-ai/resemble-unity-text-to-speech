@@ -35,6 +35,7 @@ public class PhonemesToBlendShapes : PhonemeReader
     {
         if (renderer == null)
             return;
+
         KeyValuePair<string, float>[] values = GetValues(time);
         for (int i = 0; i < values.Length; i++)
             renderer.SetBlendShapeWeight(remap[i], values[i].Value * factor * 100);

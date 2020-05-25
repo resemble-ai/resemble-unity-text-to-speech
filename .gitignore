@@ -7,9 +7,9 @@
 [Bb]uilds/
 [Bb]ackups/
 [Ll]ogs/
-Assets/Demo
+Assets/Demo/
 Assets/Demo.meta
-Assets/Plugins/Miscs
+Assets/Plugins/Miscs/
 Assets/Plugins/Miscs.meta
 
 # Visual Studio cache directory
