@@ -37,11 +37,11 @@ MonoBehaviour:
   font: {fileID: 12800000, guid: be60bfb435fff2b4ab8d2cf748a1b25c, type: 3}
   processClip: {fileID: 102900000, guid: 5bc78681a20100349a602d423bb35862, type: 3}
   oneShotText:
-    userString: This case is getting bigger and bigger. I'm gonna need my notebook.
+    userString: 
     tags: []
-    selectID: 67
-    carretID: 67
-  oneShotVoiceName: Sherlock
-  oneShotVoiceUUID: bbe98616
-  oneShotPath: D:\Travaux\Resemble\ResemblePlugin\Assets\Audio\OneShots
+    selectID: 0
+    carretID: 0
+  oneShotVoiceName: Kratos
+  oneShotVoiceUUID: 5b81e34a
+  oneShotPath: D:\Travaux\Resemble\ResemblePlugin\Assets\Demo\Generated\Demo
   requests: []
