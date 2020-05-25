@@ -25,7 +25,7 @@ namespace Resemble
                     path = RemoveFilenameFromPath(path);
                     break;
                 case Settings.PathMethode.Absolute:
-                    path = Settings.folderPathA.Remove(0, Application.dataPath.Length);
+                    path = Settings.folderPathA.Remove(0, Application.dataPath.Length - 6);
                     break;
                 case Settings.PathMethode.MirrorHierarchy:
                     path = RemoveFilenameFromPath(path);

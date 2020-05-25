@@ -24,7 +24,6 @@ namespace Resemble.GUIEditor
             scroll = GUILayout.BeginScrollView(scroll, false, true);
 
             int count = requests.Count;
-            double time = EditorApplication.timeSinceStartup;
 
             //Draw requests
             for (int i = 0; i < count; i++)
@@ -112,7 +111,7 @@ namespace Resemble.GUIEditor
                 return;
 
             //Label rect
-            Rect labelRect = rect.Shrink(4); labelRect.height -= 8;
+            Rect labelRect = rect.Shrink(4); labelRect.y -= 4;
 
             //Draw bar
             Rect barRect = new Rect(rect.x + 5, rect.y + rect.height - 8, rect.width - 80, 4);

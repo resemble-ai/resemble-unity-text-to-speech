@@ -96,6 +96,7 @@ public class AsyncRequest
         AsyncRequest request = new AsyncRequest();
         request.status = Status.BuildRequest;
         string savePath = clip.GetSavePath();
+        
         request.saveDirectory = Path.GetDirectoryName(savePath);
         request.fileName = Path.GetFileName(savePath);
         request.requestName = clip.speech.name + " > " + clip.clipName;
@@ -113,6 +114,11 @@ public class AsyncRequest
         string voiceUUID = clip.speech.voiceUUID;
         if (includePhonemes)
             request.phonemeCallback = clip.SetPhonemesRaw;
+
+
+        //Add request to the pending pool
+        Resources.instance.requests.Add(request);
+
 
         //No UUID - Create new clip        
         request.status = Status.SendDataToAPI;
@@ -152,7 +158,7 @@ public class AsyncRequest
                     if (apiClip.finished && patch.CompareContent(apiClip))
                         {
                             APIBridge.DownloadClip(apiClip.link, (byte[] data, Error downloadError) =>
-                            { OnDownloaded(request, data, downloadError); RegisterRequestToPool(request); });
+                            { RegisterRequestToPool(request); });
                         }
 
                     //Changes - Patch existing clip
@@ -248,11 +254,10 @@ public class AsyncRequest
         }
     }
 
-    /// <summary> Add a request to the pool. </summary>
+    /// <summary> Add a request to the execution pool. </summary>
     private static void RegisterRequestToPool(AsyncRequest request)
     {
         request.status = Status.NeedNewClipStatusRequest;
-        Resources.instance.requests.Add(request);
         EditorUtility.SetDirty(Resources.instance);
         if (!refreshing)
         {
@@ -298,10 +303,13 @@ public class AsyncRequest
                         break;
                     }
                 case Status.Completed:
-                    Resources.instance.requests.RemoveAt(i);
-                    EditorUtility.SetDirty(Resources.instance);
-                    i--;
-                    count--;
+                    if (time - request.lastStateTime > 2.0)
+                    {
+                        Resources.instance.requests.RemoveAt(i);
+                        EditorUtility.SetDirty(Resources.instance);
+                        i--;
+                        count--;
+                    }
                     continue;
                 case Status.Error:
                     continue;
@@ -421,22 +429,6 @@ public class AsyncRequest
     private static string GetTemporaryName()
     {
         return string.Concat(tempFileName, System.DateTime.UtcNow.ToBinary().ToString());
-    }
-
-    private static bool ParseTemporaryName(string name, out System.DateTime time)
-    {
-        time = new System.DateTime();
-
-        if (!name.StartsWith(tempFileName))
-            return false;
-
-        string date = name.Remove(0, tempFileName.Length);
-        long timeStamp;
-        if (!long.TryParse(date, out timeStamp))
-            return false;
-
-        time = System.DateTime.FromBinary(timeStamp);
-        return true;
     }
 
     /// <summary> Generate a placeHolder wav file at saveDirectory and return it. </summary>

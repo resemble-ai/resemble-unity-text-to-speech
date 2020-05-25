@@ -10,6 +10,9 @@
 Assets/AssetStoreTools*
 Assets/Examples/SphereWorlds
 Assets/Examples/Dialogues
+Assets/Demo
+Assets/Miscs
+Assets/Pugins/Kcso
 
 # Visual Studio cache directory
 .vs/

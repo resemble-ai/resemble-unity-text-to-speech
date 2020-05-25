@@ -62,17 +62,17 @@ namespace Resemble.GUIEditor
                 path = Application.dataPath;
 
             Rect rect = GUILayoutUtility.GetRect(16, 16);
-            rect.x += 4;
+            rect.x += 2;
             rect.width = EditorGUIUtility.labelWidth;
             GUI.Label(rect, label);
 
-            rect.Set(rect.x + rect.width, rect.y, Mathf.Max(140, winRect.width - rect.xMax - 64), rect.height);
+            rect.Set(rect.x + rect.width + 2, rect.y, Mathf.Max(140, winRect.width - rect.xMax - 64), rect.height);
             string p = path.Remove(0, Application.dataPath.Length);
             bool right = GUI.skin.textField.CalcSize(new GUIContent(p)).x > rect.width;
             GUI.Label(rect, p.Length == 0 ? "[Root]" : p, right ? Styles.folderPathFieldRight : Styles.folderPathField);
 
-            rect.Set(rect.x + rect.width + 5, rect.y, 56, rect.height);
-            if (GUI.Button(rect, "Modify"))
+            rect.Set(rect.x + rect.width + 5, rect.y, 40, rect.height);
+            if (GUI.Button(rect, "..."))
             {
                 string temp = EditorUtility.SaveFolderPanel(label, path, "");
                 if (!string.IsNullOrEmpty(temp))
