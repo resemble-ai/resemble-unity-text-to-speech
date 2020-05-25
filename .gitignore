@@ -7,12 +7,9 @@
 [Bb]uilds/
 [Bb]ackups/
 [Ll]ogs/
-Assets/AssetStoreTools*
-Assets/Examples/SphereWorlds
-Assets/Examples/Dialogues
 Assets/Demo
-Assets/Miscs
-Assets/Pugins/Kcso
+Assets/Plugins/Miscs
+Assets/Plugins/Miscs.meta
 
 # Visual Studio cache directory
 .vs/
