@@ -135,7 +135,6 @@ public class AsyncRequest
         else
         {
             ClipPatch patch = new ClipPatch(clip.clipName, clip.text.BuildResembleString(), voiceUUID, clip.speech.includePhonemes);
-
             //Bypass the api check for similarities.
             if (Settings.forceGeneration)
             {

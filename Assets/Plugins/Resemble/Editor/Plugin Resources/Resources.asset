@@ -37,23 +37,11 @@ MonoBehaviour:
   font: {fileID: 12800000, guid: be60bfb435fff2b4ab8d2cf748a1b25c, type: 3}
   processClip: {fileID: 102900000, guid: 5bc78681a20100349a602d423bb35862, type: 3}
   oneShotText:
-    userString: "Hey buddy,\u2003 what do you think of my voice?"
-    tags:
-    - type: 0
-      emotion: 0
-      start: 10
-      end: 11
-      rects:
-      - serializedVersion: 2
-        x: 85
-        y: 7
-        width: 14
-        height: 17
-      color: {r: 0.8, g: 0.1, b: 0.1, a: 1}
-      duration: 0.5
-    selectID: 42
-    carretID: 42
-  oneShotVoiceName: Kratos
-  oneShotVoiceUUID: 5b81e34a
-  oneShotPath: D:\Travaux\Resemble\ResemblePlugin\Assets\Demo\Generated\Demo
+    userString: 
+    tags: []
+    selectID: 0
+    carretID: 0
+  oneShotVoiceName: Grace
+  oneShotVoiceUUID: 7d422820
+  oneShotPath: D:\Travaux\Resemble\ResemblePlugin\Assets\Demo
   requests: []
