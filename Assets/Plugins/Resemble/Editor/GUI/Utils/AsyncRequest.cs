@@ -86,7 +86,7 @@ public class AsyncRequest
         }
     }
 
-    private delegate void PhonemesCallback(PhonemesRaw phonemes);
+    private delegate void PhonemesCallback(PhonemesTimeStamps phonemes);
 
 
     /// <summary> Build a async request for a clip. This request handles patching, downloading and notifications. </summary>
@@ -369,7 +369,7 @@ public class AsyncRequest
 
                     //Get phonemes
                     if (request.phonemeCallback != null)
-                        request.phonemeCallback.Invoke(clip.phonemesRaw);
+                        request.phonemeCallback.Invoke(clip.phoneme_timestamps);
                 }
 
                 //Clip is not ready - Mark to create a request next time

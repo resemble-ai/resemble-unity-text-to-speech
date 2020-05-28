@@ -25,7 +25,7 @@ public class APIGraph : PhonemeTable
         public float position;
     }
 
-    public override Phonemes RefineData(PhonemesRaw raw)
+    public override Phonemes RefineData(PhonemesTimeStamps raw)
     {
         return null;
 

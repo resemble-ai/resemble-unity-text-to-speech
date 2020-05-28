@@ -83,7 +83,7 @@ namespace Resemble
 
         #endregion
 
-        public void SetPhonemesRaw(PhonemesRaw raw)
+        public void SetPhonemesRaw(PhonemesTimeStamps raw)
         {
             phonemes = new PhonemeData(raw, speech.phonemeTable);
         }

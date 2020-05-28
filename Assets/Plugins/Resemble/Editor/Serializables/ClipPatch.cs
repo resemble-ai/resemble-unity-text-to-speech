@@ -17,7 +17,7 @@ namespace Resemble.Structs
         public bool CompareContent(ResembleClip clip)
         {
             //Temp
-            return clip.title == data.title && clip.body == data.body && clip.voice == data.voice && clip.phonemesRaw.isEmpty != phoneme_timestamps;
+            return clip.title == data.title && clip.body == data.body && clip.voice == data.voice && clip.phoneme_timestamps.isEmpty != phoneme_timestamps;
         }
 
         [System.Serializable]

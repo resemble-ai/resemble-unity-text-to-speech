@@ -8,16 +8,16 @@ namespace Resemble
     public class PhonemeData
     {
 
-        public PhonemesRaw raw;
+        public PhonemesTimeStamps raw;
         public Phonemes refined;
 
-        public PhonemeData(PhonemesRaw raw, PhonemeTable table)
+        public PhonemeData(PhonemesTimeStamps raw, PhonemeTable table)
         {
             this.raw = raw;
             refined = table == null || raw.end_times == null ? null : table.RefineData(raw);
         }
 
-        public void SetData(PhonemesRaw raw, PhonemeTable table)
+        public void SetData(PhonemesTimeStamps raw, PhonemeTable table)
         {
             this.raw = raw;
             refined = table == null || raw.end_times == null ? null : table.RefineData(raw);

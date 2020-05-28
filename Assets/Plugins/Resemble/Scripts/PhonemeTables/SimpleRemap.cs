@@ -3,7 +3,7 @@ using Resemble;
 
 public class SimpleRemap : PhonemeTable
 {
-    public override Phonemes RefineData(PhonemesRaw raw)
+    public override Phonemes RefineData(PhonemesTimeStamps raw)
     {
         Phonemes phonemes = new Phonemes();
         phonemes.curves = new Phonemes.PhonemeCurve[groups.Length];

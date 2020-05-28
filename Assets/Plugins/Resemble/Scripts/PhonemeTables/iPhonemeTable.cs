@@ -2,6 +2,6 @@ namespace Resemble
 {
     public interface iPhonemeTable
     {
-        Phonemes RefineData(PhonemesRaw raw);
+        Phonemes RefineData(PhonemesTimeStamps raw);
     }
 }

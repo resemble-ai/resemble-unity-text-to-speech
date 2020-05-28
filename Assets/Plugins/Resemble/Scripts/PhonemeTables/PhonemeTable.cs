@@ -7,7 +7,7 @@ namespace Resemble
 
         public PhonemeGroup[] groups;
 
-        public virtual Phonemes RefineData(PhonemesRaw raw)
+        public virtual Phonemes RefineData(PhonemesTimeStamps raw)
         {
             Debug.LogError("Refine not implemented");
             return null;
