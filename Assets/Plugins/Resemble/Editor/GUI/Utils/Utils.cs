@@ -277,6 +277,17 @@ namespace Resemble.GUIEditor
             return GUI.Button(rect, linkLabel, Styles.linkStyleSmall);
         }
 
+        public static void BoxWithLink(string message, string linkLabel, WebPage page, MessageType boxType)
+        {
+            EditorGUILayout.HelpBox(message + " \n", boxType);
+            Rect rect = GUILayoutUtility.GetLastRect();
+            int offset = EditorGUI.indentLevel * 16 + 42;
+            rect.Set(rect.x + offset, rect.y + rect.height - 17, rect.width - offset, 16);
+            EditorGUIUtility.AddCursorRect(rect, MouseCursor.Link);
+            if (GUI.Button(rect, linkLabel, Styles.linkStyleSmall))
+                page.Open();
+        }
+
         public static Rect Shrink(this Rect rect, float size)
         {
             rect.Set(rect.x + size, rect.y + size, rect.width - size * 2, rect.height - size * 2);

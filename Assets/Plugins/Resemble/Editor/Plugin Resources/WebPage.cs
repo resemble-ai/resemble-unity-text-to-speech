@@ -36,6 +36,8 @@ namespace Resemble
             { WebPage.PluginWindow, "https://www.resemble.ai/unity-docs#window"},
             { WebPage.PluginCharacterSet, "https://www.resemble.ai/unity-docs#characterset"},
             { WebPage.PluginClip, "https://www.resemble.ai/unity-docs#cliphelp"},
+            { WebPage.PluginGithub, "https://github.com/resemble-ai/resemble-unity-text-to-speech/"},
+            { WebPage.PluginGithubPackage, "https://github.com/resemble-ai/resemble-unity-text-to-speech/blob/master/Output/ResemblePlugin.unitypackage"},
         };
     }
 
@@ -54,5 +56,7 @@ namespace Resemble
         PluginWindow,
         PluginCharacterSet,
         PluginClip,
+        PluginGithub,
+        PluginGithubPackage,
     }
 }

@@ -30,6 +30,7 @@ namespace Resemble.GUIEditor
             window = CreateInstance<StringPopup>();
             window.ShowPopup();
             window.minSize = new Vector2(100, 70);
+            rect.height = 70;
             window.titleContent = new GUIContent("StringFieldPopup");
             window.position = rect;
         }

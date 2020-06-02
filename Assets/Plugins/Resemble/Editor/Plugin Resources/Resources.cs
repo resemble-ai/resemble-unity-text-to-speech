@@ -89,6 +89,13 @@ namespace Resemble
                 return _instance;
             }
         }
+        public static bool instanceReferenced
+        {
+            get
+            {
+                return _instance != null;
+            }
+        }
         private static Resources _instance;
     }
 }

@@ -259,7 +259,7 @@ Material:
     - _HeightPoMAmplitude: 2
     - _HeightTessAmplitude: 2
     - _HeightTessCenter: 0.5
-    - _IH: 0.57866323
+    - _IH: 0
     - _IOR: 1
     - _InitialBend: 1
     - _InvTilingScale: 1
@@ -281,7 +281,7 @@ Material:
     - _PPDPrimitiveWidth: 1
     - _Parallax: 0.02
     - _PreRefractionPass: 0
-    - _R: 0.42133674
+    - _R: 0
     - _RefractionMode: 2
     - _RefractionModel: 1
     - _SSRefractionProjectionModel: 0

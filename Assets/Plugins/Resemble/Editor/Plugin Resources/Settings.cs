@@ -10,18 +10,21 @@ namespace Resemble
     public class Settings : ScriptableObject
     {
 
+        public const float version = 1.0f;
+
         #region Saved settings
 
         //Saved settings - Saved between session - Acces via static getter only
         private static SettingString _token = new SettingString("", "Resemble_Token");
         private static SettingBool _connected = new SettingBool(false, "Resemble_Connected");
         private static SettingString _projectUUID = new SettingString("", "Resemble_ProjectUUID");
-        private static SettingInt _pathMethode = new SettingInt(0, "Resemble_PathMethode");
-        private static SettingBool _useSubDirectory = new SettingBool(true, "Resemble_UseSubDirectory");
         private static SettingBool _showWelcomePopup = new SettingBool(true, "Resemble_ShowWelcomePopup");
-        private static SettingString _folderPathA = new SettingString("", "Resemble_FolderPathA");
-        private static SettingString _folderPathB = new SettingString("", "Resemble_folderPathB");
         private static SettingBool _forceGeneration = new SettingBool(false, "Resemble_ForceHeneration");
+
+        private PathMethode _pathMethode = PathMethode.SamePlace;
+        private bool _useSubDirectory = true;
+        private string _folderPathA = "";
+        private string _folderPathB = "";
 
         public struct SettingBool
         {
@@ -195,15 +198,15 @@ namespace Resemble
         /// <summary> Indicates the method used to generate the path for saving new audio files. </summary>
         public static PathMethode pathMethode
         {
-            get { return (PathMethode) _pathMethode.Get(); }
-            set { _pathMethode.Set(value); }
+            get { return instance._pathMethode; }
+            set { instance._pathMethode = value; }
         }
 
         /// <summary> Indicates if the method used to generate the path for saving new audio files need a sub folder. </summary>
         public static bool useSubDirectory
         {
-            get { return _useSubDirectory.Get(); }
-            set { _useSubDirectory.Set(value); }
+            get { return instance._useSubDirectory; }
+            set { instance._useSubDirectory =value; }
         }
 
         /// <summary> Indicate if the Welcome panel need the be show on the first opening of the plugin. </summary>
@@ -216,15 +219,15 @@ namespace Resemble
         /// <summary> Used to generate the save path of new audio files. </summary>
         public static string folderPathA
         {
-            get { return _folderPathA.Get(); }
-            set { _folderPathA.Set(value); }
+            get { return instance._folderPathA; }
+            set { instance._folderPathA = value; }
         }
 
         /// <summary> Used to generate the save path of new audio files. </summary>
         public static string folderPathB
         {
-            get { return _folderPathB.Get(); }
-            set { _folderPathB.Set(value); }
+            get { return instance._folderPathB; }
+            set { instance._folderPathB = value; }
         }
 
         /// <summary> Return true if the plugin is bind to a Resemble project. </summary>
@@ -241,7 +244,6 @@ namespace Resemble
         }
 
         #endregion
-
 
         #region Acces to the saved data
         private static Settings _instance;

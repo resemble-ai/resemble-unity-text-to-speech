@@ -14,7 +14,48 @@ namespace Resemble.GUIEditor
 
         private void DrawOptionsSettingsGUI()
         {
+            //Update settings
+            GUILayout.Label("Update", Styles.header);
+            bool drawRefreshButton = true;
+            switch (Updates.status)
+            {
+                case Updates.Status.unknown:
+                    Updates.CheckStatus();
+                    Utils.DrawPendingLabel("Checking...");
+                    drawRefreshButton = false;
+                    break;
+                case Updates.Status.checking:
+                    Utils.DrawPendingLabel("Checking...");
+                    drawRefreshButton = false;
+                    break;
+                case Updates.Status.error:
+                    Utils.BoxWithLink("Unable to check for updates. Check your internet connection or update manually.",
+                        "Github page", WebPage.PluginGithub, MessageType.Error);
+                    break;
+                case Updates.Status.updated:
+                    GUILayout.Label("Your plugin is up to date.");
+                    break;
+                case Updates.Status.outdated:
+                    GUILayout.Label("Your plugin is out of date.");
+                    if (GUILayout.Button("Update"))
+                        Updates.Update();
+                    EditorGUILayout.HelpBox("An outdated plugin may not work. It is strongly recommended to keep the plugin up to date.", MessageType.Warning);
+                    break;
+                default:
+                    break;
+            }
+            GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (drawRefreshButton && GUILayout.Button("Refresh"))
+                Updates.CheckStatus();
+            if (Updates.status == Updates.Status.updated && GUILayout.Button("Reimport"))
+                Updates.Update();
+            GUILayout.EndHorizontal();
+
+
             //Path settings
+            Utils.DrawSeparator();
+            GUILayout.Space(20);
             GUILayout.Label(new GUIContent("Paths", "Describe where AudioClips from CharacterSets should be generated."), Styles.header);
 
             //Path methode

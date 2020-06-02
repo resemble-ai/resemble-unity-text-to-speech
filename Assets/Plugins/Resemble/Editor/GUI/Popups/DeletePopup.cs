@@ -29,6 +29,7 @@ namespace Resemble.GUIEditor
             window = CreateInstance<DeletePopup>();
             window.ShowPopup();
             window.minSize = new Vector2(100, 90);
+            rect.height = 90;
             window.titleContent = new GUIContent("ChoicePopup");
             window.position = rect;
         }
